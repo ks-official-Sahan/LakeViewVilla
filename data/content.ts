@@ -11,8 +11,8 @@ export const SITE_CONFIG = {
   coordinates: { lat: 6.0172272, lng: 80.7812215 },
   googleMapsUrl: "https://maps.app.goo.gl/wRLkZBxMSvfhd2jZA",
   bookingDeepLink: "https://www.booking.com/Share-bP3aRsK",
-  whatsappNumber: "+94717448391",
-  whatsappNumberText: "+94 71 744 8391",
+  whatsappNumber: "+94701164056",
+  whatsappNumberText: "+94 70 116 4056",
 } as const;
 
 export const siteConfig = {

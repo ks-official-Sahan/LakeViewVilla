@@ -100,11 +100,11 @@ export function Footer() {
                 <a
                   href={`tel:${
                     SITE_CONFIG.whatsappNumber?.replace(/\s+/g, "") ||
-                    "+94717448391"
+                    "+94701164056"
                   }`}
                   className="hover:text-white transition-colors"
                 >
-                  {SITE_CONFIG.whatsappNumberText || "+94 71 744 8391"}
+                  {SITE_CONFIG.whatsappNumberText || "+94 70 116 4056"}
                 </a>
               </p>
               <p className="flex items-center gap-3">
@@ -129,7 +129,7 @@ export function Footer() {
             </h4>
             <ul className="mt-4 grid grid-cols-2 gap-2 text-slate-400">
               <li>
-                <a href="#villa" className="hover:text-white transition-colors">
+                <a href="#" className="hover:text-white transition-colors">
                   Villa
                 </a>
               </li>
