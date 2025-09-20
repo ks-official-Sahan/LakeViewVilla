@@ -4,28 +4,28 @@ const nextConfig = {
   //   runtime: 'edge',
   // },
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**',
+        protocol: "https",
+        hostname: "**",
       },
       {
-        protocol: 'https',
-        hostname: '*.booking.com',
+        protocol: "https",
+        hostname: "*.booking.com",
       },
     ],
-    unoptimized: true, // Added from updates
+    unoptimized: true,
   },
   compress: true,
   poweredByHeader: false,
   generateEtags: false,
   eslint: {
-    ignoreDuringBuilds: true, // Added from updates
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Added from updates
+    ignoreBuildErrors: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;

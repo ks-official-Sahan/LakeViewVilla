@@ -276,7 +276,7 @@ export function Hero() {
           onError={(e) => console.warn("[hero] video error:", e)}
         >
           <source src="/hero.webm" type="video/webm" />
-          <source src="/hero.mp4" type="video/mp4" />
+          {/* <source src="/hero.mp4" type="video/mp4" /> */}
         </video>
       </motion.div>
 

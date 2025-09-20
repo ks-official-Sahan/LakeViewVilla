@@ -42,7 +42,7 @@ export function LoadingScreen({
   criticalAssets = [
     "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
     "/hero.webm",
-    "/hero.mp4",
+    // "/hero.mp4",
   ],
   minDurationMs = 900,
   hardTimeoutMs = 10000,
