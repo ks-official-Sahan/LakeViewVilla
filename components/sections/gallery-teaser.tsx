@@ -17,9 +17,6 @@ export function GalleryTeaser() {
 
   const images = [
     ...BOOKING_FACTS.images,
-    { src: "/images/lagoon-sunset.jpg", alt: "Sunset over the lagoon", w: 1200, h: 800 },
-    { src: "/images/villa-interior.jpg", alt: "Villa interior living space", w: 1200, h: 800 },
-    { src: "/images/outdoor-dining.jpg", alt: "Outdoor dining area", w: 1200, h: 800 },
   ]
 
   useEffect(() => {

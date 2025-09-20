@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Users, MapPin, Star, Phone, Mail } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { PROPERTY } from "@/data/content"
 
 export function BookingCTA() {
   return (

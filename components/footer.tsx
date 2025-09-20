@@ -1,5 +1,5 @@
 import { MapPin, Phone, Mail, Facebook, Instagram, Twitter } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { PROPERTY } from "@/data/content"
 
 export function Footer() {
   return (

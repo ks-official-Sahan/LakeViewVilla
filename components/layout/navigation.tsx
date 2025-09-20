@@ -42,10 +42,10 @@ export function Navigation() {
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <nav className="container mx-auto px-4 py-4">
+        <nav className="container mx-auto px-4 py-2 md:px-4 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="text-xl font-bold text-white">
+            <Link href="/" className="text-lg md:text-xl font-bold text-white">
               <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
                 Lake View Villa
               </span>

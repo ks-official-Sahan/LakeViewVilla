@@ -1,65 +1,35 @@
+/* Tailwind (v4-style) */
 @import "tailwindcss";
 
-@theme inline {
-  /* Updated font variables to use Montserrat and Inter */
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-montserrat);
-  --font-mono: var(--font-geist-mono);
+/* -----------------------------
+   Global design tokens & fixes
+------------------------------*/
 
-  /* Replaced with accessible lagoon-coastal palette (WCAG AA ≥ 4.5:1) */
-  /* Light mode colors */
-  --color-background: #f4f7f6; /* mist */
-  --color-surface: #ffffff;
-  --color-foreground: #0a0e12; /* ink */
-  --color-primary: #0e8e9a; /* lagoon teal */
-  --color-primary-foreground: #ffffff;
-  --color-accent: #1b6ca8; /* deep coastal blue */
-  --color-accent-foreground: #ffffff;
-  --color-muted: #6b7a85;
-  --color-success: #0ea5e9;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-border: #d9e2e1;
-  --color-outline: #d9e2e1;
-
-  /* Added gradient tokens for lagoon theme */
-  --grad-lagoon: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 35%, #34d399 100%);
-  --grad-sunrise: linear-gradient(120deg, #fb7185 0%, #f59e0b 60%, #34d399 100%);
-  --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, 0.7), rgba(10, 15, 16, 0.3));
-
-  /* Added glass presets for glassmorphism effects */
-  --glass-bg: rgba(255, 255, 255, 0.14);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --glass-blur: 14px;
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+/* Safe defaults: downstream sections should be visible
+   even before the hero publishes scroll vars. */
+:root {
+  --hero-progress: 1;
+  /* 1 = hero gone */
+  --hero-xfade: 0;
+  /* 0 = next section fully revealed */
 }
 
-@theme dark {
-  /* Dark mode lagoon-coastal palette */
-  --color-background: #0a0f10;
-  --color-surface: #101518;
-  --color-foreground: #e8eff1;
-  --color-primary: #38bdf8;
-  --color-primary-foreground: #061015;
-  --color-accent: #2dd4bf;
-  --color-accent-foreground: #051013;
-  --color-muted: #9aa7af;
-  --color-success: #38bdf8;
-  --color-warning: #fbbf24;
-  --color-danger: #f87171;
-  --color-border: #1f2a2e;
-  --color-outline: #1f2a2e;
-
-  /* Dark mode glass presets */
-  --glass-bg: rgba(16, 21, 24, 0.38);
-  --glass-border: rgba(255, 255, 255, 0.14);
-}
-
-/* Enhanced smooth scrolling and reduced motion support */
+/* Optional: baseline rendering polish */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color-scheme: light;
 }
 
+/* Selection color */
+::selection {
+  background: rgba(14, 165, 233, 0.24);
+  color: #0a0e12;
+}
+
+/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -75,7 +45,71 @@ html {
   }
 }
 
-/* Enhanced glassmorphism utilities */
+/* -----------------------------
+   Theme tokens (Tailwind @theme)
+------------------------------*/
+@theme inline {
+  /* Font vars (wired from next/font in <html> class) */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+  --font-mono: var(--font-geist-mono);
+
+  /* Lagoon-coastal palette (light) */
+  --color-background: #f4f7f6;
+  /* mist */
+  --color-surface: #ffffff;
+  --color-foreground: #0a0e12;
+  /* ink */
+  --color-primary: #0e8e9a;
+  /* lagoon teal */
+  --color-primary-foreground: #ffffff;
+  --color-accent: #1b6ca8;
+  /* deep coastal blue */
+  --color-accent-foreground: #ffffff;
+  --color-muted: #6b7a85;
+  --color-success: #0ea5e9;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-border: #d9e2e1;
+  --color-outline: #d9e2e1;
+
+  /* Gradients */
+  --grad-lagoon: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 35%, #34d399 100%);
+  --grad-sunrise: linear-gradient(120deg, #fb7185 0%, #f59e0b 60%, #34d399 100%);
+  --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, 0.7), rgba(10, 15, 16, 0.3));
+
+  /* Glass presets */
+  --glass-bg: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-blur: 14px;
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+@theme dark {
+  --color-background: #0a0f10;
+  --color-surface: #101518;
+  --color-foreground: #e8eff1;
+  --color-primary: #38bdf8;
+  --color-primary-foreground: #061015;
+  --color-accent: #2dd4bf;
+  --color-accent-foreground: #051013;
+  --color-muted: #9aa7af;
+  --color-success: #38bdf8;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-border: #1f2a2e;
+  --color-outline: #1f2a2e;
+
+  /* Dark glass */
+  --glass-bg: rgba(16, 21, 24, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.14);
+}
+
+/* -----------------------------
+   Utility helpers
+------------------------------*/
+
+/* Glass utilities */
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -96,7 +130,116 @@ html {
   box-shadow: var(--glass-shadow);
 }
 
-/* Enhanced cursor trail effect */
+/* Performance containment for heavy animated wrappers */
+.contain-paint {
+  contain: paint;
+}
+
+/* Accessibility helpers */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
+
+/* Hide scrollbars (opt-in) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Better focus outline when relying on keyboard */
+.focus-visible:focus {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Magnetic buttons */
+[data-magnetic] {
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+[data-magnetic]:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 10px 30px rgba(14, 142, 154, 0.3);
+}
+
+/* -----------------------------
+   Hero / media niceties
+------------------------------*/
+
+/* Ken Burns (used by image fallbacks) */
+@keyframes kenBurns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+
+  25% {
+    transform: scale(1.08) translate(-1%, -1%);
+  }
+
+  50% {
+    transform: scale(1.12) translate(1%, -0.5%);
+  }
+
+  75% {
+    transform: scale(1.06) translate(-0.5%, 1%);
+  }
+
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+.ken-burns {
+  animation: kenBurns 20s ease-in-out infinite;
+}
+
+/* Floating hint */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer (skeletons) */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Cursor trail (optional) */
 .cursor-trail {
   position: fixed;
   width: 4px;
@@ -109,77 +252,47 @@ html {
   transition: opacity 0.3s ease;
 }
 
-/* Enhanced focus visible styles for accessibility */
-.focus-visible:focus {
-  outline: 2px solid #0ea5e9;
-  outline-offset: 2px;
+/* -----------------------------
+   Background patterns
+------------------------------*/
+.interactive-bg {
+  background:
+    radial-gradient(circle at 20% 50%, rgba(14, 142, 154, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(45, 212, 191, 0.1) 0%, transparent 50%);
+  animation: backgroundShift 10s ease-in-out infinite;
 }
 
-/* Enhanced magnetic button hover effects with glassmorphism */
-[data-magnetic] {
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-}
+@keyframes backgroundShift {
 
-[data-magnetic]:hover {
-  transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 10px 30px rgba(14, 142, 154, 0.3);
-}
-
-/* Enhanced Ken Burns animation with more dynamic movement */
-@keyframes kenBurns {
-  0% {
-    transform: scale(1) translate(0, 0);
-  }
-  25% {
-    transform: scale(1.08) translate(-1%, -1%);
-  }
-  50% {
-    transform: scale(1.12) translate(1%, -0.5%);
-  }
-  75% {
-    transform: scale(1.06) translate(-0.5%, 1%);
-  }
-  100% {
-    transform: scale(1) translate(0, 0);
-  }
-}
-
-.ken-burns {
-  animation: kenBurns 20s ease-in-out infinite;
-}
-
-/* Added floating animation for interactive elements */
-@keyframes float {
   0%,
   100% {
-    transform: translateY(0px);
+    background-position: 0% 50%, 100% 20%, 40% 80%;
   }
+
   50% {
-    transform: translateY(-10px);
+    background-position: 100% 50%, 0% 80%, 60% 20%;
   }
 }
 
-.float-animation {
-  animation: float 3s ease-in-out infinite;
+/* Text gradients */
+.text-gradient {
+  background: var(--grad-lagoon);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Added shimmer loading effect */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
+.text-gradient-primary {
+  background: linear-gradient(135deg, #0e8e9a, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200px 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-/* Enhanced custom scrollbar styles with glassmorphism */
+/* -----------------------------
+   Scrollbar (WebKit)
+------------------------------*/
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -199,35 +312,27 @@ html {
   background: rgba(14, 142, 154, 0.8);
 }
 
-/* Added interactive background patterns */
-.interactive-bg {
-  background: radial-gradient(circle at 20% 50%, rgba(14, 142, 154, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(45, 212, 191, 0.1) 0%, transparent 50%);
-  animation: backgroundShift 10s ease-in-out infinite;
-}
+/* -----------------------------
+   Card shine (used in Highlights)
+------------------------------*/
+@keyframes cardShine {
+  0% {
+    transform: translateX(-20%);
+  }
 
-@keyframes backgroundShift {
-  0%,
   100% {
-    background-position: 0% 50%, 100% 20%, 40% 80%;
-  }
-  50% {
-    background-position: 100% 50%, 0% 80%, 60% 20%;
+    transform: translateX(120%);
   }
 }
 
-/* Added text gradient utilities */
-.text-gradient {
-  background: var(--grad-lagoon);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Optional: small GPU nudge for animated blocks */
+.gpu {
+  transform: translateZ(0);
+  will-change: transform;
 }
 
-.text-gradient-primary {
-  background: linear-gradient(135deg, #0e8e9a, #38bdf8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+input,
+select,
+textarea {
+  color-scheme: dark;
 }

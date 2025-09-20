@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Wifi, Car, PawPrint, Utensils, Shield, Clock } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { PROPERTY } from "@/data/content"
 
 export function PropertyOverview() {
   const highlights = [

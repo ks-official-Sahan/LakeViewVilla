@@ -1,269 +1,135 @@
-"use client"
+import type { Metadata } from "next";
+import { SectionReveal } from "@/components/motion/section-reveal";
+import { PROPERTY } from "@/data/content";
+import { generateBreadcrumbSchema } from "@/lib/structured-data";
+import GalleryClient from "./gallery-client";
 
-import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
-import { motion, AnimatePresence } from "framer-motion"
-import { X, ChevronLeft, ChevronRight } from "lucide-react"
-import { SectionReveal } from "@/components/motion/section-reveal"
-import { generateBreadcrumbSchema } from "@/lib/structured-data"
-import { BookingAdapter } from "@/lib/booking-adapter"
-import { safeArray } from "@/lib/utils"
-import Head from "next/head"
+export const metadata: Metadata = {
+  title: "Gallery - Lake View Villa Tangalle",
+  description:
+    "Explore Lake View Villa Tangalle through a curated photo gallery of the lagoon, interiors, and surroundings.",
+  alternates: { canonical: "/gallery" },
+  openGraph: {
+    title: "Gallery - Lake View Villa Tangalle",
+    description:
+      "See the lagoon, villa interiors, and the grounds at Lake View Villa Tangalle.",
+    url: "https://lakeviewvillatangalle.com/gallery",
+    type: "website",
+    images: [
+      {
+        url: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Aerial view of the lagoon and villa at sunrise",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gallery - Lake View Villa Tangalle",
+    description:
+      "See our lagoon, interiors, and surroundings in the photo gallery.",
+    images: ["/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"],
+  },
+};
 
-async function getGalleryImages() {
-  try {
-    const bookingFacts = await BookingAdapter.getBookingFacts()
-    const bookingImages = bookingFacts?.images || []
+function getGalleryImages() {
+  const booking = PROPERTY;
 
-    // Combine booking images with local fallback images
-    const fallbackImages = [
-      {
-        src: "/serene-lagoon-at-sunrise-with-villa-silhouette.jpg",
-        alt: "Serene lagoon at sunrise with villa silhouette",
-        w: 1200,
-        h: 800,
-      },
-      {
-        src: "/villa-interior-living-room.png",
-        alt: "Villa interior living room with modern furnishings",
-        w: 1200,
-        h: 800,
-      },
-      {
-        src: "/villa-lagoon-video-poster.jpg",
-        alt: "Villa lagoon aerial view",
-        w: 1200,
-        h: 800,
-      },
-    ]
+  const fromBooking =
+    (booking?.images_sample ?? []).map((src: string, i: number) => ({
+      src: src.startsWith("/") ? src : `/${src}`,
+      alt: `${booking?.name ?? "Lake View Villa"} — Image ${i + 1}`,
+      w: 1200,
+      h: 800,
+    })) ?? [];
 
-    return safeArray([...bookingImages, ...fallbackImages])
-  } catch (error) {
-    console.warn("[Gallery] Failed to load booking images:", error)
-    return [
-      {
-        src: "/serene-lagoon-at-sunrise-with-villa-silhouette.jpg",
-        alt: "Serene lagoon at sunrise with villa silhouette",
-        w: 1200,
-        h: 800,
-      },
-      {
-        src: "/villa-interior-living-room.png",
-        alt: "Villa interior living room with modern furnishings",
-        w: 1200,
-        h: 800,
-      },
-      {
-        src: "/villa-lagoon-video-poster.jpg",
-        alt: "Villa lagoon aerial view",
-        w: 1200,
-        h: 800,
-      },
-    ]
-  }
+  const fallbacks = [
+    {
+      src: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+      alt: "Aerial view of the lagoon and villa at sunrise",
+      w: 1200,
+      h: 800,
+    },
+    {
+      src: "/room_02_img_01.jpeg",
+      alt: "Living area with modern furnishings",
+      w: 1200,
+      h: 800,
+    },
+    {
+      src: "/garden_img_01.jpeg",
+      alt: "Garden path and greenery around the villa",
+      w: 1200,
+      h: 800,
+    },
+  ];
+
+  // de-dupe on src and keep order stable
+  const seen = new Set<string>();
+  const images = [...fromBooking, ...fallbacks].filter((x) => {
+    if (seen.has(x.src)) return false;
+    seen.add(x.src);
+    return true;
+  });
+
+  return images;
 }
 
-export default async function GalleryPage() {
-  const galleryImages = await getGalleryImages()
+export default function Page() {
+  const images = getGalleryImages();
 
   return (
     <>
-      <Head>
-        <title>Gallery - Lake View Villa Tangalle</title>
-        <meta
-          name="description"
-          content="Explore the beauty of Lake View Villa Tangalle through our curated collection of images showcasing the serene lagoon views and villa amenities."
+      {/* JSON-LD (Breadcrumbs) */}
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBreadcrumbSchema([
+              { name: "Home", url: "https://lakeviewvillatangalle.com/" },
+              {
+                name: "Gallery",
+                url: "https://lakeviewvillatangalle.com/gallery",
+              },
+            ])
+          ),
+        }}
+      />
+
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Ambient background (GPU-cheap, no hydration issues) */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_40%_at_20%_10%,rgba(56,189,248,0.16),transparent_70%),radial-gradient(50%_30%_at_80%_20%,rgba(45,212,191,0.14),transparent_70%),linear-gradient(180deg,#0b1220,#0b1220_30%,#0f172a)]"
         />
-        <link rel="canonical" href="https://lakeviewvillatangalle.com/gallery" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(
-              generateBreadcrumbSchema([
-                { name: "Home", url: "https://lakeviewvillatangalle.com/" },
-                { name: "Gallery", url: "https://lakeviewvillatangalle.com/gallery" },
-              ]),
-            ),
-          }}
-        />
-      </Head>
+        <div className="relative z-10 pt-24 pb-12">
+          <div className="container mx-auto px-4">
+            <SectionReveal>
+              <div className="text-center">
+                <h1 className="text-4xl md:text-6xl font-bold mb-4">
+                  <span className="bg-gradient-to-r from-cyan-300 via-sky-400 to-emerald-300 bg-clip-text text-transparent">
+                    Villa Gallery
+                  </span>
+                </h1>
+                <p className="text-lg md:text-xl text-slate-300/95 max-w-2xl mx-auto">
+                  A curated reel of the lagoon, interiors, and surrounding
+                  nature.
+                </p>
+                <p className="text-sm text-slate-400 mt-2">
+                  {images.length} photos
+                </p>
+              </div>
+            </SectionReveal>
+          </div>
+        </div>
 
-      <GalleryClient images={galleryImages} />
-    </>
-  )
-}
-
-function GalleryClient({ images }: { images: Array<{ src: string; alt: string; w: number; h: number }> }) {
-  const [selectedImage, setSelectedImage] = useState<number | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Handle keyboard navigation in lightbox
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (selectedImage === null) return
-
-      switch (e.key) {
-        case "Escape":
-          setSelectedImage(null)
-          break
-        case "ArrowLeft":
-          setSelectedImage((prev) => (prev === null ? null : prev > 0 ? prev - 1 : images.length - 1))
-          break
-        case "ArrowRight":
-          setSelectedImage((prev) => (prev === null ? null : prev < images.length - 1 ? prev + 1 : 0))
-          break
-      }
-    }
-
-    if (selectedImage !== null) {
-      document.addEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = "hidden"
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown)
-      document.body.style.overflow = "unset"
-    }
-  }, [selectedImage, images.length])
-
-  const handleMouseDown = () => setIsDragging(false)
-  const handleMouseMove = () => setIsDragging(true)
-  const handleMouseUp = (index: number) => {
-    if (!isDragging) {
-      setSelectedImage(index)
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-      {/* Header */}
-      <div className="relative z-10 pt-24 pb-12">
-        <div className="container mx-auto px-4">
-          <SectionReveal>
-            <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  Villa Gallery
-                </span>
-              </h1>
-              <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-                Explore the beauty of Lake View Villa Tangalle through our curated collection of images
-              </p>
-              <p className="text-sm text-slate-400 mt-2">
-                {images.length} images showcasing our villa and surroundings
-              </p>
-            </div>
-          </SectionReveal>
+        <div className="relative z-10 container mx-auto px-4 pb-20">
+          {/* Client-only masonry + lightbox */}
+          <GalleryClient images={images} />
         </div>
       </div>
-
-      {/* Masonry Gallery */}
-      <div className="container mx-auto px-4 pb-20">
-        <SectionReveal>
-          <div
-            ref={containerRef}
-            className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4"
-            style={{ cursor: isDragging ? "grabbing" : "grab" }}
-          >
-            {images.map((image, index) => (
-              <motion.div
-                key={index}
-                className="break-inside-avoid mb-4 group cursor-pointer"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={() => handleMouseUp(index)}
-              >
-                <div className="relative overflow-hidden rounded-xl backdrop-blur-sm bg-white/10 border border-white/20 shadow-2xl">
-                  <Image
-                    src={image.src || "/placeholder.svg"}
-                    alt={image.alt}
-                    width={image.w}
-                    height={image.h}
-                    className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </SectionReveal>
-      </div>
-
-      {/* Lightbox Dialog */}
-      <AnimatePresence>
-        {selectedImage !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className="relative max-w-7xl max-h-[90vh] mx-4">
-              {/* Close button */}
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute -top-12 right-0 text-white hover:text-cyan-400 transition-colors z-10"
-                aria-label="Close lightbox"
-              >
-                <X size={32} />
-              </button>
-
-              {/* Navigation buttons */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedImage((prev) => (prev === null ? null : prev > 0 ? prev - 1 : images.length - 1))
-                }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-cyan-400 transition-colors z-10"
-                aria-label="Previous image"
-              >
-                <ChevronLeft size={48} />
-              </button>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setSelectedImage((prev) => (prev === null ? null : prev < images.length - 1 ? prev + 1 : 0))
-                }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-cyan-400 transition-colors z-10"
-                aria-label="Next image"
-              >
-                <ChevronRight size={48} />
-              </button>
-
-              {/* Image */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Image
-                  src={images[selectedImage].src || "/placeholder.svg"}
-                  alt={images[selectedImage].alt}
-                  width={images[selectedImage].w}
-                  height={images[selectedImage].h}
-                  className="max-w-full max-h-[90vh] object-contain rounded-lg"
-                  priority
-                />
-              </motion.div>
-
-              {/* Image counter */}
-              <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-white text-sm">
-                {selectedImage + 1} / {images.length}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
+    </>
+  );
 }

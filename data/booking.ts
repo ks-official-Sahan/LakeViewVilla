@@ -32,7 +32,11 @@ export const BOOKING = {
       bathrooms: 2,
     },
     wifi: { available: true, speed_mbps: 52, coverage: "All areas" },
-    parking: { free_private_on_site: true, accessible_parking: true, reservation_needed: false },
+    parking: {
+      free_private_on_site: true,
+      accessible_parking: true,
+      reservation_needed: false,
+    },
     pets: { allowed: true, extra_charges: false },
     house_rules: {
       checkin: "Available 24 hours (inform property of arrival time)",
@@ -69,8 +73,18 @@ export const BOOKING = {
         "Car rental",
         "Airport shuttle (add. charge)",
       ],
-      front_desk: ["Invoice provided", "Lockers", "Baggage storage", "Currency exchange", "24-hour front desk"],
-      cleaning: ["Daily housekeeping", "Ironing service (add. charge)", "Laundry (add. charge)"],
+      front_desk: [
+        "Invoice provided",
+        "Lockers",
+        "Baggage storage",
+        "Currency exchange",
+        "24-hour front desk",
+      ],
+      cleaning: [
+        "Daily housekeeping",
+        "Ironing service (add. charge)",
+        "Laundry (add. charge)",
+      ],
       family: ["Baby safety gates", "Board games/puzzles", "Playground"],
       shops: ["Convenience store on site"],
       misc: ["Air conditioning", "Heating", "Soundproof rooms", "Family rooms"],
@@ -103,7 +117,12 @@ export const BOOKING = {
         "Refrigerator",
         "Kitchenette",
       ],
-      bedroom: ["Linens", "Wardrobe or closet", "Alarm clock", "Extra long beds (> 6.5 ft)"],
+      bedroom: [
+        "Linens",
+        "Wardrobe or closet",
+        "Alarm clock",
+        "Extra long beds (> 6.5 ft)",
+      ],
       bathroom: [
         "Toilet paper",
         "Towels",
@@ -164,7 +183,7 @@ export const BOOKING = {
       ],
     },
     property_highlights: {
-      top_location_score: 9.9,
+      top_location_score: 10,
       breakfast_info: ["Vegetarian", "Vegan", "Asian", "Breakfast to go"],
       free_private_parking_on_site: true,
     },
@@ -186,7 +205,7 @@ export const BOOKING = {
       },
     ],
     scores_reviews: {
-      overall_score: 9.9,
+      overall_score: 10,
       reviews_count: 22,
       category_scores: {
         staff: 10.0,
@@ -198,16 +217,26 @@ export const BOOKING = {
       },
     },
     images_sample: [
-      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/651402121.jpg?k=85535494b0d6a9d2c7159b8812bb9b8d8a038a9463a44351ab07310810770bd9&o=",
-      "https://cf.bstatic.com/xdata/images/hotel/max500/730695105.jpg?k=91ddbd8433416cb13a2fde0276e0996a9661bb34d2e5698de51edaf0f8903370&o=",
-      "https://cf.bstatic.com/xdata/images/hotel/max300/725040298.jpg?k=d31717f3b8f548b6d0e95e20543c5ef1e7ce6f60bffe3c0913d200968a1ffcc9&o=",
-      "https://cf.bstatic.com/xdata/images/hotel/max300/725025129.jpg?k=74d2f8f6779b24b28bf08eff0a9c975502535b7d3625a222819b96c2a32c332b&o=",
+      "room_01_img_01.jpeg",
+      "room_02_img_01.jpeg",
+      "lake_img_01.jpeg",
+      "villa_outside_01.jpeg",
+      "with_guests_01.jpeg",
+      "with_guests_02.jpeg",
+      "with_guests_03.jpeg",
+      "with_guests_04_dinning.jpeg",
+      "garden_img_01.jpeg",
+      "garden_img_02.jpeg",
+      "drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+      "room_01_img_02.jpeg",
+      "room_02_img_02.jpeg",
+      "room_01_img_03_cot.jpeg",
     ],
   },
-} as const
+} as const;
 
-export type Booking = typeof BOOKING
-export type Property = typeof BOOKING.property
+export type Booking = typeof BOOKING;
+export type Property = typeof BOOKING.property;
 
 // Convenience export
-export const PROPERTY: Property = BOOKING.property
+export const PROPERTY: Property = BOOKING.property;

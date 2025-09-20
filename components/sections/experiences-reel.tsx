@@ -1,182 +1,417 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useInView,
+  useTransform,
+} from "framer-motion";
+import { ChevronLeft, ChevronRight, MapPin, Play } from "lucide-react";
 
-import { useRef, useState } from "react"
-import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { SectionReveal } from "@/components/motion/section-reveal"
+type Experience = {
+  name: string;
+  image?: string; // hero image
+  video?: string; // optional: mp4/webm (muted/inline)
+  thumb?: string; // optional: preview image for side peeks (use for video slides)
+  description: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+};
+
+const EXPERIENCES: Experience[] = [
+  {
+    name: "Rekawa Turtle Beach",
+    image: "/images/turtle-beach.jpg",
+    description: "Watch sea turtles nest beneath a vault of stars.",
+    // ctaHref: "https://maps.app.goo.gl/",
+    // ctaLabel: "Open in Maps",
+  },
+  {
+    name: "Mulkirigala Rock Temple",
+    image: "/images/rock-temple.jpg",
+    description: "5th-century cave murals carved into towering rock.",
+  },
+  {
+    name: "Yala Safari Day Trip",
+    // video: "/videos/yala-safari.mp4",
+    // thumb: "/images/yala-safari.jpg",
+    image: "/images/yala-safari.jpg",
+    description: "Leopards, elephants, and raw Sri Lankan wilderness.",
+  },
+  {
+    name: "Hummanaya Blowhole",
+    image: "/images/blowhole.jpg",
+    description: "A rare marine geyser — nature’s pulse meeting ocean.",
+  },
+];
+
+const mod = (n: number, m: number) => ((n % m) + m) % m;
 
 export function ExperiencesReel() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const x = useMotionValue(0)
-  const springX = useSpring(x, { stiffness: 300, damping: 30 })
+  const sectionRef = useRef<HTMLElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(sectionRef, { amount: 0.35, margin: "-10% 0px" });
 
-  const experiences = [
-    {
-      name: "Rekawa turtle beach",
-      image: "/images/turtle-beach.jpg",
-      description: "Watch sea turtles nesting under starlit skies",
-    },
-    {
-      name: "Mulkirigala rock temple",
-      image: "/images/rock-temple.jpg",
-      description: "Ancient Buddhist temple carved into rock",
-    },
-    {
-      name: "Yala safari day trip",
-      image: "/images/yala-safari.jpg",
-      description: "Spot leopards and elephants in their natural habitat",
-    },
-    {
-      name: "Hummanaya blowhole",
-      image: "/images/blowhole.jpg",
-      description: "Natural water spout creating spectacular displays",
-    },
-  ]
+  const reduceMotion = useReducedMotion();
+  const saveData = useMemo(
+    () => Boolean((navigator as any)?.connection?.saveData),
+    []
+  );
+  const allowMotion = !reduceMotion && !saveData;
 
-  const handleDragEnd = () => {
-    setIsDragging(false)
-    const currentX = x.get()
-    const threshold = 100
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
-    if (currentX > threshold && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
-    } else if (currentX < -threshold && currentIndex < experiences.length - 1) {
-      setCurrentIndex(currentIndex + 1)
-    }
+  const prevIdx = mod(index - 1, EXPERIENCES.length);
+  const nextIdx = mod(index + 1, EXPERIENCES.length);
 
-    x.set(0)
-  }
+  // Auto-advance (respect visibility, motion, interactions)
+  useEffect(() => {
+    if (!inView || paused || dragging || !allowMotion) return;
+    const id = window.setInterval(
+      () => setIndex((i) => mod(i + 1, EXPERIENCES.length)),
+      5200
+    );
+    return () => clearInterval(id);
+  }, [inView, paused, dragging, allowMotion]);
 
-  const goToNext = () => {
-    if (currentIndex < experiences.length - 1) {
-      setCurrentIndex(currentIndex + 1)
-    }
-  }
+  // Drag physics
+  const x = useMotionValue(0);
+  const springX = useSpring(x, { stiffness: 420, damping: 34, mass: 0.8 });
+  const reveal = useTransform(springX, [-160, 0, 160], [0.9, 0, 0.9]); // how much to “tease” peeks on drag
+  const blurAmt = useTransform(springX, [-200, 0, 200], [1.25, 1.75, 1.25]); // low blur while dragging, higher when idle
 
-  const goToPrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1)
-    }
-  }
+  const onDragEnd = () => {
+    setDragging(false);
+    const dx = x.get();
+    const threshold = 80;
+    if (dx > threshold) setIndex((i) => mod(i - 1, EXPERIENCES.length));
+    else if (dx < -threshold) setIndex((i) => mod(i + 1, EXPERIENCES.length));
+    x.set(0);
+  };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      goToPrev()
-    } else if (e.key === "ArrowRight") {
-      goToNext()
-    }
-  }
+  const go = useCallback(
+    (dir: 1 | -1) => setIndex((i) => mod(i + dir, EXPERIENCES.length)),
+    []
+  );
+
+  // Active video discipline
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
+  useEffect(() => {
+    // pause all non-active
+    Object.entries(videoRefs.current).forEach(([k, el]) => {
+      if (Number(k) !== index && el && !el.paused) {
+        try {
+          el.pause();
+        } catch {}
+      }
+    });
+    const v = videoRefs.current[index];
+    if (!v || !allowMotion || !inView) return;
+    (async () => {
+      try {
+        v.muted = true;
+        v.playsInline = true;
+        await v.play();
+      } catch {}
+    })();
+  }, [index, inView, allowMotion]);
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") go(-1);
+    if (e.key === "ArrowRight") go(1);
+  };
+
+  const ActiveMedia = ({ exp, i }: { exp: Experience; i: number }) => (
+    <div className="absolute inset-0">
+      {exp.video ? (
+        <video
+          ref={(el) => (videoRefs.current[i] = el)}
+          className="w-full h-full object-cover"
+          preload={allowMotion ? "metadata" : "none"}
+          muted
+          loop
+          playsInline
+        >
+          <source src={exp.video} type="video/mp4" />
+        </video>
+      ) : (
+        <Image
+          src={exp.image || "/placeholder.jpg"}
+          alt=""
+          role="presentation"
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 1024px"
+          className="object-cover"
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB..."
+        />
+      )}
+    </div>
+  );
+
+  const PeekMedia = ({ exp }: { exp: Experience }) => (
+    <div className="absolute inset-0">
+      <Image
+        src={exp.thumb || exp.image || "/placeholder.jpg"}
+        alt=""
+        role="presentation"
+        fill
+        loading="lazy"
+        sizes="(max-width: 1024px) 40vw, 420px"
+        className="object-cover"
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB..."
+      />
+    </div>
+  );
 
   return (
-    <SectionReveal>
-      <section id="experiences" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">Discover Tangalle's wonders</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-pretty">
-              From ancient temples to wildlife encounters, create memories that last a lifetime.
-            </p>
-          </motion.div>
+    <section
+      id="experiences"
+      ref={sectionRef}
+      className="relative py-28 md:py-32"
+      aria-labelledby="experiences-heading"
+    >
+      {/* Ambient field (cheap, GPU-friendly) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(60% 40% at 50% 0%, rgba(14,165,233,0.10), transparent 60%)",
+          maskImage:
+            "linear-gradient(to bottom, black 10%, rgba(0,0,0,0.85) 45%, transparent 100%)",
+        }}
+      />
 
-          <div
-            className="relative max-w-4xl mx-auto"
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            role="region"
-            aria-label="Experiences carousel"
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-14 md:mb-16">
+          <motion.h2
+            id="experiences-heading"
+            className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900 text-balance"
+            initial={{ y: allowMotion ? 20 : 0, opacity: allowMotion ? 0 : 1 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
           >
-            <motion.div
-              ref={containerRef}
-              className="overflow-hidden rounded-2xl"
-              style={{ x: springX }}
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragStart={() => setIsDragging(true)}
-              onDragEnd={handleDragEnd}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentIndex}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  transition={{ duration: 0.5 }}
-                  className="relative h-96 md:h-[500px] bg-gradient-to-br from-blue-600 to-teal-600 flex items-center justify-center text-white"
-                  style={{
-                    backgroundImage: `url(${experiences[currentIndex].image})`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                >
-                  <div className="absolute inset-0 bg-black/40"></div>
-                  <div className="relative z-10 text-center px-8">
+            Discover Tangalle’s wonders
+          </motion.h2>
+          <motion.p
+            className="mt-4 text-lg md:text-xl text-slate-600 max-w-2xl mx-auto text-pretty"
+            initial={{ y: allowMotion ? 12 : 0, opacity: allowMotion ? 0 : 1 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: "-120px" }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+          >
+            Ancient temples, ocean dramas, wildlife corridors — all within easy
+            reach.
+          </motion.p>
+        </div>
+
+        {/* Reel frame */}
+        <div
+          ref={frameRef}
+          className="relative mx-auto max-w-6xl select-none"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+          onFocus={() => setPaused(true)}
+          onBlur={() => setPaused(false)}
+          onKeyDown={onKeyDown}
+          tabIndex={0}
+          role="region"
+          aria-label="Experiences carousel"
+        >
+          {/* Side peeks */}
+          <motion.button
+            type="button"
+            onClick={() => go(-1)}
+            className="group absolute left-0 top-0 bottom-0 w-[28%] md:w-[24%] overflow-hidden rounded-l-3xl"
+            style={{ transform: "translateZ(0)" }}
+            aria-label={`View previous: ${EXPERIENCES[prevIdx].name}`}
+          >
+            <div className="relative h-full">
+              <div
+                className="absolute inset-0 scale-[1.02]"
+                style={{ filter: "saturate(0.9)" }}
+              >
+                <PeekMedia exp={EXPERIENCES[prevIdx]} />
+              </div>
+              {/* fade/blur into viewport */}
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter:
+                    blurAmt && `blur(${(blurAmt as any).get?.() ?? 1.6}px)`,
+                  WebkitBackdropFilter: "blur(1.6px)",
+                  background:
+                    "linear-gradient(90deg, rgba(2,6,23,0.55), rgba(2,6,23,0.35) 35%, transparent 95%)",
+                  maskImage:
+                    "linear-gradient(to right, black 40%, transparent 95%)",
+                }}
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-2 grid place-items-center text-white/80">
+              <ChevronLeft className="opacity-70 group-hover:opacity-100 transition" />
+            </div>
+          </motion.button>
+
+          <motion.button
+            type="button"
+            onClick={() => go(1)}
+            className="group absolute right-0 top-0 bottom-0 w-[28%] md:w-[24%] overflow-hidden rounded-r-3xl"
+            style={{ transform: "translateZ(0)" }}
+            aria-label={`View next: ${EXPERIENCES[nextIdx].name}`}
+          >
+            <div className="relative h-full">
+              <div
+                className="absolute inset-0 scale-[1.02]"
+                style={{ filter: "saturate(0.9)" }}
+              >
+                <PeekMedia exp={EXPERIENCES[nextIdx]} />
+              </div>
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  backdropFilter:
+                    blurAmt && `blur(${(blurAmt as any).get?.() ?? 1.6}px)`,
+                  WebkitBackdropFilter: "blur(1.6px)",
+                  background:
+                    "linear-gradient(270deg, rgba(2,6,23,0.55), rgba(2,6,23,0.35) 35%, transparent 95%)",
+                  maskImage:
+                    "linear-gradient(to left, black 40%, transparent 95%)",
+                }}
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-y-0 left-2 grid place-items-center text-white/80">
+              <ChevronRight className="opacity-70 group-hover:opacity-100 transition" />
+            </div>
+          </motion.button>
+
+          {/* Active canvas (drag/swipe) */}
+          <motion.div
+            className="relative h-[28rem] md:h-[34rem] mx-[10%] md:mx-[12%] rounded-3xl overflow-hidden ring-1 ring-slate-900/10 bg-slate-900"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.18}
+            dragMomentum={false}
+            style={{ x: springX, willChange: "transform" }}
+            onDragStart={() => {
+              setDragging(true);
+              setPaused(true);
+            }}
+            onDragEnd={onDragEnd}
+          >
+            <AnimatePresence initial={false} mode="popLayout">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.985 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.015 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="absolute inset-0"
+                aria-roledescription="slide"
+                aria-label={EXPERIENCES[index].name}
+              >
+                <ActiveMedia exp={EXPERIENCES[index]} i={index} />
+
+                {/* Text content (no heavy veils; crisp over media) */}
+                <div className="absolute inset-0 grid place-items-center p-6 text-white">
+                  <div className="text-center max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]">
                     <motion.h3
-                      className="text-3xl md:text-4xl font-bold mb-4 text-balance"
-                      initial={{ y: 20, opacity: 0 }}
+                      className="text-3xl md:text-4xl font-bold text-balance"
+                      initial={{ y: 18, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
+                      transition={{
+                        duration: 0.6,
+                        ease: "easeOut",
+                        delay: 0.05,
+                      }}
                     >
-                      {experiences[currentIndex].name}
+                      {EXPERIENCES[index].name}
                     </motion.h3>
                     <motion.p
-                      className="text-lg md:text-xl text-white/90 text-pretty"
-                      initial={{ y: 20, opacity: 0 }}
+                      className="mt-3 text-lg md:text-xl text-white/95 text-pretty"
+                      initial={{ y: 14, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 0.4 }}
+                      transition={{
+                        duration: 0.55,
+                        ease: "easeOut",
+                        delay: 0.12,
+                      }}
                     >
-                      {experiences[currentIndex].description}
+                      {EXPERIENCES[index].description}
                     </motion.p>
+
+                    {EXPERIENCES[index].ctaHref && (
+                      <motion.a
+                        href={EXPERIENCES[index].ctaHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 mt-6 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur px-4 py-2 text-sm font-medium ring-1 ring-white/25 transition"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{
+                          duration: 0.45,
+                          ease: "easeOut",
+                          delay: 0.18,
+                        }}
+                      >
+                        <MapPin className="w-4 h-4" />
+                        {EXPERIENCES[index].ctaLabel || "Open Map"}
+                      </motion.a>
+                    )}
                   </div>
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
 
-            {/* Navigation Buttons */}
-            <button
-              onClick={goToPrev}
-              disabled={currentIndex === 0}
-              className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 text-white hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-              aria-label="Previous experience"
-            >
-              <ChevronLeft size={24} />
-            </button>
+            {/* Optional: video toggle for active slide if it has video */}
+            {EXPERIENCES[index].video && (
+              <button
+                type="button"
+                onClick={() => {
+                  const v = videoRefs.current[index];
+                  if (!v) return;
+                  if (v.paused) v.play().catch(() => {});
+                  else v.pause();
+                }}
+                className="absolute bottom-4 right-4 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur ring-1 ring-white/25 p-3"
+                aria-label="Toggle current slide video"
+              >
+                <Play className="w-5 h-5" />
+              </button>
+            )}
+          </motion.div>
 
-            <button
-              onClick={goToNext}
-              disabled={currentIndex === experiences.length - 1}
-              className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 text-white hover:bg-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
-              aria-label="Next experience"
-            >
-              <ChevronRight size={24} />
-            </button>
-
-            {/* Indicators */}
-            <div className="flex justify-center mt-6 space-x-2">
-              {experiences.map((_, index) => (
+          {/* Dots */}
+          <div className="mt-7 flex items-center justify-center gap-2">
+            {EXPERIENCES.map((_, i) => {
+              const active = i === index;
+              return (
                 <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`w-3 h-3 rounded-full transition-all focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
-                    index === currentIndex ? "bg-blue-600" : "bg-gray-300 hover:bg-gray-400"
+                  key={i}
+                  onClick={() => setIndex(i)}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={active ? "true" : "false"}
+                  className={`h-2 rounded-full transition-all ${
+                    active
+                      ? "w-8 bg-sky-600"
+                      : "w-2 bg-slate-300 hover:bg-slate-400"
                   }`}
-                  aria-label={`Go to experience ${index + 1}`}
                 />
-              ))}
-            </div>
+              );
+            })}
           </div>
         </div>
-      </section>
-    </SectionReveal>
-  )
+      </div>
+    </section>
+  );
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Users, Bed } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { PROPERTY } from "@/data/content"
 
 export function Hero() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)

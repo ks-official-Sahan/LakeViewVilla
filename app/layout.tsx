@@ -53,6 +53,14 @@ export const metadata: Metadata = {
   formatDetection: { email: false, address: false, telephone: false },
   metadataBase: new URL("https://lakeviewvillatangalle.com"),
   alternates: { canonical: "/", languages: { "en-US": "/en-US", en: "/" } },
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png", sizes: "32x32" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [
+      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0e8e9a" },
+    ],
+  },
+  manifest: "/site.webmanifest",
   openGraph: {
     title: "Lake View Villa Tangalle — Private Villa on a Serene Lagoon",
     description:
@@ -63,7 +71,7 @@ export const metadata: Metadata = {
     siteName: "Lake View Villa Tangalle",
     images: [
       {
-        url: "/serene-lagoon-at-sunrise-with-villa-silhouette.jpg",
+        url: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
         width: 1200,
         height: 630,
         alt: "Lake View Villa Tangalle - Serene lagoon at sunrise",
@@ -76,7 +84,7 @@ export const metadata: Metadata = {
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic lake views and modern amenities.",
     creator: "@lakeviewvilla",
-    images: ["/serene-lagoon-at-sunrise-with-villa-silhouette.jpg"],
+    images: ["/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"],
   },
   robots: {
     index: true,
@@ -107,7 +115,7 @@ export default function RootLayout({
       <head>
         <link
           rel="preload"
-          href="/serene-lagoon-at-sunrise-with-villa-silhouette-in-.jpg"
+          href="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
           as="image"
         />
         <link rel="preconnect" href="https://cf.bstatic.com" />
@@ -140,20 +148,18 @@ export default function RootLayout({
         className="font-sans antialiased bg-slate-50"
         suppressHydrationWarning
       >
-        <LoadingScreen />
-        {/* <LoadingScreen
+        <LoadingScreen
+          logoSrc="/logo.png"
+          logoAlt="Lake View Villa Tangalle"
           enableTapSkip
-          longPressMs={500} // 0 to disable
-          swipeUpThreshold={64} // 0 to disable
-        /> */}
-
+          // longPressMs={500}
+          // swipeUpThreshold={64}
+        />
         <ScrollProgress />
-
         {/* All client-only, window/WebGL/animation work goes here */}
         <Suspense fallback={null}>
           <ClientEffects />
         </Suspense>
-
         <Navigation />
         <Suspense fallback={null}>{children}</Suspense>
         <ExpandableCTA />

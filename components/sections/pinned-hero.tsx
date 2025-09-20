@@ -1,17 +1,23 @@
-// components/sections/pinned-hero.tsx
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useId } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
+import {
+  motion,
+  useReducedMotion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { Play, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 const blurDataURL =
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q==";
@@ -25,54 +31,95 @@ export function PinnedHero({ nextSectionId }: Props) {
 
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+
+  const playPromiseRef = useRef<Promise<void> | null>(null);
 
   const prefersReducedMotion = useReducedMotion();
   const saveData = useMemo(
     () =>
-      typeof navigator !== "undefined" && "connection" in navigator
-        ? // @ts-ignore
-          Boolean(navigator.connection?.saveData)
-        : false,
+      typeof navigator !== "undefined" &&
+      // @ts-ignore
+      Boolean(navigator.connection?.saveData),
     []
   );
   const allowMotion = !prefersReducedMotion && !saveData;
 
+  // Pointer tilt (fine pointers only)
+  const isFinePointer = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(pointer: fine)").matches,
+    []
+  );
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
+  const tiltX = useSpring(useTransform(py, [0, 1], [5, -5]), {
+    stiffness: 110,
+    damping: 16,
+  });
+  const tiltY = useSpring(useTransform(px, [0, 1], [-5, 5]), {
+    stiffness: 110,
+    damping: 16,
+  });
+
   const playVideo = async () => {
     const v = videoRef.current;
     if (!v || isVideoLoading) return;
+    if (!v.paused || playPromiseRef.current) return; // already playing / in-flight
+
     setIsVideoLoading(true);
     try {
       v.muted = true;
       v.playsInline = true;
-      await v.play();
+      playPromiseRef.current = v.play();
+      await playPromiseRef.current;
       setIsVideoPlaying(true);
     } catch {
       setIsVideoPlaying(false);
     } finally {
       setIsVideoLoading(false);
+      playPromiseRef.current = null;
     }
   };
+
   const pauseVideo = () => {
     const v = videoRef.current;
     if (!v) return;
     try {
-      v.pause();
+      if (!v.paused) v.pause();
     } catch {}
     setIsVideoPlaying(false);
+    playPromiseRef.current = null;
   };
 
+  // Keyboard toggle (K)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === "k") {
+        if (isVideoPlaying) pauseVideo();
+        else void playVideo();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isVideoPlaying]);
+
+  // Pin + publish CSS vars + deterministic handoff
   useEffect(() => {
     const root = rootRef.current;
     const inner = innerRef.current;
-    if (!root || !inner) return;
+    const endEl = document.getElementById(nextSectionId);
+    if (!root || !inner || !endEl) return;
 
-    const endEl = document.getElementById(nextSectionId) || root;
+    const doc = document.documentElement;
+    // Start with hero fully visible
+    doc.style.setProperty("--hero-progress", "0");
+    doc.style.setProperty("--hero-xfade", "1");
 
     inner.style.willChange = "opacity, transform";
 
-    const doc = document.documentElement;
-    doc.style.setProperty("--hero-progress", "0");
-    doc.style.setProperty("--hero-xfade", "1");
+    const autoSnapOnce = { done: false };
 
     const st = ScrollTrigger.create({
       id: "hero-pin",
@@ -83,62 +130,58 @@ export function PinnedHero({ nextSectionId }: Props) {
       pin: true,
       pinSpacing: true,
       scrub: allowMotion ? 0.25 : false,
-      anticipatePin: 1,
+      anticipatePin: allowMotion ? 1 : 0,
       fastScrollEnd: true,
-      // ✅ auto-snap to top/bottom of the pinned range (i.e., hero fully shown or fully gone)
-      snap: allowMotion
-        ? {
-            snapTo: [0, 1], // start or end
-            duration: { min: 0.2, max: 0.7 },
-            ease: "power2.out",
-            inertia: true,
-            delay: 0, // snap immediately when user stops
-          }
-        : false,
+      snap: false, // we do a deliberate scrollTo handoff
+      onEnter() {
+        if (allowMotion && videoReady) void playVideo();
+      },
+      onEnterBack() {
+        if (allowMotion && videoReady) void playVideo();
+      },
       onUpdate(self) {
         const p = self.progress; // 0..1
         const heroOpacity = 1 - Math.pow(p, 1.12);
         inner.style.opacity = String(heroOpacity);
         inner.style.transform = `scale(${1 - p * 0.02})`;
+
+        // Publish vars for dependent sections
         doc.style.setProperty("--hero-progress", p.toFixed(4));
         doc.style.setProperty("--hero-xfade", heroOpacity.toFixed(4));
 
-        const v = videoRef.current;
-        if (!v) return;
-        if (p > 0.98 && !v.paused) pauseVideo();
-        else if (
-          p <= 0.98 &&
-          document.visibilityState === "visible" &&
-          allowMotion
-        ) {
-          void playVideo();
+        // Deterministic handoff once
+        if (p > 0.995 && !autoSnapOnce.done) {
+          autoSnapOnce.done = true;
+          gsap.to(window, {
+            duration: 0.45,
+            ease: "power2.out",
+            scrollTo: { y: endEl, offsetY: 0 },
+            onComplete: () => {
+              doc.style.setProperty("--hero-progress", "1");
+              doc.style.setProperty("--hero-xfade", "0");
+              if (!endEl.hasAttribute("tabindex"))
+                endEl.setAttribute("tabindex", "-1");
+              endEl.focus({ preventScroll: true });
+            },
+          });
         }
-      },
-      onToggle(self) {
-        if (self.isActive && allowMotion) void playVideo();
       },
       onLeave() {
-        // a11y: ensure keyboard users are correctly "in" the next section
-        const next = document.getElementById(nextSectionId);
-        if (next) {
-          if (!next.hasAttribute("tabindex"))
-            next.setAttribute("tabindex", "-1");
-          next.focus({ preventScroll: true });
-        }
+        // Lock to "hero gone"
+        doc.style.setProperty("--hero-progress", "1");
+        doc.style.setProperty("--hero-xfade", "0");
+        pauseVideo();
       },
-      onEnterBack() {
-        // coming back up: focus the hero for consistent navigation
-        if (root) {
-          if (!root.hasAttribute("tabindex"))
-            root.setAttribute("tabindex", "-1");
-          root.focus({ preventScroll: true });
-        }
+      onKill() {
+        // Safety defaults if this component unmounts / refreshes
+        doc.style.setProperty("--hero-progress", "1");
+        doc.style.setProperty("--hero-xfade", "0");
       },
     });
 
     const onVis = () => {
       if (document.hidden) pauseVideo();
-      else if (allowMotion) void playVideo();
+      else if (allowMotion && videoReady) void playVideo();
     };
     document.addEventListener("visibilitychange", onVis);
 
@@ -146,7 +189,29 @@ export function PinnedHero({ nextSectionId }: Props) {
       document.removeEventListener("visibilitychange", onVis);
       st.kill();
     };
-  }, [allowMotion, nextSectionId]);
+  }, [allowMotion, nextSectionId, videoReady]);
+
+  // Encourage buffering; autoplay when ready
+  useEffect(() => {
+    if (!allowMotion) return;
+    const v = videoRef.current;
+    if (!v) return;
+
+    const onCanPlay = () => setVideoReady(true);
+    v.addEventListener("canplay", onCanPlay, { once: true });
+
+    // Nudge loading in idle time
+    // @ts-ignore
+    const idle =
+      window.requestIdleCallback || ((cb: any) => setTimeout(cb, 200));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const id = idle(() => v.load?.(), { timeout: 1200 } as any);
+
+    return () => {
+      cancel(id as any);
+      v.removeEventListener("canplay", onCanPlay);
+    };
+  }, [allowMotion]);
 
   const handleGallery = () => {
     const el = document.getElementById("gallery");
@@ -162,35 +227,45 @@ export function PinnedHero({ nextSectionId }: Props) {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
+  const videoId = useId();
+
   return (
     <section
       ref={rootRef}
       id="home"
-      className="relative h-[100svh] overflow-hidden"
+      className="relative h-[100svh] overflow-hidden overscroll-contain"
       aria-label="Lake View Villa hero section"
+      // element-scoped pointer move (fine pointers)
+      onPointerMove={(e) => {
+        if (!allowMotion || !isFinePointer) return;
+        const r = rootRef.current?.getBoundingClientRect();
+        if (!r) return;
+        px.set((e.clientX - r.left) / r.width);
+        py.set((e.clientY - r.top) / r.height);
+      }}
     >
       <div ref={innerRef} className="absolute inset-0">
-        {/* Background image loop */}
+        {/* MEDIA LAYER — crisp video, image fallback underneath */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 will-change-transform"
           animate={
             allowMotion
-              ? { scale: [1.08, 1.13, 1.08], x: [0, -10, 0], y: [0, -6, 0] }
-              : { scale: 1.08 }
+              ? { scale: [1.05, 1.09, 1.05], x: [0, -10, 0], y: [0, -6, 0] }
+              : { scale: 1.05 }
           }
           transition={
             allowMotion
-              ? {
-                  duration: 20,
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                }
+              ? { duration: 24, repeat: Infinity, ease: "linear" }
               : undefined
           }
+          style={{
+            rotateX: allowMotion ? (tiltX as any) : 0,
+            rotateY: allowMotion ? (tiltY as any) : 0,
+          }}
           aria-hidden="true"
         >
           <Image
-            src="/serene-lagoon-at-sunrise-with-villa-silhouette.jpg"
+            src="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
             alt=""
             role="presentation"
             fill
@@ -203,38 +278,35 @@ export function PinnedHero({ nextSectionId }: Props) {
             quality={85}
             draggable={false}
           />
-        </motion.div>
-
-        {/* Ambient video overlay */}
-        <motion.div
-          className="absolute inset-0"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: allowMotion ? 0.65 : 0.45 }}
-          transition={{ duration: 1, delay: 0.4 }}
-          aria-hidden="true"
-        >
           <video
             ref={videoRef}
-            className="w-full h-full object-cover"
+            id={videoId}
+            className="absolute inset-0 w-full h-full object-cover"
             preload={allowMotion ? "metadata" : "none"}
-            poster="/aerial-view-of-tropical-lagoon-with-villa.jpg"
+            autoPlay={allowMotion}
             muted
             loop
             playsInline
+            poster="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
             onPlay={() => setIsVideoPlaying(true)}
             onPause={() => setIsVideoPlaying(false)}
+            onLoadedData={() => {
+              if (allowMotion) void playVideo();
+            }}
             onError={(e) => console.warn("[hero] video error:", e)}
+            style={{ pointerEvents: "none" }}
           >
             <source src="/hero.webm" type="video/webm" />
-            <source src="/hero.mp4" type="video/mp4" />
+            <source src="/hero1.webm" type="video/webm" />
+            {/* <source src="/hero.mp4" type="video/mp4" /> */}
           </video>
         </motion.div>
 
-        {/* Copy + CTAs */}
+        {/* CONTENT */}
         <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
           <div className="max-w-4xl">
             <motion.h1
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 text-balance font-display"
+              className="text-4xl md:text-6xl lg:text-8xl font-bold mb-6 text-balance font-display"
               initial={{
                 y: allowMotion ? 80 : 0,
                 opacity: allowMotion ? 0 : 1,
@@ -243,20 +315,20 @@ export function PinnedHero({ nextSectionId }: Props) {
               transition={{ duration: 1.0, ease: "easeOut" }}
               style={{
                 background:
-                  "linear-gradient(115deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.9) 35%, rgba(6,182,212,0.95) 55%, rgba(255,255,255,0.92) 75%, rgba(255,255,255,0.88) 100%)",
-                backgroundSize: "200% 100%",
+                  "linear-gradient(115deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.9) 40%, rgba(56,189,248,0.96) 55%, rgba(255,255,255,0.92) 75%, rgba(255,255,255,0.88) 100%)",
+                backgroundSize: "220% 100%",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
                 textShadow:
-                  "0 0 30px rgba(255,255,255,0.6), 0 0 60px rgba(14,165,233,0.35), 0 0 90px rgba(6,182,212,0.25)",
+                  "0 0 30px rgba(255,255,255,0.55), 0 0 60px rgba(14,165,233,0.3)",
               }}
             >
               {HERO_CONTENT.title}
             </motion.h1>
 
             <motion.p
-              className="text-xl md:text-2xl lg:text-3xl mb-8 text-pretty max-w-3xl mx-auto font-medium"
+              className="text-md md:text-xl lg:text-2xl mb-8 text-pretty max-w-3xl mx-auto font-medium"
               initial={{
                 y: allowMotion ? 40 : 0,
                 opacity: allowMotion ? 0 : 1,
@@ -264,9 +336,8 @@ export function PinnedHero({ nextSectionId }: Props) {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               style={{
-                color: "rgba(255,255,255,0.95)",
-                textShadow:
-                  "0 0 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6)",
+                color: "rgba(255,255,255,0.96)",
+                textShadow: "0 2px 22px rgba(0,0,0,0.6)",
               }}
             >
               {HERO_CONTENT.tagline}
@@ -283,7 +354,7 @@ export function PinnedHero({ nextSectionId }: Props) {
             >
               <Button
                 size="lg"
-                className="glass-strong text-white border-white/40 hover:border-white/60 px-10 py-5 text-lg font-semibold shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:shadow-[0_0_60px_rgba(255,255,255,0.35)] transition-all duration-300 hover:scale-105"
+                className="glass-strong text-white border-white/40 hover:border-white/60 px-6 py-3 md:px-10 md:py-5 md:text-lg font-semibold shadow-[0_0_40px_rgba(255,255,255,0.25)] hover:shadow-[0_0_60px_rgba(255,255,255,0.35)] transition-all duration-300 hover:scale-105"
                 onClick={handleGallery}
                 aria-label="View photo gallery of Lake View Villa"
               >
@@ -293,7 +364,7 @@ export function PinnedHero({ nextSectionId }: Props) {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-cyan-400/60 text-cyan-200 hover:bg-cyan-500/25 hover:text-white hover:border-cyan-300/80 px-10 py-5 text-lg font-semibold bg-transparent backdrop-blur-md shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] transition-all duration-300 hover:scale-105"
+                className="border-2 border-cyan-400/60 text-cyan-200 hover:bg-cyan-500/25 hover:text-white hover:border-cyan-300/80 px-6 py-3 md:px-10 md:py-5 md:text-lg font-semibold bg-transparent backdrop-blur-md shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] transition-all duration-300 hover:scale-105"
                 onClick={handleWhatsApp}
                 aria-label="Contact us via WhatsApp to book your stay"
               >
@@ -302,26 +373,44 @@ export function PinnedHero({ nextSectionId }: Props) {
             </motion.div>
           </div>
 
-          {/* Play/Pause control */}
+          {/* LEFT control (safe-area aware) */}
           <button
-            className="absolute bottom-8 right-8 glass hover:glass-strong rounded-full p-4 text-white transition-all duration-300 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]"
+            className="absolute z-20 rounded-full p-2 md:p-4 text-white transition-all duration-300 glass hover:glass-strong shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]
+                       left-[max(env(safe-area-inset-left),2rem)] bottom-[max(env(safe-area-inset-bottom),2rem)]"
             onClick={() => (isVideoPlaying ? pauseVideo() : void playVideo())}
             disabled={isVideoLoading}
+            title={isVideoPlaying ? "Pause video (K)" : "Play video (K)"}
             aria-label={
               isVideoPlaying
                 ? "Pause background video"
                 : "Play background video"
             }
             aria-pressed={isVideoPlaying}
+            aria-controls={videoId}
           >
             {isVideoLoading ? (
               <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
             ) : isVideoPlaying ? (
-              <Pause size={24} />
+              <Pause size={20} />
             ) : (
-              <Play size={24} />
+              <Play size={20} />
             )}
           </button>
+
+          {/* Scroll hint */}
+          <motion.div
+            className="pointer-events-none absolute bottom-[max(env(safe-area-inset-bottom),1.5rem)] left-1/2 -translate-x-1/2 text-white/90"
+            animate={{ y: [0, 12, 0], opacity: [0.85, 1, 0.85] }}
+            transition={{ duration: 2.4, repeat: Infinity }}
+            aria-hidden="true"
+          >
+            <div className="flex flex-col items-center px-4 py-2">
+              <span className="text-sm mb-1.5 font-medium">
+                Scroll to explore
+              </span>
+              <div className="w-px h-7 bg-gradient-to-b from-white/90 to-transparent shadow-[0_0_15px_rgba(255,255,255,0.6)]" />
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>

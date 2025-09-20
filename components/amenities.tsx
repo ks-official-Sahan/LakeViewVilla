@@ -1,7 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ChefHat, Bed, Bath, Sofa, TreePine, Utensils, Shield, Users, Gamepad2, ShoppingCart } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  ChefHat,
+  Bed,
+  Bath,
+  Sofa,
+  TreePine,
+  Utensils,
+  Shield,
+  Users,
+  Gamepad2,
+  ShoppingCart,
+} from "lucide-react";
+import { PROPERTY } from "@/data/content";
 
 export function Amenities() {
   const amenityCategories = [
@@ -41,7 +52,7 @@ export function Amenities() {
       color: "bg-red-100 text-red-600",
       items: PROPERTY.amenities_in_unit.food_and_drink.slice(0, 8),
     },
-  ]
+  ];
 
   const serviceCategories = [
     {
@@ -64,13 +75,15 @@ export function Amenities() {
       icon: ShoppingCart,
       items: PROPERTY.activities_services.shops,
     },
-  ]
+  ];
 
   return (
     <section id="amenities" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Premium Amenities</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Premium Amenities
+          </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Everything you need for a comfortable and memorable stay
           </p>
@@ -78,13 +91,20 @@ export function Amenities() {
 
         {/* In-Unit Amenities */}
         <div className="mb-16">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">In-Villa Amenities</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            In-Villa Amenities
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {amenityCategories.map((category, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card
+                key={index}
+                className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${category.color}`}>
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center ${category.color}`}
+                    >
                       <category.icon className="w-5 h-5" />
                     </div>
                     <CardTitle className="text-lg">{category.title}</CardTitle>
@@ -93,7 +113,11 @@ export function Amenities() {
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
                     {category.items.map((item, itemIndex) => (
-                      <Badge key={itemIndex} variant="secondary" className="text-xs">
+                      <Badge
+                        key={itemIndex}
+                        variant="secondary"
+                        className="text-xs"
+                      >
                         {item}
                       </Badge>
                     ))}
@@ -106,10 +130,15 @@ export function Amenities() {
 
         {/* Services & Facilities */}
         <div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">Services & Facilities</h3>
+          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            Services & Facilities
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {serviceCategories.map((category, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <Card
+                key={index}
+                className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300"
+              >
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
@@ -121,7 +150,10 @@ export function Amenities() {
                 <CardContent>
                   <ul className="space-y-2">
                     {category.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="text-sm text-gray-600 flex items-start">
+                      <li
+                        key={itemIndex}
+                        className="text-sm text-gray-600 flex items-start"
+                      >
                         <span className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 mr-2 flex-shrink-0" />
                         {item}
                       </li>
@@ -136,9 +168,12 @@ export function Amenities() {
         {/* Restaurant Highlight */}
         <div className="mt-16 bg-white rounded-2xl shadow-xl p-8 md:p-12">
           <div className="text-center mb-8">
-            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{PROPERTY.restaurant_on_site.name}</h3>
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+              {PROPERTY.restaurant_on_site.name}
+            </h3>
             <p className="text-lg text-gray-600">
-              Savor authentic Sri Lankan flavors and international cuisine prepared fresh daily
+              Savor authentic Sri Lankan flavors and international cuisine
+              prepared fresh daily
             </p>
           </div>
 
@@ -166,18 +201,22 @@ export function Amenities() {
             </div>
 
             <div className="text-center">
-              <h4 className="font-semibold text-gray-900 mb-3">Dietary Options</h4>
+              <h4 className="font-semibold text-gray-900 mb-3">
+                Dietary Options
+              </h4>
               <div className="flex flex-wrap justify-center gap-2">
-                {PROPERTY.restaurant_on_site.dietary_options.map((option, index) => (
-                  <Badge key={index} variant="outline">
-                    {option}
-                  </Badge>
-                ))}
+                {PROPERTY.restaurant_on_site.dietary_options.map(
+                  (option, index) => (
+                    <Badge key={index} variant="outline">
+                      {option}
+                    </Badge>
+                  )
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

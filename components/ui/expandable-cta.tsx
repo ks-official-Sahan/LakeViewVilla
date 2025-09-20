@@ -1,81 +1,228 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { MessageCircle, Phone, Calendar, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "./svg-icons";
 
 export function ExpandableCTA() {
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [pill, setPill] = useState(true);
+  const [dockOffset, setDockOffset] = useState(0);
+  const reduceMotion = useReducedMotion();
 
-  const handleWhatsApp = () => {
-    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP || "+94771234567"
-    const message = encodeURIComponent(
-      "Hi! I'm interested in booking Lake View Villa Tangalle. Could you please provide more information?",
-    )
-    window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank")
-  }
+  const rawNumber =
+    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_WHATSAPP) ||
+    "+94717448391";
+  const intlDisplay = rawNumber;
+  const waNumber = useMemo(() => rawNumber.replace(/[^\d]/g, ""), [rawNumber]);
 
-  const handleCall = () => {
-    const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP || "+94771234567"
-    window.open(`tel:${phoneNumber}`, "_self")
-  }
+  const whatsapp = () => {
+    const msg =
+      "Hi! I'm interested in booking Lake View Villa Tangalle. Could you please provide availability and rates?";
+    window.open(
+      `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`,
+      "_blank",
+      "noopener"
+    );
+  };
+  const call = () => window.open(`tel:${rawNumber}`, "_self");
+  const book = () =>
+    document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
 
-  const handleBooking = () => {
-    // Scroll to booking section or open booking modal
-    const bookingSection = document.getElementById("booking")
-    if (bookingSection) {
-      bookingSection.scrollIntoView({ behavior: "smooth" })
+  // Show small “Chat” pill briefly the first time.
+  useEffect(() => {
+    if (!open) {
+      const t = setTimeout(() => setPill(false), 2400);
+      return () => clearTimeout(t);
     }
-  }
+  }, [open]);
+
+  // Scroll-aware: shrink on fast scroll, ensure we don’t collide with footer
+  useEffect(() => {
+    let ticking = false;
+    let lastY = window.scrollY;
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const dy = Math.abs(window.scrollY - lastY);
+        lastY = window.scrollY;
+
+        // Footer avoidance (if a <footer> exists)
+        const footer = document.querySelector("footer") as HTMLElement | null;
+        if (footer) {
+          const fb = footer.getBoundingClientRect();
+          const vh = window.innerHeight;
+          // If footer is entering viewport bottom, lift the FAB up
+          const overlap = Math.max(0, vh - fb.top + 16);
+          setDockOffset(Math.min(overlap, 160));
+        }
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close on outside click / Esc
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const onClick = (e: MouseEvent) => {
+      if (!rootRef.current) return;
+      if (!rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onClick);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
+
+  const panelVariants = {
+    hidden: { opacity: 0, y: 10, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: reduceMotion ? 0.16 : 0.28, ease: "easeOut" },
+    },
+    exit: { opacity: 0, y: 10, scale: 0.98, transition: { duration: 0.18 } },
+  };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <div
-        className={`flex flex-col items-end gap-3 transition-all duration-300 ${isExpanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"}`}
-      >
-        {/* WhatsApp Button */}
-        <Button
-          onClick={handleWhatsApp}
-          className="glass hover:glass-strong rounded-full p-3 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-          data-magnetic
-        >
-          <MessageCircle className="h-5 w-5" />
-          <span className="ml-2 hidden sm:inline">WhatsApp</span>
-        </Button>
+    <div
+      ref={rootRef}
+      className="fixed z-[80] right-[max(1rem,env(safe-area-inset-right))] pointer-events-none"
+      style={{
+        bottom: `calc(max(1rem, env(safe-area-inset-bottom)) + ${dockOffset}px)`,
+      }}
+      aria-live="polite"
+    >
+      {/* Glass panel */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="panel"
+            role="dialog"
+            aria-label="Contact options"
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            variants={panelVariants}
+            className="pointer-events-auto mb-3 w-[min(92vw,22rem)] rounded-2xl bg-slate-900/85 text-white backdrop-blur-xl ring-1 ring-white/10 shadow-2xl p-3"
+          >
+            <div className="flex items-center gap-2 px-1 pb-2">
+              <img
+                src="/logo.png"
+                alt=""
+                className="h-6 w-6 rounded-full ring-1 ring-white/15 object-cover"
+              />
+              <p className="text-sm text-white/80">We reply in minutes</p>
+              <button
+                onClick={() => setOpen(false)}
+                className="ml-auto rounded-md p-1 text-white/70 hover:text-white transition"
+                aria-label="Close"
+              >
+                ×
+              </button>
+            </div>
 
-        {/* Call Button */}
-        <Button
-          onClick={handleCall}
-          className="glass hover:glass-strong rounded-full p-3 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-          data-magnetic
-        >
-          <Phone className="h-5 w-5" />
-          <span className="ml-2 hidden sm:inline">Call</span>
-        </Button>
+            <div className="grid gap-2">
+              <button
+                onClick={whatsapp}
+                className="group w-full rounded-xl px-4 py-3 text-left bg-[linear-gradient(135deg,#25D366,#128C7E)] shadow-lg hover:shadow-xl transition ring-1 ring-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
+                    <WhatsAppIcon className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-semibold leading-5">Chat on WhatsApp</p>
+                    <p className="text-xs text-white/90 leading-4">
+                      Fastest response
+                    </p>
+                  </div>
+                </div>
+              </button>
 
-        {/* Book Now Button */}
-        <Button
-          onClick={handleBooking}
-          className="glass hover:glass-strong rounded-full p-3 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-          data-magnetic
+              <button
+                onClick={call}
+                className="w-full rounded-xl px-4 py-3 text-left bg-white/6 hover:bg-white/10 transition ring-1 ring-white/10"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/90">
+                    <PhoneIcon className="h-5 w-5 text-white" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-medium leading-5">Call now</p>
+                    <p className="text-sm text-white/80">{intlDisplay}</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={book}
+                className="w-full rounded-xl px-4 py-3 text-left bg-white/6 hover:bg-white/10 transition ring-1 ring-white/10"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/90">
+                    <CalendarIcon className="h-5 w-5 text-white" />
+                  </span>
+                  <div className="flex-1">
+                    <p className="font-medium leading-5">Book your stay</p>
+                    <p className="text-xs text-white/75 leading-4">
+                      Check dates & rates
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* FAB cluster */}
+      <div className="pointer-events-auto flex items-center justify-end gap-2">
+        {/* Intro pill (auto hides) */}
+        <AnimatePresence initial={false}>
+          {!open && pill && (
+            <motion.span
+              key="pill"
+              initial={{ opacity: 0, x: 8, scale: 0.98 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 8, scale: 0.98 }}
+              transition={{ duration: 0.22 }}
+              className="px-3 py-1.5 rounded-full bg-white text-slate-900 text-sm shadow-lg"
+            >
+              Chat
+            </motion.span>
+          )}
+        </AnimatePresence>
+
+        {/* FAB */}
+        <motion.button
+          aria-label={open ? "Close chat options" : "Open chat options"}
+          onClick={() => setOpen((v) => !v)}
+          whileTap={{ scale: 0.96 }}
+          className="relative grid place-items-center h-10 w-10 md:h-14 md:w-14 rounded-full shadow-2xl ring-1 ring-white/50
+                     bg-[conic-gradient(from_180deg_at_50%_50%,#25D366_0%,#1FC85F_40%,#128C7E_100%)]
+                     hover:brightness-110 transition"
         >
-          <Calendar className="h-5 w-5" />
-          <span className="ml-2 hidden sm:inline">Book Now</span>
-        </Button>
+          {/* white inner ring for contrast on noisy media */}
+          <span className="absolute inset-[3px] rounded-full ring-1 ring-white/40 pointer-events-none" />
+          {/* neon aura */}
+          <span className="absolute -inset-1 rounded-full bg-emerald-400/25 blur-xl pointer-events-none" />
+          <WhatsAppIcon className="relative w-5 h-5 md:h-7 md:w-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]" />
+          {/* online dot */}
+          {!open && (
+            <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-cyan-400 ring-2 ring-white/95" />
+          )}
+        </motion.button>
       </div>
-
-      {/* Main Toggle Button */}
-      <Button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className={`mt-3 rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 ${
-          isExpanded
-            ? "bg-red-500 hover:bg-red-600 text-white"
-            : "bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 text-white"
-        }`}
-        data-magnetic
-      >
-        {isExpanded ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
-      </Button>
     </div>
-  )
+  );
 }

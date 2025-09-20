@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Navigation, Clock, Car } from "lucide-react"
-import { PROPERTY } from "@/data/booking"
+import { PROPERTY } from "@/data/content"
 
 export function Location() {
   const nearbyAttractions = [
