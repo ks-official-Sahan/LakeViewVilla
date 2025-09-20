@@ -141,7 +141,7 @@ export const PROPERTY = {
     bedrooms: 2,
     beds: [
       { bedroom: 1, configuration: ["1 king bed"] },
-      { bedroom: 2, configuration: ["1 twin bed", "1 king bed"] },
+      { bedroom: 2, configuration: ["1 king bed"] },
     ],
     bathrooms: 2,
   },
@@ -312,10 +312,16 @@ export const PROPERTY = {
   },
   accommodation_types: [
     {
-      name: "Two-Bedroom Villa",
-      sleeps: 4,
-      bedroom_1: ["1 king bed"],
-      bedroom_2: ["1 twin bed", "1 king bed"],
+      name: "Villa Room 1",
+      sleeps: 2,
+      bedroom_1: ["1 King Bed"],
+      bedroom_2: [],
+    },
+    {
+      name: "Villa Room 2",
+      sleeps: 2,
+      bedroom_1: [],
+      bedroom_2: ["1 King Bed"],
     },
   ],
   scores_reviews: {
@@ -365,9 +371,10 @@ export const BOOKING_FACTS: BookingFacts = {
     name: room.name,
     sleeps: room.sleeps,
     features: [
-      ...room.bedroom_1.map((b) => `Bedroom 1: ${b}`),
-      ...room.bedroom_2.map((b) => `Bedroom 2: ${b}`),
+      ...room.bedroom_1?.map((b) => `Bedroom 1: ${b}`),
+      ...room.bedroom_2?.map((b) => `Bedroom 2: ${b}`),
       "Private bathroom",
+      "Shared Full Equipped Kitchen",
       "Air conditioning",
     ],
   })),

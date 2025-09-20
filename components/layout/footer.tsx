@@ -35,7 +35,7 @@ export function Footer() {
           <div className="md:col-span-5 lg:col-span-4">
             <div className="flex items-center gap-3">
               <Image
-                src="/icon.png" // your logo mark; 128x128 recommended
+                src="/icon.png"
                 alt="Lake View Villa Tangalle logo"
                 width={48}
                 height={48}
@@ -90,9 +90,9 @@ export function Footer() {
               <p className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />
                 <span>
-                  <span itemProp="streetAddress">Lagoon Road</span>,{" "}
-                  <span itemProp="addressLocality">Tangalle</span>,{" "}
-                  <span itemProp="addressCountry">Sri Lanka</span>
+                  <span itemProp="streetAddress">19/6 Julgahawalagoda</span>,{" "}
+                  <span itemProp="addressLocality">Kadurupokuna South</span>,{" "}
+                  <span itemProp="addressCountry">Tangalle</span>
                 </span>
               </p>
               <p className="flex items-center gap-3">
@@ -110,10 +110,10 @@ export function Footer() {
               <p className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-slate-300" />
                 <a
-                  href="mailto:info@lakeviewvillatangalle.com"
+                  href="mailto:janithsadika50@gmail.com"
                   className="hover:text-white transition-colors"
                 >
-                  info@lakeviewvillatangalle.com
+                  janithsadika50@gmail.com
                 </a>
               </p>
             </address>
