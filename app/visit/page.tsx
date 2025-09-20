@@ -12,7 +12,7 @@ import { SectionReveal } from "@/components/motion/section-reveal";
 import { SITE_CONFIG, DIRECTIONS } from "@/data/content";
 import { buildWhatsAppUrl, cn } from "@/lib/utils";
 import { Controller } from "react-hook-form";
-import { GuestsSelect } from "@/components/ui/guests-select";
+import { GuestsSelect } from "@/components/ui2/guests-select";
 
 /* ---------- schema ---------- */
 const contactSchema = z.object({

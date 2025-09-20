@@ -40,7 +40,7 @@ export function LoadingScreen({
   title = "Lake View Villa",
   subtitle = "Tangalle, Sri Lanka",
   criticalAssets = [
-    "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+    "/villa/drone_view_villa.jpg",
     "/hero.webm",
     // "/hero.mp4",
   ],

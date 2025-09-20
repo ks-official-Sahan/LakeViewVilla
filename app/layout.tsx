@@ -8,9 +8,9 @@ import "./globals.css";
 
 import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Navigation } from "@/components/layout/navigation";
-import { ExpandableCTA } from "@/components/ui/expandable-cta";
+import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
-import { LoadingScreen } from "@/components/ui/loading-screen";
+import { LoadingScreen } from "@/components/ui2/loading-screen";
 import {
   generateWebSiteSchema,
   generateOrganizationSchema,
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     siteName: "Lake View Villa Tangalle",
     images: [
       {
-        url: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+        url: "/villa/drone_view_villa.jpg",
         width: 1200,
         height: 630,
         alt: "Lake View Villa Tangalle - Serene lagoon at sunrise",
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic lake views and modern amenities.",
     creator: "@lakeviewvilla",
-    images: ["/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"],
+    images: ["/villa/drone_view_villa.jpg"],
   },
   robots: {
     index: true,
@@ -113,11 +113,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${inter.variable}`}>
       <head>
-        <link
-          rel="preload"
-          href="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
-          as="image"
-        />
+        <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
         <link rel="preconnect" href="https://cf.bstatic.com" />
         <link rel="dns-prefetch" href="https://cf.bstatic.com" />
         <link rel="preconnect" href="https://r-xx.bstatic.com" />

@@ -265,7 +265,7 @@ export function PinnedHero({ nextSectionId }: Props) {
           aria-hidden="true"
         >
           <Image
-            src="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
+            src="/villa/drone_view_villa.jpg"
             alt=""
             role="presentation"
             fill
@@ -287,7 +287,7 @@ export function PinnedHero({ nextSectionId }: Props) {
             muted
             loop
             playsInline
-            poster="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"
+            poster="/villa/drone_view_villa.jpg"
             onPlay={() => setIsVideoPlaying(true)}
             onPause={() => setIsVideoPlaying(false)}
             onLoadedData={() => {

@@ -14,19 +14,19 @@
   /* 0 = next section fully revealed */
 }
 
-/* Optional: baseline rendering polish */
+/* Selection color */
+::selection {
+  background: rgba(14, 165, 233, 0.24);
+  color: #0a0e12;
+}
+
+/* Baseline rendering polish */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   color-scheme: light;
-}
-
-/* Selection color */
-::selection {
-  background: rgba(14, 165, 233, 0.24);
-  color: #0a0e12;
 }
 
 /* Respect reduced motion */
@@ -46,15 +46,54 @@ html {
 }
 
 /* -----------------------------
-   Theme tokens (Tailwind @theme)
+   Shadcn token mapping (LIGHT)
+   Ensures all UI tokens are set and consistent
+------------------------------*/
+:root {
+  --background: 210 20% 98%;
+  --foreground: 210 15% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 15% 8%;
+  --popover: 210 25% 99%;
+  --popover-foreground: 210 15% 8%;
+  --primary: 189 84% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 205 70% 39%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 12% 55%;
+  --muted-foreground: 210 10% 40%;
+  --accent: 205 70% 39%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 180 10% 85%;
+  --input: 180 10% 85%;
+  --ring: 189 84% 33%;
+  --chart-1: 199 89% 48%;
+  --chart-2: 173 80% 40%;
+  --chart-3: 47 95% 54%;
+  --chart-4: 12 88% 62%;
+  --chart-5: 283 86% 53%;
+  --sidebar-background: var(--background);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+  --radius: 14px;
+}
+
+/* -----------------------------
+   Lagoon-coastal palette (light)
+   (kept from your original theme block)
 ------------------------------*/
 @theme inline {
-  /* Font vars (wired from next/font in <html> class) */
   --font-sans: var(--font-inter);
   --font-display: var(--font-montserrat);
   --font-mono: var(--font-geist-mono);
 
-  /* Lagoon-coastal palette (light) */
   --color-background: #f4f7f6;
   /* mist */
   --color-surface: #ffffff;
@@ -73,19 +112,45 @@ html {
   --color-border: #d9e2e1;
   --color-outline: #d9e2e1;
 
-  /* Gradients */
   --grad-lagoon: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 35%, #34d399 100%);
   --grad-sunrise: linear-gradient(120deg, #fb7185 0%, #f59e0b 60%, #34d399 100%);
   --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, 0.7), rgba(10, 15, 16, 0.3));
 
-  /* Glass presets */
   --glass-bg: rgba(255, 255, 255, 0.14);
   --glass-border: rgba(255, 255, 255, 0.35);
   --glass-blur: 14px;
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 }
 
-@theme dark {
+/* -----------------------------
+   Dark mapping (shadcn + your palette)
+------------------------------*/
+.dark {
+  --background: 200 14% 6%;
+  --foreground: 195 35% 92%;
+  --card: 200 14% 7%;
+  --card-foreground: 195 35% 92%;
+  --popover: 200 14% 8%;
+  --popover-foreground: 195 35% 92%;
+  --primary: 199 89% 60%;
+  --primary-foreground: 200 50% 7%;
+  --secondary: 173 70% 55%;
+  --secondary-foreground: 200 50% 7%;
+  --muted: 200 10% 60%;
+  --muted-foreground: 200 12% 72%;
+  --accent: 173 70% 55%;
+  --accent-foreground: 200 50% 7%;
+  --destructive: 0 84% 62%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 20% 18%;
+  --input: 200 20% 18%;
+  --ring: 199 89% 60%;
+  --chart-1: 199 89% 60%;
+  --chart-2: 173 70% 55%;
+  --chart-3: 47 95% 58%;
+  --chart-4: 12 88% 62%;
+  --chart-5: 283 86% 64%;
+
   --color-background: #0a0f10;
   --color-surface: #101518;
   --color-foreground: #e8eff1;
@@ -100,16 +165,34 @@ html {
   --color-border: #1f2a2e;
   --color-outline: #1f2a2e;
 
-  /* Dark glass */
   --glass-bg: rgba(16, 21, 24, 0.38);
   --glass-border: rgba(255, 255, 255, 0.14);
 }
 
 /* -----------------------------
-   Utility helpers
+   Global overflow & mobile safety
 ------------------------------*/
+html,
+body,
+#__next {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
-/* Glass utilities */
+* {
+  min-width: 0;
+}
+
+/* Ensure inputs use dark controls when needed */
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+
+/* -----------------------------
+   Utility helpers (kept)
+------------------------------*/
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -130,12 +213,10 @@ html {
   box-shadow: var(--glass-shadow);
 }
 
-/* Performance containment for heavy animated wrappers */
 .contain-paint {
   contain: paint;
 }
 
-/* Accessibility helpers */
 .visually-hidden {
   position: absolute !important;
   height: 1px;
@@ -148,7 +229,6 @@ html {
   margin: -1px;
 }
 
-/* Hide scrollbars (opt-in) */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -158,13 +238,11 @@ html {
   scrollbar-width: none;
 }
 
-/* Better focus outline when relying on keyboard */
 .focus-visible:focus {
   outline: 2px solid #0ea5e9;
   outline-offset: 2px;
 }
 
-/* Magnetic buttons */
 [data-magnetic] {
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -175,10 +253,8 @@ html {
 }
 
 /* -----------------------------
-   Hero / media niceties
+   Hero / media niceties (kept)
 ------------------------------*/
-
-/* Ken Burns (used by image fallbacks) */
 @keyframes kenBurns {
   0% {
     transform: scale(1) translate(0, 0);
@@ -205,7 +281,6 @@ html {
   animation: kenBurns 20s ease-in-out infinite;
 }
 
-/* Floating hint */
 @keyframes float {
 
   0%,
@@ -222,7 +297,6 @@ html {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Shimmer (skeletons) */
 @keyframes shimmer {
   0% {
     background-position: -200px 0;
@@ -253,7 +327,7 @@ html {
 }
 
 /* -----------------------------
-   Background patterns
+   Background patterns (kept)
 ------------------------------*/
 .interactive-bg {
   background:
@@ -275,7 +349,6 @@ html {
   }
 }
 
-/* Text gradients */
 .text-gradient {
   background: var(--grad-lagoon);
   -webkit-background-clip: text;
@@ -291,7 +364,7 @@ html {
 }
 
 /* -----------------------------
-   Scrollbar (WebKit)
+   Scrollbar (WebKit) (kept)
 ------------------------------*/
 ::-webkit-scrollbar {
   width: 8px;
@@ -313,7 +386,7 @@ html {
 }
 
 /* -----------------------------
-   Card shine (used in Highlights)
+   Card shine (kept)
 ------------------------------*/
 @keyframes cardShine {
   0% {
@@ -325,14 +398,8 @@ html {
   }
 }
 
-/* Optional: small GPU nudge for animated blocks */
+/* GPU nudge */
 .gpu {
   transform: translateZ(0);
   will-change: transform;
-}
-
-input,
-select,
-textarea {
-  color-scheme: dark;
 }

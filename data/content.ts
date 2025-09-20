@@ -337,20 +337,42 @@ export const PROPERTY = {
     },
   },
   images_sample: [
-    "room_01_img_01.jpeg",
-    "room_02_img_01.jpeg",
-    "lake_img_01.jpeg",
-    "villa_outside_01.jpeg",
-    "with_guests_01.jpeg",
-    "with_guests_02.jpeg",
-    "with_guests_03.jpeg",
-    "with_guests_04_dinning.jpeg",
-    "garden_img_01.jpeg",
-    "garden_img_02.jpeg",
-    "drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
-    "room_01_img_02.jpeg",
-    "room_02_img_02.jpeg",
-    "room_01_img_03_cot.jpeg",
+    "villa/villa_img_02.jpeg",
+    "villa/beach_img_01.jpeg",
+    "villa/with_guests_01.jpeg",
+    "villa/with_guests_04_dinning.jpeg",
+    "villa/room_02_img_01.jpeg",
+    "villa/villa_outside_01.jpeg",
+    "villa/villa_img_01.jpeg",
+    "villa/drone_view_villa.jpg",
+    "villa/garden_img_01.jpeg",
+    "villa/garden_img_02.jpeg",
+    "villa/garden_img_03.jpeg",
+    "villa/garden_img_04.jpeg",
+    "villa/garden_img_05.jpeg",
+    "villa/kitchen_img_01",
+    "villa/kitchen_img_02",
+    "villa/kitchen_img_03",
+    "villa/kitchen_img_04",
+    "villa/lake_img_01.jpeg",
+    "villa/lake_img_02.jpeg",
+    "villa/room_01_img_01.jpeg",
+    "villa/room_01_img_02.jpeg",
+    "villa/room_01_img_03_cot.jpeg",
+    "villa/room_01_img_04_bathroom.jpeg",
+    "villa/room_01_img_05_bathroom.jpeg",
+    "villa/room_02_img_02.jpeg",
+    "villa/room_02_img_03.jpeg",
+    "villa/room_02_img_04_bathroom.jpeg",
+    "villa/room_img_01.jpeg",
+    "villa/with_guests_02.jpeg",
+    "villa/with_guests_03.jpeg",
+    "villa/with_guests_05_dinning.jpeg",
+    "villa/villa_outside_02.jpeg",
+    "villa/villa_outside_03.jpeg",
+    "villa/villa_outside_04.jpeg",
+    "villa/villa_outside_05.jpeg",
+    "villa/villa_outside_06.jpeg",
   ],
 } as const;
 
@@ -399,3 +421,89 @@ export const BOOKING_FACTS: BookingFacts = {
   rates: [...RATES],
   offers: [...OFFERS],
 };
+
+// -------- Facilities (Landing Section) --------
+export type Facility = {
+  id: string;
+  title: string;
+  description: string;
+  image: string; // public path starting with "/"
+  alt?: string;
+  badge?: string; // small emoji badge (optional)
+};
+
+export const FACILITIES: Facility[] = [
+  {
+    id: "bedroom-1",
+    badge: "🛏",
+    title: "Bedroom 1",
+    description:
+      "A spacious super king bedroom with air-conditioning and a cooling fan, designed for restful sleep. Bright, airy, and elegantly furnished for your comfort.",
+    image: "/villa/room_01_img_01.jpeg",
+    alt: "Super king Bedroom 1 with canopy net",
+  },
+  {
+    id: "bedroom-2",
+    badge: "🛏",
+    title: "Bedroom 2",
+    description:
+      "Another super king bedroom offering the same comfort, complete with modern amenities, fresh linens, and a calming atmosphere — perfect for families or friends.",
+    image: "/villa/room_02_img_01.jpeg",
+    alt: "Super king Bedroom 2 with four-poster bed",
+  },
+  {
+    id: "kitchen",
+    badge: "🍳",
+    title: "Kitchen",
+    description:
+      "A fully equipped modern kitchen with a stove, fridge, washing machine, and all essentials — cook home-style meals or fresh local dishes with ease.",
+    image: "/villa/kitchen_img_02.jpeg",
+    alt: "Modern kitchen essentials",
+  },
+  {
+    id: "outdoor",
+    badge: "🌿",
+    title: "Outdoor",
+    description:
+      "Relax on the wide veranda overlooking the private garden and tranquil lake. Sunrise views, bird watching, and peaceful greenery await.",
+    // image: "/villa_outside_01.jpeg",
+    image: "/villa/villa_img_01.jpeg",
+    alt: "Wide veranda and private garden",
+  },
+  {
+    id: "bathroom-1",
+    badge: "🚿",
+    title: "Bathroom 1",
+    description:
+      "Spacious and well-designed with a refreshing hot-water shower — perfect after a day at the beach or exploring Tangalle.",
+    image: "/villa/room_01_img_04_bathroom.jpeg",
+    alt: "Bathroom with hot water shower",
+  },
+  {
+    id: "bathroom-2",
+    badge: "🚿",
+    title: "Bathroom 2",
+    description:
+      "Equally comfortable and modern, ensuring every guest has easy access to private facilities.",
+    image: "/villa/room_02_img_04_bathroom.jpeg",
+    alt: "Second bathroom",
+  },
+  {
+    id: "cot",
+    badge: "🛏",
+    title: "Cot",
+    description:
+      "A baby cot is available for families traveling with little ones — a child-friendly getaway made easy.",
+    image: "/villa/room_01_img_03_cot.jpeg",
+    alt: "Baby cot in master bedroom",
+  },
+  {
+    id: "balcony",
+    badge: "🌅",
+    title: "Balcony",
+    description:
+      "Step onto the balcony for serene lake views, morning sunshine, and soothing sounds of nature — perfect for coffee, reading, or quiet reflection.",
+    image: "/villa/villa_outside_01.jpeg",
+    alt: "Balcony with lake view at sunrise",
+  },
+];

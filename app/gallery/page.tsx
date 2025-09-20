@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+        url: "/villa/drone_view_villa.jpg",
         width: 1200,
         height: 630,
         alt: "Aerial view of the lagoon and villa at sunrise",
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     title: "Gallery - Lake View Villa Tangalle",
     description:
       "See our lagoon, interiors, and surroundings in the photo gallery.",
-    images: ["/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg"],
+    images: ["/villa/drone_view_villa.jpg"],
   },
 };
 
@@ -46,19 +46,19 @@ function getGalleryImages() {
 
   const fallbacks = [
     {
-      src: "/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg",
+      src: "/villa/drone_view_villa.jpg",
       alt: "Aerial view of the lagoon and villa at sunrise",
       w: 1200,
       h: 800,
     },
     {
-      src: "/room_02_img_01.jpeg",
+      src: "/villa/room_02_img_01.jpeg",
       alt: "Living area with modern furnishings",
       w: 1200,
       h: 800,
     },
     {
-      src: "/garden_img_01.jpeg",
+      src: "/villa/garden_img_01.jpeg",
       alt: "Garden path and greenery around the villa",
       w: 1200,
       h: 800,

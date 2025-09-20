@@ -237,7 +237,7 @@ export function Hero() {
         aria-hidden="true"
       >
         <Image
-          src="/drone-aerial-footage-of-tropical-lagoon-and-villa.jpg" // canonical name
+          src="/villa/drone_view_villa.jpg" // canonical name
           alt=""
           role="presentation"
           fill
@@ -264,7 +264,7 @@ export function Hero() {
           ref={videoRef}
           className="w-full h-full object-cover"
           preload={allowAutoplay ? "metadata" : "none"}
-          poster="/villa_outside_01.jpeg"
+          poster="/villa/villa_outside_01.jpeg"
           muted
           loop
           playsInline

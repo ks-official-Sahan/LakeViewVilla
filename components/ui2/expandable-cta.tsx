@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "./svg-icons";
+import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "../ui/svg-icons";
 
 export function ExpandableCTA() {
   const [open, setOpen] = useState(false);
