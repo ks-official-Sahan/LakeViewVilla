@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/footer";
 import { PinnedHero } from "@/components/sections/pinned-hero";
 import FacilitiesSection from "@/components/sections/facilities";
 import { ValuesSection } from "@/components/sections/values";
+import { SectionReveal } from "@/components/motion/section-reveal";
 
 export default function HomePage() {
   return (
@@ -15,15 +16,31 @@ export default function HomePage() {
       {/* <Hero /> */}
       <PinnedHero nextSectionId="highlights" />
       <section id="highlights">
-        <Highlights />
+        <SectionReveal>
+          <Highlights />
+        </SectionReveal>
       </section>
-      <ExperiencesReel />
-      <GalleryTeaser />
-      <FacilitiesSection />
-      <StaysTeaser />
-      <MapDirections />
-      <ValuesSection />
-      <FAQ />
+      <SectionReveal>
+        <ExperiencesReel />
+      </SectionReveal>
+      <SectionReveal>
+        <GalleryTeaser />
+      </SectionReveal>
+      <SectionReveal>
+        <FacilitiesSection />
+      </SectionReveal>
+      <SectionReveal>
+        <StaysTeaser />
+      </SectionReveal>
+      <SectionReveal>
+        <MapDirections />
+      </SectionReveal>
+      <SectionReveal>
+        <ValuesSection />
+      </SectionReveal>
+      <SectionReveal>
+        <FAQ />
+      </SectionReveal>
       <Footer />
     </main>
   );

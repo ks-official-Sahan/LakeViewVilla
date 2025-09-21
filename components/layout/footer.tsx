@@ -1,7 +1,7 @@
 // components/layout/footer.tsx
 import Image from "next/image";
 import Link from "next/link";
-import { SITE_CONFIG } from "@/data/content";
+import { PROPERTY, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { MapPin, Phone, Mail, ArrowUpRight } from "lucide-react";
 
@@ -110,10 +110,10 @@ export function Footer() {
               <p className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0 text-slate-300" />
                 <a
-                  href="mailto:janithsadika50@gmail.com"
+                  href={`mailto:${PROPERTY.email}`}
                   className="hover:text-white transition-colors"
                 >
-                  janithsadika50@gmail.com
+                  {PROPERTY.email}
                 </a>
               </p>
             </address>

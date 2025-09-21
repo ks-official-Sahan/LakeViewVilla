@@ -375,6 +375,7 @@ export const PROPERTY = {
     "villa/villa_outside_05.jpeg",
     "villa/villa_outside_06.jpeg",
   ],
+  email: "janithsadika50@gmail.com",
 } as const;
 
 /** ===== BOOKING_FACTS derived from PROPERTY (for existing consumers) ===== */

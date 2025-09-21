@@ -9,7 +9,7 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { MapPin, Navigation, Phone, Mail, Clock, Car } from "lucide-react";
 import { SectionReveal } from "@/components/motion/section-reveal";
-import { SITE_CONFIG, DIRECTIONS } from "@/data/content";
+import { SITE_CONFIG, DIRECTIONS, PROPERTY } from "@/data/content";
 import { buildWhatsAppUrl, cn } from "@/lib/utils";
 import { Controller } from "react-hook-form";
 import { GuestsSelect } from "@/components/ui2/guests-select";
@@ -331,7 +331,7 @@ export default function VisitPage() {
                   </a>
 
                   <a
-                    href="mailto:info@lakeviewvillatangalle.com"
+                    href={`mailto:${PROPERTY.email}`}
                     className="group flex items-center gap-3 p-4 rounded-xl bg-white/6 ring-1 ring-white/10 hover:bg-white/10 transition"
                   >
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500/90">
@@ -339,9 +339,7 @@ export default function VisitPage() {
                     </span>
                     <div>
                       <p className="font-medium">Email Us</p>
-                      <p className="text-slate-300 text-sm">
-                        info@lakeviewvillatangalle.com
-                      </p>
+                      <p className="text-slate-300 text-sm">{PROPERTY.email}</p>
                     </div>
                   </a>
                 </div>

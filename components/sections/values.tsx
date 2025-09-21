@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { VALUES_ITEMS } from "@/data/content";
 import { ArchedMedia } from "../ui2/arched-media";
+import { SectionReveal } from "../motion/section-reveal";
 
 const iconMap = {
   car: Car,
@@ -34,12 +35,14 @@ export function ValuesSection() {
         <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           {/* Left: arch image */}
           <div className="order-2 lg:order-1">
-            <ArchedMedia
-              src="/villa/with_guests_01.jpeg"
-              alt="Garden & lake view"
-              priority
-              className="lg:sticky lg:top-24"
-            />
+            <SectionReveal>
+              <ArchedMedia
+                src="/villa/with_guests_02.jpeg"
+                alt="Garden & lake view"
+                priority
+                className="lg:sticky lg:top-24"
+              />
+            </SectionReveal>
           </div>
 
           {/* Right: copy + list */}
@@ -62,27 +65,28 @@ export function ValuesSection() {
               {VALUES_ITEMS.map((item) => {
                 const Icon = iconMap[item.icon as keyof typeof iconMap] ?? Car;
                 return (
-                  <AccordionItem
-                    key={item.id}
-                    value={item.id}
-                    className="rounded-2xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(2,6,23,0.06)] data-[state=open]:shadow-[0_10px_32px_rgba(2,6,23,0.08)]"
-                  >
-                    <AccordionTrigger className="group px-4 sm:px-6 py-4 sm:py-5 hover:no-underline">
-                      <div className="flex items-center gap-3 sm:gap-4">
-                        <span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-100 text-sky-600 ring-1 ring-sky-200">
-                          <Icon className="h-4 w-4" />
-                        </span>
-                        <span className="text-base sm:text-[17px] font-semibold text-slate-700">
-                          {item.title}
-                        </span>
-                      </div>
+                  <SectionReveal>
+                    <AccordionItem
+                      key={item.id}
+                      value={item.id}
+                      className="rounded-2xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(2,6,23,0.06)] data-[state=open]:shadow-[0_10px_32px_rgba(2,6,23,0.08)]"
+                    >
+                      <AccordionTrigger className="group px-4 sm:px-6 py-4 sm:py-5 hover:no-underline">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                          <span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-100 text-sky-600 ring-1 ring-sky-200">
+                            <Icon className="h-4 w-4" />
+                          </span>
+                          <span className="text-base sm:text-[17px] font-semibold text-slate-700">
+                            {item.title}
+                          </span>
+                        </div>
+                      </AccordionTrigger>
 
-                    </AccordionTrigger>
-
-                    <AccordionContent className="px-6 pb-5 pt-0 text-slate-600">
-                      {item.body}
-                    </AccordionContent>
-                  </AccordionItem>
+                      <AccordionContent className="px-6 pb-5 pt-0 text-slate-600">
+                        {item.body}
+                      </AccordionContent>
+                    </AccordionItem>
+                  </SectionReveal>
                 );
               })}
             </Accordion>
