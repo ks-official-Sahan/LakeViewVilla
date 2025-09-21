@@ -16,31 +16,15 @@ export default function HomePage() {
       {/* <Hero /> */}
       <PinnedHero nextSectionId="highlights" />
       <section id="highlights">
-        <SectionReveal>
-          <Highlights />
-        </SectionReveal>
+        <Highlights />
       </section>
-      <SectionReveal>
-        <ExperiencesReel />
-      </SectionReveal>
-      <SectionReveal>
-        <GalleryTeaser />
-      </SectionReveal>
-      <SectionReveal>
-        <FacilitiesSection />
-      </SectionReveal>
-      <SectionReveal>
-        <StaysTeaser />
-      </SectionReveal>
-      <SectionReveal>
-        <MapDirections />
-      </SectionReveal>
-      <SectionReveal>
-        <ValuesSection />
-      </SectionReveal>
-      <SectionReveal>
-        <FAQ />
-      </SectionReveal>
+      <ExperiencesReel />
+      <GalleryTeaser />
+      <FacilitiesSection />
+      <StaysTeaser />
+      <MapDirections />
+      <ValuesSection />
+      <FAQ />
       <Footer />
     </main>
   );
