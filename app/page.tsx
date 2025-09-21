@@ -7,6 +7,7 @@ import { FAQ } from "@/components/sections/faq";
 import { Footer } from "@/components/layout/footer";
 import { PinnedHero } from "@/components/sections/pinned-hero";
 import FacilitiesSection from "@/components/sections/facilities";
+import { ValuesSection } from "@/components/sections/values";
 
 export default function HomePage() {
   return (
@@ -21,6 +22,7 @@ export default function HomePage() {
       <FacilitiesSection />
       <StaysTeaser />
       <MapDirections />
+      <ValuesSection />
       <FAQ />
       <Footer />
     </main>

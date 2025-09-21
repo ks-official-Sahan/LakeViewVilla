@@ -1,7 +1,6 @@
 import type React from "react";
-import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
-import { Inter } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Montserrat, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
@@ -11,20 +10,20 @@ import { Navigation } from "@/components/layout/navigation";
 import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { LoadingScreen } from "@/components/ui2/loading-screen";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import {
   generateWebSiteSchema,
   generateOrganizationSchema,
   generateLodgingBusinessSchema,
 } from "@/lib/structured-data";
 import { ClientEffects } from "@/components/layout/client-effects";
+import { siteConfig, SEO_CONFIG } from "@/data/content";
 
 if (
   !process.env.NEXT_PUBLIC_WHATSAPP &&
   process.env.NODE_ENV === "production"
 ) {
-  throw new Error(
-    "NEXT_PUBLIC_WHATSAPP environment variable is required for production builds"
-  );
+  throw new Error("NEXT_PUBLIC_WHATSAPP is required for production builds");
 }
 
 const montserrat = Montserrat({
@@ -42,33 +41,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Lake View Villa Tangalle — Private Villa on a Serene Lagoon",
-  description:
-    "Experience tranquility at Lake View Villa Tangalle. Private villa on a serene lagoon with panoramic views, A/C bedrooms, fast Wi-Fi, and chef services. Book your Sri Lankan getaway today.",
-  keywords:
-    "Tangalle villa, lake view villa, Sri Lanka lagoon stay, private villa Tangalle, Tangalle accommodation, Sri Lanka vacation rental",
-  authors: [{ name: "Lake View Villa Tangalle" }],
-  creator: "Lake View Villa Tangalle",
-  publisher: "Lake View Villa Tangalle",
-  formatDetection: { email: false, address: false, telephone: false },
-  metadataBase: new URL("https://lakeviewvillatangalle.com"),
-  alternates: { canonical: "/", languages: { "en-US": "/en-US", en: "/" } },
+  title: SEO_CONFIG.title,
+  description: SEO_CONFIG.description,
+  keywords: SEO_CONFIG.keywords,
+  metadataBase: new URL(siteConfig.url),
+  alternates: { canonical: "/" },
   icons: {
     icon: [{ url: "/favicon.png", type: "image/png", sizes: "32x32" }],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [
-      { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0e8e9a" },
-    ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "Lake View Villa Tangalle — Private Villa on a Serene Lagoon",
-    description:
-      "Private villa on a serene lagoon in Tangalle. Sunrise over still water, palms in silhouette, and your day moves at lagoon speed.",
+    title: SEO_CONFIG.title,
+    description: "Private villa on a serene lagoon in Tangalle.",
     type: "website",
     locale: "en_US",
-    url: "https://lakeviewvillatangalle.com",
-    siteName: "Lake View Villa Tangalle",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     images: [
       {
         url: "/villa/drone_view_villa.jpg",
@@ -80,10 +69,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lake View Villa Tangalle — Private Villa on a Serene Lagoon",
+    title: SEO_CONFIG.title,
     description:
-      "Private villa on a serene lagoon in Tangalle with panoramic lake views and modern amenities.",
-    creator: "@lakeviewvilla",
+      "Private villa on a serene lagoon in Tangalle with panoramic views.",
     images: ["/villa/drone_view_villa.jpg"],
   },
   robots: {
@@ -97,30 +85,33 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: { google: "google-site-verification-token" },
-  generator: "v0.app",
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f4f7f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0f10" },
+  ],
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${inter.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${montserrat.variable} ${inter.variable}`}
+    >
       <head>
         <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
         <link rel="preconnect" href="https://cf.bstatic.com" />
         <link rel="dns-prefetch" href="https://cf.bstatic.com" />
         <link rel="preconnect" href="https://r-xx.bstatic.com" />
         <link rel="dns-prefetch" href="https://r-xx.bstatic.com" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-        {/* JSON-LD */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -140,27 +131,30 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className="font-sans antialiased bg-slate-50"
-        suppressHydrationWarning
-      >
-        <LoadingScreen
-          logoSrc="/logo.png"
-          logoAlt="Lake View Villa Tangalle"
-          enableTapSkip
-          // longPressMs={500}
-          // swipeUpThreshold={64}
-        />
-        <ScrollProgress />
-        {/* All client-only, window/WebGL/animation work goes here */}
-        <Suspense fallback={null}>
-          <ClientEffects />
-        </Suspense>
-        <Navigation />
-        <Suspense fallback={null}>{children}</Suspense>
-        <ExpandableCTA />
-        <WebVitals />
-        <Analytics />
+      <body className="min-h-svh bg-background text-foreground antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LoadingScreen
+            logoSrc="/logo.png"
+            logoAlt="Lake View Villa Tangalle"
+            enableTapSkip
+          />
+          <ScrollProgress />
+          <Suspense fallback={null}>
+            <ClientEffects />
+          </Suspense>
+          <Navigation />
+          <main id="content" className="relative isolate">
+            <Suspense fallback={null}>{children}</Suspense>
+          </main>
+          <ExpandableCTA />
+          <WebVitals />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );
