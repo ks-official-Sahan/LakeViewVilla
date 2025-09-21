@@ -296,7 +296,8 @@ export function PinnedHero({ nextSectionId }: Props) {
               transition={{ duration: 1.0, ease: "easeOut" }}
             >
               <span className="block text-[clamp(1.6rem,7vw,4.75rem)] text-shadow-deep">
-                {HERO_CONTENT.title}
+                <p>{HERO_CONTENT.titleParts[0]}</p>
+                <p>{HERO_CONTENT.titleParts[1]}</p>
               </span>
             </motion.h1>
 

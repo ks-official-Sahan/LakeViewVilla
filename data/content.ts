@@ -25,6 +25,7 @@ export const siteConfig = {
 /** ===== UI copy (unchanged names for backwards compatibility) ===== */
 export const HERO_CONTENT = {
   title: "Lake View Villa \n Where Dream Stays Come True.",
+  titleParts: ["Lake View Villa", "Where Dream Stays Come True."],
   tagline:
     "Embrace the beauty of Tangalle’s landscapes in a villa that blends elegance, comfort, and serenity. Whether you long for peaceful relaxation or a luxurious space to celebrate life’s moments, Lake View Villa welcomes you with warmth, style, and unforgettable experiences.",
   ctas: ["Book on Booking.com", "Message on WhatsApp"],
