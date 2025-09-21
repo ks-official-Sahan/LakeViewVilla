@@ -57,7 +57,10 @@ export function Navigation() {
         <nav className="container mx-auto px-4 py-2 md:px-4 md:py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="text-lg md:text-xl font-bold text-white flex justify-center items-center gap-3">
+            <Link
+              href="/"
+              className="text-lg md:text-xl font-bold text-white flex justify-center items-center gap-3"
+            >
               <Image
                 src={"/logo.png"}
                 alt="Lake View Villa"
@@ -65,7 +68,7 @@ export function Navigation() {
                 height={10}
                 className="w-10 h-10"
               />
-              <span className="bg-gradient-to-r from-cyan-100 to-blue-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-yellow-50 to-cyan-100 bg-clip-text text-transparent text-shadow-xl font-bold">
                 Lake View Villa
               </span>
             </Link>
