@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { MessageCircle, Users, Star } from "lucide-react"
-import { RATES, STAYS_INTRO, BOOKING_FACTS, SITE_CONFIG } from "@/data/content"
-import { buildWhatsAppUrl } from "@/lib/utils"
-import { SectionReveal } from "@/components/motion/section-reveal"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { MessageCircle, Users, Star } from "lucide-react";
+import { RATES, STAYS_INTRO, BOOKING_FACTS, SITE_CONFIG } from "@/data/content";
+import { buildWhatsAppUrl } from "@/lib/utils";
+import { SectionReveal } from "@/components/motion/section-reveal";
 
 export function StaysTeaser() {
-  const [selectedRoom, setSelectedRoom] = useState(0)
+  const [selectedRoom, setSelectedRoom] = useState(0);
 
   const handleWhatsAppEnquiry = () => {
     const message = `Hi! I'd like to enquire about availability and rates for Lake View Villa Tangalle. 
@@ -17,15 +17,18 @@ export function StaysTeaser() {
 Room: ${BOOKING_FACTS.rooms[selectedRoom].name}
 Guests: ${BOOKING_FACTS.rooms[selectedRoom].sleeps}
 
-Could you please share the best available rate and confirm availability?`
+Could you please share the best available rate and confirm availability?`;
 
-    const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message)
-    window.open(url, "_blank")
-  }
+    const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
+    window.open(url, "_blank");
+  };
 
   return (
     <SectionReveal>
-      <section id="stays" className="py-20 bg-gradient-to-b from-gray-50 to-white">
+      <section
+        id="stays"
+        className="py-20 bg-gradient-to-b from-gray-50 to-white"
+      >
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -34,16 +37,24 @@ Could you please share the best available rate and confirm availability?`
             transition={{ duration: 0.8 }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">Your perfect stay awaits</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-pretty mb-8">{STAYS_INTRO}</p>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
+              Your perfect stay awaits
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-pretty mb-8">
+              {STAYS_INTRO}
+            </p>
 
             <div className="flex items-center justify-center gap-2 text-lg">
               <div className="flex items-center">
                 <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                <span className="ml-1 font-semibold">{BOOKING_FACTS.reviewMetrics.average}</span>
+                <span className="ml-1 font-semibold">
+                  {BOOKING_FACTS.reviewMetrics.average}
+                </span>
               </div>
               <span className="text-gray-400">•</span>
-              <span className="text-gray-600">{BOOKING_FACTS.reviewMetrics.count} reviews</span>
+              <span className="text-gray-600">
+                {BOOKING_FACTS.reviewMetrics.count} reviews
+              </span>
             </div>
           </motion.div>
 
@@ -67,8 +78,8 @@ Could you please share the best available rate and confirm availability?`
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      setSelectedRoom(index)
+                      e.preventDefault();
+                      setSelectedRoom(index);
                     }
                   }}
                   aria-label={`Select ${room.name}`}
@@ -83,7 +94,10 @@ Could you please share the best available rate and confirm availability?`
 
                   <ul className="space-y-2">
                     {room.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-center text-gray-600">
+                      <li
+                        key={featureIndex}
+                        className="flex items-center text-gray-600"
+                      >
                         <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                         {feature}
                       </li>
@@ -94,7 +108,7 @@ Could you please share the best available rate and confirm availability?`
             </div>
 
             {/* Rates Table Preview */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -134,7 +148,7 @@ Could you please share the best available rate and confirm availability?`
                   <p className="text-sm text-gray-600">{RATES[0].notes}</p>
                 </div>
               </div>
-            </motion.div>
+            </motion.div> */}
 
             {/* WhatsApp Mini-Enquiry */}
             <motion.div
@@ -155,12 +169,13 @@ Could you please share the best available rate and confirm availability?`
               </Button>
 
               <p className="text-sm text-gray-600 mt-4 max-w-md mx-auto">
-                Message us directly for personalized rates, instant confirmation, and flexible booking terms.
+                Message us directly for personalized rates, instant
+                confirmation, and flexible booking terms.
               </p>
             </motion.div>
           </div>
         </div>
       </section>
     </SectionReveal>
-  )
+  );
 }
