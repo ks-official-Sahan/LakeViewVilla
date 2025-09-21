@@ -295,14 +295,14 @@ export function PinnedHero({ nextSectionId }: Props) {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1.0, ease: "easeOut" }}
             >
-              <span className="block text-[clamp(1.6rem,7vw,4.75rem)]">
+              <span className="block text-[clamp(1.6rem,7vw,4.75rem)] text-shadow-deep">
                 {HERO_CONTENT.title}
               </span>
             </motion.h1>
 
             <motion.p
-              className="mx-auto font-medium text-white/95 text-[clamp(0.95rem,3.6vw,1.375rem)] max-w-[68ch] mb-7"
               style={{ textShadow: "0 2px 18px rgba(0,0,0,.55)" }}
+              className="mx-auto font-medium text-white/95 text-[clamp(0.95rem,3.6vw,1.375rem)] max-w-[68ch] mb-7"
               initial={{
                 y: allowMotion ? 40 : 0,
                 opacity: allowMotion ? 0 : 1,
@@ -310,7 +310,7 @@ export function PinnedHero({ nextSectionId }: Props) {
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             >
-              {HERO_CONTENT.tagline}
+              <span className="text-shadow-deep">{HERO_CONTENT.tagline}</span>
             </motion.p>
 
             <motion.div

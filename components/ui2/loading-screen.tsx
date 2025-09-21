@@ -17,6 +17,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+import * as NextImage from "next/image";
 
 type Props = {
   logoSrc?: string;
@@ -34,18 +35,14 @@ type Props = {
 };
 
 export function LoadingScreen({
-  logoSrc = "/villa-logo.svg",
+  logoSrc = "/logo.png",
   logoAlt = "Lake View Villa",
   initials = "LV",
   title = "Lake View Villa",
   subtitle = "Tangalle, Sri Lanka",
-  criticalAssets = [
-    "/villa/drone_view_villa.jpg",
-    "/hero.webm",
-    // "/hero.mp4",
-  ],
-  minDurationMs = 900,
-  hardTimeoutMs = 10000,
+  criticalAssets = ["/hero.webm"],
+  minDurationMs = 1000,
+  hardTimeoutMs = 5000,
   enableTapSkip = false,
   longPressMs = 0,
   swipeUpThreshold = 0,
@@ -292,8 +289,8 @@ export function LoadingScreen({
           onTouchMove={onTouchMove}
         >
           {/* GLASS VEIL (blurs partially loaded app behind) */}
-          <div className="absolute inset-0 bg-white/22 backdrop-blur-2xl backdrop-saturate-150" />
-          <div className="absolute inset-0 [--_b:blur(22px)] [backdrop-filter:var(--_b)] [-webkit-backdrop-filter:var(--_b)] pointer-events-none" />
+          <div className="absolute inset-0 bg-white/22 backdrop-blur-3xl backdrop-saturate-150" />
+          <div className="absolute inset-0 [--_b:blur(55px)] [backdrop-filter:var(--_b)] [-webkit-backdrop-filter:var(--_b)] pointer-events-none" />
 
           {/* Ambient layers */}
           {allowMotion && (
@@ -377,9 +374,11 @@ export function LoadingScreen({
                 )}
                 <div className="absolute inset-0 rounded-full bg-white/70 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.08)] ring-1 ring-white/50 flex items-center justify-center">
                   {logoSrc ? (
-                    <img
+                    <NextImage.default
                       src={logoSrc}
                       alt={logoAlt}
+                      priority
+                      fill
                       className="w-20 h-20 object-contain drop-shadow-[0_8px_24px_rgba(6,182,212,0.35)]"
                       draggable={false}
                     />
