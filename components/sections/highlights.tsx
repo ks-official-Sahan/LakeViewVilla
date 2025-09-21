@@ -14,6 +14,7 @@ import {
   Sparkles,
   Wind,
   ShieldCheck,
+  Plane,
 } from "lucide-react";
 import { HIGHLIGHTS as RAW_HIGHLIGHTS } from "@/data/content";
 
@@ -29,25 +30,27 @@ type Item =
 
 const DEFAULT_DESCRIPTIONS = [
   "Panoramic lagoon vistas—mornings start brighter here.",
+  "A/C bedrooms with plush, hotel-grade bedding.",
   "Lightning-fast Wi-Fi for work or stream under the palms.",
   "Private chef on request—Sri Lankan flavors, zero hassle.",
-  "A/C bedrooms with plush, hotel-grade bedding.",
-  "Swim, paddle or drift: the lagoon is your backyard.",
+  "24/7 support for transfers, directions, and local tips.",
+  "Secure, on-site parking included at no extra charge.",
   "Easy access to beaches, markets, and hidden coves.",
   "Daily housekeeping; you relax, we’ll handle the rest.",
-  "24/7 support for transfers, directions, and local tips.",
+  "Swim, paddle or drift: the lagoon is your backyard.",
   "Privacy, safety, serenity—engineered into the stay.",
 ];
 
 const DEFAULT_ICONS = [
   SunMedium,
+  BedDouble,
   Wifi,
   Utensils,
-  BedDouble,
-  Waves,
+  Plane,
   MapPin,
-  Sparkles,
   Wind,
+  Sparkles,
+  Waves,
   ShieldCheck,
 ];
 
