@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 // ───────────────────────────────
-// Security headers (global)
+// Security headers (no CSP duplication here)
 // ───────────────────────────────
 const securityHeaders = [
   {
@@ -11,43 +11,77 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
-  // Minimal, explicit. (FLoC/Topics disabled by omission.)
   {
     key: "Permissions-Policy",
-    value:
-      "camera=(), microphone=(), geolocation=(), fullscreen=(self),   interest-cohort=(), sync-xhr=(), sync-script=()",
+    value: "camera=(), microphone=(), geolocation=(), fullscreen=(self)",
   },
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Download-Options", value: "noopen" },
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  // ⚠️ COEP removed globally to avoid breaking Google Maps & other third-party iframes
-  // { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
 ];
 
+const isProd = process.env.NODE_ENV === "production";
+
 // ───────────────────────────────
-// Content Security Policy
-// Add vendors as you integrate them. Maps is enabled below.
+// Content Security Policy (CSP)
+// Allows: Next runtime, GTM/GA, Meta pixel, Vercel Analytics,
+// Google Maps, Google Fonts, YouTube/IG/FB embeds, icons/fonts.
+// No 'unsafe-eval' in prod (only dev for HMR).
 // ───────────────────────────────
+const SCRIPT_SRC = [
+  "script-src",
+  "'self'",
+  "'unsafe-inline'",
+  isProd ? "" : "'unsafe-eval'",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://region1.google-analytics.com",
+  "https://connect.facebook.net",
+  "https://vitals.vercel-analytics.com",
+  "https://va.vercel-scripts.com",
+  "https://maps.googleapis.com",
+  "https://maps.gstatic.com",
+  "https://*.googleapis.com",
+  "https://*.gstatic.com",
+  "https://www.youtube.com",
+  "https://www.youtube-nocookie.com",
+]
+  .filter(Boolean)
+  .join(" ");
+
 const CSP = [
   "default-src 'self'",
-  // Images (include ggpht.com used by Google Maps photos/tiles)
-  "img-src 'self' data: blob: https: https://*.ggpht.com",
-  "font-src 'self' https: data:",
-  "style-src 'self' 'unsafe-inline' https:",
-  // Scripts: GTM/GA/Meta + Vercel Analytics + Google Maps APIs
-  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://vitals.vercel-analytics.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com",
-  // XHR/Websocket: include Maps endpoints
-  "connect-src 'self' https://vitals.vercel-analytics.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com",
-  // Iframes: Google (maps/youtube/etc.) + Instagram/Facebook widgets
-  "frame-src https://www.googletagmanager.com https://www.google.com https://maps.google.com https://*.google.com https://www.youtube.com https://www.instagram.com https://www.facebook.com",
-  "media-src 'self' blob: data:",
-  "object-src 'none'",
   "base-uri 'self'",
-  // WhatsApp web intents
   "form-action 'self' https://wa.me",
-  "upgrade-insecure-requests",
+  "object-src 'none'",
   "frame-ancestors 'self'",
+  "upgrade-insecure-requests",
+
+  // Images (self + data/blob + HTTPS + Maps photos)
+  "img-src 'self' data: blob: https: https://*.ggpht.com",
+
+  // Styles (Next injects inline styles; allow https for Google Fonts CSS)
+  "style-src 'self' 'unsafe-inline' https:",
+
+  // Fonts (self-hosted/next/font + Google Fonts + data:)
+  "font-src 'self' https: data: https://fonts.gstatic.com",
+
+  // Scripts
+  SCRIPT_SRC,
+
+  // XHR/WebSocket targets
+  "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://vitals.vercel-analytics.com https://va.vercel-scripts.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com",
+
+  // Frames/embeds (GTM, Google, YouTube, Instagram, Facebook, Maps)
+  "frame-src https://www.googletagmanager.com https://www.google.com https://maps.google.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.facebook.com",
+
+  // Media (video/audio)
+  "media-src 'self' data: blob: https:",
+
+  // Workers/Manifest
+  "worker-src 'self' blob:",
+  "manifest-src 'self'",
 ].join("; ");
 
 // ───────────────────────────────
@@ -56,11 +90,14 @@ const CSP = [
 const preconnectLinks = [
   "<https://www.googletagmanager.com>; rel=preconnect; crossorigin",
   "<https://www.google-analytics.com>; rel=preconnect; crossorigin",
+  "<https://region1.google-analytics.com>; rel=preconnect; crossorigin",
   "<https://connect.facebook.net>; rel=preconnect; crossorigin",
   "<https://vitals.vercel-analytics.com>; rel=preconnect; crossorigin",
-  // Maps speed-ups
+  "<https://va.vercel-scripts.com>; rel=preconnect; crossorigin",
   "<https://maps.googleapis.com>; rel=preconnect; crossorigin",
   "<https://maps.gstatic.com>; rel=preconnect; crossorigin",
+  "<https://fonts.googleapis.com>; rel=preconnect",
+  "<https://fonts.gstatic.com>; rel=preconnect; crossorigin",
 ];
 
 const nextConfig = {
@@ -69,7 +106,6 @@ const nextConfig = {
   poweredByHeader: false,
   generateEtags: false,
 
-  // Keep relaxed in CI; enforce locally if desired
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
@@ -79,7 +115,6 @@ const nextConfig = {
     deviceSizes: [360, 414, 640, 768, 1024, 1280, 1440, 1536, 1920],
     imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
-
     remotePatterns: [
       { protocol: "https", hostname: "**" },
       { protocol: "https", hostname: "*.booking.com" },
@@ -91,7 +126,6 @@ const nextConfig = {
       { protocol: "https", hostname: "www.tripadvisor.com" },
       { protocol: "https", hostname: "www.instagram.com" },
       { protocol: "https", hostname: "connect.facebook.net" },
-      // Maps tiles/imagery domains are covered by https:, but this is explicit:
       { protocol: "https", hostname: "*.ggpht.com" },
       { protocol: "https", hostname: "maps.gstatic.com" },
       { protocol: "https", hostname: "maps.googleapis.com" },
@@ -109,7 +143,9 @@ const nextConfig = {
         ],
       },
       {
-        source: "/(.*\\.(?:jpg|jpeg|png|webp|avif|gif|svg))",
+        // Cache common static assets (incl. fonts/icons/videos)
+        source:
+          "/(.*\\.(?:jpg|jpeg|png|webp|avif|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm))",
         headers: [
           {
             key: "Cache-Control",
@@ -118,16 +154,20 @@ const nextConfig = {
         ],
       },
       {
+        // Next image optimizer responses
         source: "/_next/image(.*)",
         headers: [
           {
-            key: "Content-Security-Policy",
-            value:
-              "default-src 'none'; img-src 'self' data: blob: https:; style-src 'none'; frame-ancestors 'none';",
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
     ];
+  },
+
+  async redirects() {
+    return [];
   },
 
   experimental: {

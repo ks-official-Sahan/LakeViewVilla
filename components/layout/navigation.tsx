@@ -64,8 +64,8 @@ export function Navigation() {
               <Image
                 src={"/logo.png"}
                 alt="Lake View Villa"
-                width={10}
-                height={10}
+                width={150}
+                height={150}
                 className="w-10 h-10"
               />
               <span className="bg-gradient-to-r from-yellow-50 to-cyan-100 bg-clip-text text-transparent text-shadow-xl font-bold">

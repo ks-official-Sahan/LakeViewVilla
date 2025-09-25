@@ -2,7 +2,7 @@
 module.exports = {
   siteUrl: process.env.SITE_URL || "https://lakeviewvillatangalle.com",
   generateRobotsTxt: true,
-  exclude: ["/api/*", "/search"],
+  exclude: ["/api/*", "/search", "/_next/*", "/_error"],
   changefreq: "weekly",
   priority: 0.7,
   sitemapSize: 7000,
@@ -15,6 +15,7 @@ module.exports = {
         "/gallery": 0.7,
         "/visit": 0.7,
         "/faq": 0.6,
+        "/developer": 0.9,
       }[path] ?? 0.7;
 
     return {
@@ -27,7 +28,7 @@ module.exports = {
   robotsTxtOptions: {
     policies: [
       { userAgent: "*", allow: "/" },
-      { userAgent: "*", disallow: "/search" },
+      { userAgent: "*", disallow: "/search, /_next/, /api/, /_error" },
     ],
     additionalSitemaps: ["https://lakeviewvillatangalle.com/sitemap.xml"],
   },

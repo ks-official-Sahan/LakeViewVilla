@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+
+# *
+User-agent: *
+Disallow: /search, /_next/, /api/, /_error
+
+# Host
+Host: https://lakeviewvillatangalle.com
+
+# Sitemaps
+Sitemap: https://lakeviewvillatangalle.com/sitemap.xml

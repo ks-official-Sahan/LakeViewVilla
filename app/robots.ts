@@ -16,7 +16,15 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/stays", "/visit", "/gallery", "/faq", "/search"],
+      allow: [
+        "/",
+        "/stays",
+        "/visit",
+        "/gallery",
+        "/faq",
+        "/developer",
+        "/search",
+      ],
       disallow: ["/api/", "/_next/"],
     },
     sitemap: `${base}/sitemap.xml`,
