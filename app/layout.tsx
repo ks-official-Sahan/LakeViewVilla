@@ -11,13 +11,15 @@ import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { LoadingScreen } from "@/components/ui2/loading-screen";
 import { ThemeProvider } from "@/components/theme/theme-provider";
-import {
-  generateWebSiteSchema,
-  generateOrganizationSchema,
-  generateLodgingBusinessSchema,
-} from "@/lib/structured-data";
 import { ClientEffects } from "@/components/layout/client-effects";
+
+// ✅ New: unified, typed SEO helpers (replaces "@/lib/seo/structured-data")
+import { siteGraph } from "@/lib/seo";
 import { siteConfig, SEO_CONFIG } from "@/data/content";
+import { SITE_CONFIG } from "@/data/site";
+
+import { GTM } from "@/components/analytics/GTM";
+import MarketingPixels from "@/components/analytics/marketing-pixels";
 
 if (
   !process.env.NEXT_PUBLIC_WHATSAPP &&
@@ -100,6 +102,15 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // Pass address fragments so LodgingBusiness is complete
+  const graph = siteGraph({
+    address: {
+      streetAddress: SITE_CONFIG.addressStreet,
+      addressRegion: SITE_CONFIG.addressRegion,
+      postalCode: SITE_CONFIG.postalCode,
+    },
+  });
+
   return (
     <html
       lang="en"
@@ -108,30 +119,72 @@ export default function RootLayout({
     >
       <head>
         <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
-        <link rel="preconnect" href="https://cf.bstatic.com" />
+        {/* Keep these only if first paint uses Booking CDNs; otherwise remove to save sockets */}
+        <link rel="preconnect" href="https://cf.bstatic.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://cf.bstatic.com" />
-        <link rel="preconnect" href="https://r-xx.bstatic.com" />
+        <link rel="preconnect" href="https://r-xx.bstatic.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://r-xx.bstatic.com" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateWebSiteSchema()),
-          }}
+        <link
+          rel="preconnect"
+          href="https://vitals.vercel-analytics.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://www.googletagmanager.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://connect.facebook.net"
+          crossOrigin=""
         />
         <script
+          id="ld-graph"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateOrganizationSchema()),
-          }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
         />
         <script
+          id="ld-nav"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateLodgingBusinessSchema()),
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SiteNavigationElement",
+              name: ["Home", "Gallery", "Stays", "Visit", "FAQ"],
+              url: [
+                "https://lakeviewvillatangalle.com/",
+                "https://lakeviewvillatangalle.com/gallery",
+                "https://lakeviewvillatangalle.com/stays",
+                "https://lakeviewvillatangalle.com/visit",
+                "https://lakeviewvillatangalle.com/faq",
+              ],
+            }),
           }}
         />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://vitals.vercel-analytics.com"
+          crossOrigin=""
+        />
+        <GTM /> {/* ✅ loads GTM afterInteractive */}
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
+        {process.env.NEXT_PUBLIC_GTM_ID ? (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        ) : null}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -154,6 +207,8 @@ export default function RootLayout({
           <ExpandableCTA />
           <WebVitals />
           <Analytics />
+
+          <MarketingPixels />
         </ThemeProvider>
       </body>
     </html>

@@ -8,11 +8,16 @@ import { Footer } from "@/components/layout/footer";
 import { PinnedHero } from "@/components/sections/pinned-hero";
 import FacilitiesSection from "@/components/sections/facilities";
 import { ValuesSection } from "@/components/sections/values";
-import { SectionReveal } from "@/components/motion/section-reveal";
+import SeoJsonLd from "@/components/SeoJsonLd";
 
 export default function HomePage() {
   return (
     <main>
+      <SeoJsonLd
+        breadcrumb={[
+          { name: "Home", url: "https://lakeviewvillatangalle.com" },
+        ]}
+      />
       {/* <Hero /> */}
       <PinnedHero nextSectionId="highlights" />
       <section id="highlights">
