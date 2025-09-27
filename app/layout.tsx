@@ -118,6 +118,7 @@ export default function RootLayout({
       className={`${montserrat.variable} ${inter.variable}`}
     >
       <head>
+        <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
         <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
         {/* Keep these only if first paint uses Booking CDNs; otherwise remove to save sockets */}
         <link rel="preconnect" href="https://cf.bstatic.com" crossOrigin="" />
@@ -151,14 +152,18 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "SiteNavigationElement",
-              name: ["Home", "Gallery", "Stays", "Visit", "FAQ"],
+              name: ["Home", "Gallery", "Stays", "Visit", "FAQ", "Developer"],
               url: [
-                "https://lakeviewvillatangalle.com/",
-                "https://lakeviewvillatangalle.com/gallery",
-                "https://lakeviewvillatangalle.com/stays",
-                "https://lakeviewvillatangalle.com/visit",
-                "https://lakeviewvillatangalle.com/faq",
+                SITE_CONFIG.primaryDomain,
+                `${SITE_CONFIG.primaryDomain}/gallery`,
+                `${SITE_CONFIG.primaryDomain}/stays`,
+                `${SITE_CONFIG.primaryDomain}/visit`,
+                `${SITE_CONFIG.primaryDomain}/faq`,
+                `${SITE_CONFIG.primaryDomain}/developer`,
               ],
+              parent: [SITE_CONFIG.primaryDomain],
+              position: 1,
+              isPartOf: SITE_CONFIG.primaryDomain,
             }),
           }}
         />

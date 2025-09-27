@@ -2,7 +2,8 @@
 export const SITE_CONFIG = {
   name: "Lake View Villa Tangalle",
   primaryDomain: "https://lakeviewvillatangalle.com",
-  secondaryDomain: "https://lakeviewtangalle.com",
+  secondaryDomain: "https://www.lakeviewvillatangalle.com",
+  // secondaryDomain: "https://lakeviewtangalle.com",
   coordinates: { lat: 6.0172272, lng: 80.7812215 },
   googleMapsUrl: "https://maps.app.goo.gl/wRLkZBxMSvfhd2jZA",
   bookingDeepLink: "https://www.booking.com/Share-bP3aRsK",
