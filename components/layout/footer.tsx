@@ -190,15 +190,17 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-slate-400">
-          <p>&copy; {year} Lake View Villa Tangalle. All rights reserved.</p>
-          <p className="opacity-80">
-            Built with performance, accessibility, and calm delight. By{" "}
+          <p>
             <Link
               href={"/developer"}
               className="hover:text-white transition-colors capitalize"
             >
-              ks-official-sahan
-            </Link>
+              Sahan Sachintha
+            </Link>{" "}
+            &copy; {year} Lake View Villa Tangalle. All rights reserved.
+          </p>
+          <p className="opacity-80">
+            Built with performance, accessibility, and calm delight.
           </p>
         </div>
       </div>

@@ -20,6 +20,7 @@ import { SITE_CONFIG } from "@/data/site";
 
 import { GTM } from "@/components/analytics/GTM";
 import MarketingPixels from "@/components/analytics/marketing-pixels";
+import GA from "@/components/analytics/GA";
 
 if (
   !process.env.NEXT_PUBLIC_WHATSAPP &&
@@ -177,6 +178,7 @@ export default function RootLayout({
           href="https://vitals.vercel-analytics.com"
           crossOrigin=""
         />
+        {/* <GA /> */}
         <GTM /> {/* ✅ loads GTM afterInteractive */}
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">

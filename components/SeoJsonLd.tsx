@@ -14,6 +14,9 @@ export default function SeoJsonLd({
 }) {
   const base = "https://lakeviewvillatangalle.com";
   const sameAs = [
+    "https://lakeviewvillatangalle.com",
+    "https://www.lakeviewvillatangalle.com",
+    "https://lakeviewvilla.vercel.app",
     "https://www.booking.com/hotel/lk/lake-view-tangalle123.html",
     "https://www.instagram.com/lakeviewvillatangalle/",
     "https://www.facebook.com/p/Lake-view-Homestay-Tangalle-100064155182720/",

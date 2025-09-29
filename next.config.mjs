@@ -167,7 +167,29 @@ const nextConfig = {
   },
 
   async redirects() {
-    return [];
+    return [
+      // secondary → primary (apex)
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "lakeviewtangalle.com" }],
+        destination: "https://lakeviewvillatangalle.com/:path*",
+        permanent: true,
+      },
+      // www → apex (primary)
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.lakeviewvillatangalle.com" }],
+        destination: "https://lakeviewvillatangalle.com/:path*",
+        permanent: true,
+      },
+      // www.secondary → apex (primary)
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.lakeviewtangalle.com" }],
+        destination: "https://lakeviewvillatangalle.com/:path*",
+        permanent: true,
+      },
+    ];
   },
 
   experimental: {
