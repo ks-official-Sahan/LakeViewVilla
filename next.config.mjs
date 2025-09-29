@@ -21,8 +21,11 @@ const securityHeaders = [
   { key: "X-Download-Options", value: "noopen" },
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
   // { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
-  // { key: "Cross-Origin-Opener-Policy", value: isProd ?  "same-origin" : "same-origin-allow-popups" },
+  // { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+  {
+    key: "Cross-Origin-Opener-Policy",
+    value: isProd ? "same-origin" : "same-origin-allow-popups",
+  },
   // { key: "Cross-Origin-Embedder-Policy", value: "require-corp"},
   // { key: "X-XSS-Protection", value: "1; mode=block" },
   // { key: "Content-Security-Policy", value: "upgrade-insecure-requests" },
@@ -55,6 +58,39 @@ const SCRIPT_SRC = [
   .filter(Boolean)
   .join(" ");
 
+const CONNECT_SRC = [
+  "connect-src",
+  "'self'",
+  "https://lakeviewvillatangalle.com",
+  "https://www.lakeviewvillatangalle.com",
+  "https://lakeviewvilla.vercel.app",
+  "https://www.googletagmanager.com",
+  "https://www.google-analytics.com",
+  "https://tagassistant.google.com",
+  "https://region1.google-analytics.com",
+  "https://stats.g.doubleclick.net",
+  "https://vitals.vercel-analytics.com",
+  "https://va.vercel-scripts.com",
+  "https://maps.googleapis.com",
+  "https://maps.gstatic.com",
+  "https://*.g.doubleclick.net",
+  "https://*.googleapis.com",
+  "https://*.gstatic.com",
+].join(" ");
+
+const FRAME_SRC = [
+  "frame-src",
+  "https://www.googletagmanager.com",
+  "https://tagassistant.google.com",
+  "https://www.google.com",
+  "https://maps.google.com",
+  "https://*.google.com",
+  "https://www.youtube.com",
+  "https://www.youtube-nocookie.com",
+  "https://www.instagram.com",
+  "https://www.facebook.com",
+].join(" ");
+
 const CSP = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -76,12 +112,10 @@ const CSP = [
   SCRIPT_SRC,
 
   // XHR/WebSocket targets
-  // "connect-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://region1.google-analytics.com https://vitals.vercel-analytics.com https://va.vercel-scripts.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com",
-
-  "connect-src 'self' https://lakeviewvillatangalle.com https://www.lakeviewvillatangalle.com https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://region1.google-analytics.com https://vitals.vercel-analytics.com https://va.vercel-scripts.com https://maps.googleapis.com https://maps.gstatic.com https://*.googleapis.com https://*.gstatic.com",
+  CONNECT_SRC,
 
   // Frames/embeds (GTM, Google, YouTube, Instagram, Facebook, Maps)
-  "frame-src https://www.googletagmanager.com https://www.google.com https://maps.google.com https://*.google.com https://www.youtube.com https://www.youtube-nocookie.com https://www.instagram.com https://www.facebook.com",
+  FRAME_SRC,
 
   // Media (video/audio)
   "media-src 'self' data: blob: https:",
