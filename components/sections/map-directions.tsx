@@ -6,19 +6,24 @@ import { MapPin, Navigation, Phone } from "lucide-react";
 import { SITE_CONFIG, DIRECTIONS } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { SectionReveal } from "@/components/motion/section-reveal";
+import { trackContact, trackMapOpen } from "@/lib/analytics";
 
 export function MapDirections() {
   const mapsEmbedSrc = `https://www.google.com/maps?q=${SITE_CONFIG.coordinates.lat},${SITE_CONFIG.coordinates.lng}&hl=en&z=15&output=embed`;
 
   const handleGetDirections = () => {
-    window.open(SITE_CONFIG.googleMapsUrl, "_blank");
+    const url = SITE_CONFIG.googleMapsUrl;
+    trackMapOpen(url, "Get directions");
+    setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
 
   const handleCallForLocation = () => {
     const message =
       "Hi! I need the exact pin location for Lake View Villa Tangalle. Could you please share the precise location?";
     const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
-    window.open(url, "_blank");
+    //window.open(url, "_blank");
+    trackContact("whatsapp", url, "Chat on WhatsApp");
+    setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
 
   return (

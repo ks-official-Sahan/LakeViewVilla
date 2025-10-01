@@ -53,7 +53,7 @@ export function Footer() {
 
             {/* Primary CTA row */}
             <div className="mt-6 flex flex-wrap gap-3">
-              <a
+              <Link
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -63,7 +63,7 @@ export function Footer() {
                 <Phone className="h-4 w-4" />
                 Book via WhatsApp
                 <ArrowUpRight className="h-4 w-4 opacity-70" />
-              </a>
+              </Link>
 
               {SITE_CONFIG.googleMapsUrl && (
                 <a

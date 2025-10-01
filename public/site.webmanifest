@@ -1,34 +1,75 @@
 {
+    "id": "/?source=pwa",
     "name": "Lake View Villa Tangalle",
     "short_name": "LakeViewVilla",
     "description": "Private villa on a serene lagoon in Tangalle. Panoramic views, A/C rooms, fast Wi-Fi, chef services.",
-    "start_url": "/",
+    "start_url": "/?source=pwa",
     "scope": "/",
     "display": "standalone",
+    "display_override": [
+        "standalone",
+        "browser"
+    ],
     "background_color": "#ffffff",
     "theme_color": "#0a0f10",
+    "categories": [
+        "travel",
+        "lifestyle",
+        "hospitality"
+    ],
+    "dir": "ltr",
+    "lang": "en",
     "icons": [
         {
             "src": "/icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/icon-512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/maskable-192.png",
             "sizes": "192x192",
             "type": "image/png",
-            "purpose": "maskable any"
+            "purpose": "maskable"
         },
         {
             "src": "/maskable-512.png",
             "sizes": "512x512",
             "type": "image/png",
-            "purpose": "maskable any"
+            "purpose": "maskable"
         }
-    ]
+    ],
+    "shortcuts": [
+        {
+            "name": "Book via WhatsApp",
+            "short_name": "WhatsApp",
+            "url": "/?cta=whatsapp#home",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        },
+        {
+            "name": "View Gallery",
+            "short_name": "Gallery",
+            "url": "/gallery",
+            "icons": [
+                {
+                    "src": "/icon-192.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        }
+    ],
+    "prefer_related_applications": false
 }

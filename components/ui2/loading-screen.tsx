@@ -26,8 +26,8 @@ type Props = {
   title?: string;
   subtitle?: string;
   criticalAssets?: string[];
-  minDurationMs?: number;
-  hardTimeoutMs?: number;
+  minDurationMs?: number; // minimum veil time (smoothness)
+  hardTimeoutMs?: number; // absolute max wait
   enableTapSkip?: boolean;
   longPressMs?: number;
   swipeUpThreshold?: number;
@@ -40,9 +40,10 @@ export function LoadingScreen({
   initials = "LV",
   title = "Lake View Villa",
   subtitle = "Tangalle, Sri Lanka",
-  criticalAssets = ["/hero.webm"],
-  minDurationMs = 1000,
-  hardTimeoutMs = 5000,
+  // keep short list; large lists can delay decode() on Safari
+  criticalAssets = ["/hero_720p.webm", "/villa/drone_view_villa.jpg"],
+  minDurationMs = 900,
+  hardTimeoutMs = 4500,
   enableTapSkip = false,
   longPressMs = 0,
   swipeUpThreshold = 0,
@@ -51,8 +52,8 @@ export function LoadingScreen({
   const prefersReducedMotion = useReducedMotion();
   const saveData = useMemo(() => {
     if (typeof navigator === "undefined") return false;
-    // @ts-ignore vendor-specific
-    return Boolean(navigator.connection?.saveData);
+    // @ts-ignore
+    return !!navigator.connection?.saveData;
   }, []);
   const allowMotion = !prefersReducedMotion && !saveData;
 
@@ -65,8 +66,9 @@ export function LoadingScreen({
   const doneRef = useRef(false);
   const longPressToRef = useRef<number | null>(null);
   const touchStartYRef = useRef<number | null>(null);
+  const unmountedRef = useRef(false);
 
-  // Lock page scroll under veil (client-only)
+  // Lock page scroll under veil
   useEffect(() => {
     if (!visible || typeof document === "undefined") return;
     const html = document.documentElement;
@@ -77,27 +79,20 @@ export function LoadingScreen({
     };
   }, [visible]);
 
-  // Build progress signals safely for SSR
-  const realSignals = useMemo<Promise<unknown>[]>(() => {
-    if (typeof window === "undefined") {
-      // On server, return a resolved placeholder to avoid touching DOM APIs
-      return [Promise.resolve()];
-    }
-    const signals: Promise<unknown>[] = [];
+  // Signals contributing to “ready”
+  const signals = useMemo<Promise<unknown>[]>(() => {
+    if (typeof window === "undefined") return [Promise.resolve()];
+    const arr: Promise<unknown>[] = [];
 
-    // 1) Fonts (optional)
+    // Fonts
     try {
       // @ts-ignore
-      if (document?.fonts?.ready) {
-        // @ts-ignore
-        signals.push(document.fonts.ready.catch(() => {}));
-      }
-    } catch {
-      /* ignore */
-    }
+      if (document?.fonts?.ready)
+        arr.push(document.fonts.ready.catch(() => {}));
+    } catch {}
 
-    // 2) Window load
-    signals.push(
+    // window load
+    arr.push(
       new Promise<void>((resolve) => {
         if (document.readyState === "complete") return resolve();
         window.addEventListener("load", () => resolve(), {
@@ -107,27 +102,28 @@ export function LoadingScreen({
       })
     );
 
-    // 3) Critical assets (best-effort, client only)
-    const assetPromises =
-      typeof Image !== "undefined"
-        ? criticalAssets.map(async (src) => {
+    // critical assets (best effort)
+    if (typeof Image !== "undefined") {
+      const list = criticalAssets.slice(0, 4); // keep snappy
+      arr.push(
+        Promise.allSettled(
+          list.map(async (src) => {
             try {
               const img = new Image();
               img.decoding = "async";
               img.src = src;
               await (img.decode?.() ?? Promise.resolve());
-            } catch {
-              /* ignore */
-            }
+            } catch {}
           })
-        : [];
-    signals.push(Promise.allSettled(assetPromises));
+        )
+      );
+    }
 
-    return signals;
+    return arr;
   }, [criticalAssets]);
 
   const approachTarget = useCallback((target: number) => {
-    if (doneRef.current) return;
+    if (doneRef.current || unmountedRef.current) return;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
     const tick = () => {
@@ -155,39 +151,45 @@ export function LoadingScreen({
     const wait = Math.max(0, minDurationMs - elapsed);
 
     window.setTimeout(() => {
+      if (unmountedRef.current) return;
       setVisible(false);
       onDone?.();
-      if (typeof document !== "undefined") {
-        const main = document.querySelector("main") as HTMLElement | null;
-        if (main) {
-          if (!main.hasAttribute("tabindex"))
-            main.setAttribute("tabindex", "-1");
-          main.focus({ preventScroll: true });
-        }
+      const main = document.querySelector("main") as HTMLElement | null;
+      if (main) {
+        if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+        main.focus({ preventScroll: true });
       }
     }, wait);
   }, [minDurationMs, onDone]);
 
-  // Lifecycle (client-only effects)
+  // lifecycle
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
   useEffect(() => {
     if (!visible) return;
 
     startTsRef.current = performance.now();
     setCanSkip(false);
 
-    const showSkipTo = window.setTimeout(() => setCanSkip(true), 2000);
+    const showSkipTo = window.setTimeout(() => setCanSkip(true), 1600);
     const hardTo = window.setTimeout(() => {
       setProgress(100);
       finish();
     }, hardTimeoutMs);
 
-    approachTarget(90);
+    approachTarget(88);
 
-    Promise.allSettled(realSignals).then(() => {
+    Promise.allSettled(signals).then(() => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       const ramp = () => {
         setProgress((p) => {
-          const inc = allowMotion ? 3.5 : 10;
+          const inc = allowMotion ? 3.2 : 10;
           const next = p + inc;
           if (next >= 100) {
             finish();
@@ -230,7 +232,9 @@ export function LoadingScreen({
   const onTouchMove = (e: TouchEvent) => {
     if (!canSkip || swipeUpThreshold <= 0) return;
     if (touchStartYRef.current == null) return;
-    const dy = touchStartYRef.current - e.touches[0]?.clientY || 0; // swipe up positive
+    const dy =
+      touchStartYRef.current -
+      (e.touches[0]?.clientY ?? touchStartYRef.current);
     if (dy > swipeUpThreshold) {
       touchStartYRef.current = null;
       finish();
@@ -239,7 +243,7 @@ export function LoadingScreen({
 
   const percent = Math.round(progress);
 
-  // Futuristic disc tilt (parallax) — client-only pointer use
+  // Tilt parallax
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
   useEffect(() => {
@@ -247,10 +251,8 @@ export function LoadingScreen({
     const onMove = (e: MouseEvent) => {
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
-      const nx = (e.clientX - cx) / cx; // -1..1
-      const ny = (e.clientY - cy) / cy; // -1..1
-      mx.set(nx);
-      my.set(ny);
+      mx.set((e.clientX - cx) / cx);
+      my.set((e.clientY - cy) / cy);
     };
     window.addEventListener("mousemove", onMove, { passive: true });
     return () => window.removeEventListener("mousemove", onMove);
@@ -288,11 +290,11 @@ export function LoadingScreen({
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
         >
-          {/* GLASS VEIL (blurs partially loaded app behind) */}
+          {/* Veil */}
           <div className="absolute inset-0 bg-white/22 backdrop-blur-3xl backdrop-saturate-150" />
           <div className="absolute inset-0 [--_b:blur(55px)] [backdrop-filter:var(--_b)] [-webkit-backdrop-filter:var(--_b)] pointer-events-none" />
 
-          {/* Ambient layers */}
+          {/* Ambient */}
           {allowMotion && (
             <>
               <motion.div
@@ -329,7 +331,7 @@ export function LoadingScreen({
             </>
           )}
 
-          {/* Core cluster */}
+          {/* Core */}
           <div className="relative text-center px-6 select-none">
             <motion.div
               style={{

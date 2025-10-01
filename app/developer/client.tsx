@@ -1,911 +1,1058 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { TextPlugin } from "gsap/TextPlugin";
+import useSWR from "swr";
+import * as React from "react";
+import Link from "next/link";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "framer-motion";
 import {
   Github,
   Linkedin,
   Mail,
   MessageCircle,
-  Code2,
-  Database,
-  Smartphone,
-  Cloud,
-  Palette,
-  Zap,
   ExternalLink,
-  Star,
-  Coffee,
-  Heart,
+  ShieldCheck,
+  Globe,
   MapPin,
   Calendar,
-  Award,
-  Briefcase,
-  Rocket,
-  Users,
-  Shield,
-  Download,
-  TrendingUp,
-  Globe,
-  Terminal,
-  Server,
-  Workflow,
+  Activity,
+  Star,
+  GitFork,
+  Zap,
+  Sparkles,
 } from "lucide-react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { ErrorBoundary } from "@/components/error-boundary";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MagicCard } from "@/components/ui/magic-card";
 import { Spotlight } from "@/components/ui/spotlight";
-import { cn } from "@/lib/utils";
+import { ErrorBoundary } from "@/components/error-boundary";
+import FloatingAudioSwitch from "@/components/FloatingAudioSwitch";
+import { AudioProvider } from "@/context/AudioContext";
+import Particals from "@/components/ui2/Particles";
 
-// Register GSAP plugins
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, TextPlugin);
-}
-
-const techStack = [
-  {
-    name: "React",
-    icon: Code2,
-    color: "text-blue-500",
-    category: "Frontend",
-    level: 95,
-  },
-  {
-    name: "Next.js",
-    icon: Code2,
-    color: "text-black dark:text-white",
-    category: "Framework",
-    level: 92,
-  },
-  {
-    name: "TypeScript",
-    icon: Terminal,
-    color: "text-blue-600",
-    category: "Language",
-    level: 90,
-  },
-  {
-    name: "TailwindCSS",
-    icon: Palette,
-    color: "text-cyan-500",
-    category: "Styling",
-    level: 94,
-  },
-  {
-    name: "Node.js",
-    icon: Server,
-    color: "text-green-500",
-    category: "Backend",
-    level: 88,
-  },
-  {
-    name: "Supabase",
-    icon: Database,
-    color: "text-emerald-500",
-    category: "Database",
-    level: 85,
-  },
-  {
-    name: "React Native",
-    icon: Smartphone,
-    color: "text-purple-500",
-    category: "Mobile",
-    level: 80,
-  },
-  {
-    name: "Docker",
-    icon: Cloud,
-    color: "text-blue-400",
-    category: "DevOps",
-    level: 75,
-  },
-  {
-    name: "AWS",
-    icon: Cloud,
-    color: "text-orange-500",
-    category: "Cloud",
-    level: 78,
-  },
-  {
-    name: "Framer Motion",
-    icon: Zap,
-    color: "text-pink-500",
-    category: "Animation",
-    level: 92,
-  },
-  {
-    name: "GSAP",
-    icon: Zap,
-    color: "text-green-400",
-    category: "Animation",
-    level: 88,
-  },
-  {
-    name: "GitHub Actions",
-    icon: Workflow,
-    color: "text-gray-600",
-    category: "CI/CD",
-    level: 82,
-  },
-];
-
-const contributions = [
-  {
-    title: "Content Management System",
-    description:
-      "Built a comprehensive CMS for managing travel content, videos, and destinations with real-time updates.",
-    icon: Database,
-    color: "text-blue-500",
-    features: [
-      "Real-time sync",
-      "Media management",
-      "SEO optimization",
-      "Content versioning",
-    ],
-    tech: ["Supabase", "Next.js", "TypeScript"],
-  },
-  {
-    title: "Admin & Developer Portals",
-    description:
-      "Developed role-based admin interfaces with advanced analytics, user management, and system monitoring.",
-    icon: Shield,
-    color: "text-purple-500",
-    features: [
-      "Role-based access",
-      "Analytics dashboard",
-      "User management",
-      "System logs",
-    ],
-    tech: ["React", "Zustand", "Chart.js"],
-  },
-  {
-    title: "Real-time Integration",
-    description:
-      "Implemented WebSocket connections for live updates, notifications, and collaborative features.",
-    icon: Zap,
-    color: "text-yellow-500",
-    features: [
-      "Live notifications",
-      "Real-time sync",
-      "WebSocket API",
-      "Event streaming",
-    ],
-    tech: ["WebSocket", "Supabase Realtime", "Node.js"],
-  },
-  {
-    title: "Performance Optimization",
-    description:
-      "Achieved 98% Lighthouse scores through image optimization, lazy loading, and code splitting.",
-    icon: Rocket,
-    color: "text-red-500",
-    features: [
-      "Image optimization",
-      "Code splitting",
-      "Lazy loading",
-      "Caching strategies",
-    ],
-    tech: ["Next.js", "Vercel", "CDN"],
-  },
-];
-
-const achievements = [
-  {
-    icon: Award,
-    text: "5+ Years Experience",
-    metric: "2019-2024",
-    color: "text-yellow-500",
-  },
-  {
-    icon: Star,
-    text: "Open Source Contributor",
-    metric: "50+ Repos",
-    color: "text-blue-500",
-  },
-  {
-    icon: Briefcase,
-    text: "Projects Completed",
-    metric: "20+",
-    color: "text-green-500",
-  },
-  {
-    icon: Users,
-    text: "Team Leadership",
-    metric: "10+ Devs",
-    color: "text-purple-500",
-  },
-  {
-    icon: TrendingUp,
-    text: "Performance Score",
-    metric: "98%",
-    color: "text-red-500",
-  },
-  {
-    icon: Coffee,
-    text: "Coffee Consumed",
-    metric: "∞ Cups",
-    color: "text-amber-500",
-  },
-];
-
-const socialLinks = [
-  {
-    name: "GitHub",
-    icon: Github,
-    href: "https://github.com/ks-official-sahan",
-    color: "hover:text-gray-600",
-  },
-  {
-    name: "LinkedIn",
-    icon: Linkedin,
-    href: "https://www.linkedin.com/in/sahan-sachintha",
-    color: "hover:text-blue-600",
-  },
-  {
-    name: "Email",
-    icon: Mail,
-    href: "mailto:ks.official.sahan@gmail.com",
-    color: "hover:text-red-500",
-  },
-  {
-    name: "WhatsApp",
-    icon: MessageCircle,
-    href: "https://wa.me/94768701148?text=Hello%2C%20I%20saw%20your%20website%20and%20I%27m%20interested.",
-    color: "hover:text-green-500",
-  },
-];
-
-const TechCard = ({ tech, index }: { tech: any; index: number }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (isInView) {
-      const timer = setTimeout(() => setIsVisible(true), index * 100);
-      return () => clearTimeout(timer);
-    }
-  }, [isInView, index]);
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20, scale: 0.9 }}
-      animate={isVisible ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      whileHover={{ scale: 1.05, y: -5 }}
-      className="group"
-    >
-      <MagicCard className="p-4 h-full text-center hover:shadow-2xl transition-all duration-500 border-white/10 hover:border-white/20">
-        <div className="space-y-3">
-          <motion.div
-            className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-all duration-300 mx-auto w-fit"
-            whileHover={{ rotate: 5 }}
-          >
-            <tech.icon className={cn("h-6 w-6", tech.color)} />
-          </motion.div>
-          <div className="space-y-1">
-            <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">
-              {tech.name}
-            </h3>
-            <Badge variant="outline" className="text-xs">
-              {tech.category}
-            </Badge>
-          </div>
-          <div className="space-y-1">
-            <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground">Skill</span>
-              <span className="font-medium">{tech.level}%</span>
-            </div>
-            <Progress
-              value={isVisible ? tech.level : 0}
-              className="h-1.5 bg-muted/30"
-            />
-          </div>
-        </div>
-      </MagicCard>
-    </motion.div>
-  );
+type GH = {
+  user?: {
+    login: string;
+    name?: string;
+    html_url: string;
+    avatar_url: string;
+    bio?: string;
+    followers: number;
+    following: number;
+    public_repos: number;
+    location?: string;
+  };
+  repos?: any[];
+  pinned?: any[];
+  events?: {
+    id: string;
+    type: string;
+    repo: { name: string; url: string };
+    created_at: string;
+  }[];
+  ts?: number;
+  error?: boolean;
 };
 
-const ContributionCard = ({
-  contribution,
-  index,
+type Status = {
+  results: {
+    label: string;
+    url: string;
+    ok: boolean;
+    status: number;
+    latency: number;
+  }[];
+  best?: { url: string };
+  ts?: number;
+};
+
+const fetcher = (u: string) => fetch(u).then((r) => r.json());
+
+export default function DeveloperClient({
+  initial,
+  statusInitial,
 }: {
-  contribution: any;
-  index: number;
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.1, duration: 0.6 }}
-      viewport={{ once: true }}
-      className="group"
-    >
-      <MagicCard className="p-6 h-full hover:shadow-2xl transition-all duration-500 border-white/10 hover:border-white/20">
-        <div className="space-y-4">
-          <div className="flex items-start gap-4">
-            <motion.div
-              className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-all duration-300 flex-shrink-0"
-              whileHover={{ rotate: 5 }}
-            >
-              <contribution.icon
-                className={cn("h-6 w-6", contribution.color)}
-              />
-            </motion.div>
-            <div className="space-y-2 flex-1">
-              <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
-                {contribution.title}
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {contribution.description}
-              </p>
-            </div>
-          </div>
+  initial: GH | null;
+  statusInitial: Status | null;
+}) {
+  const prefersReducedMotion = useReducedMotion();
 
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Key Features:</h4>
-              <div className="flex flex-wrap gap-1">
-                {contribution.features.map((feature: string) => (
-                  <Badge key={feature} variant="outline" className="text-xs">
-                    {feature}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Technologies:</h4>
-              <div className="flex flex-wrap gap-1">
-                {contribution.tech.map((tech: string) => (
-                  <Badge key={tech} variant="secondary" className="text-xs">
-                    {tech}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </MagicCard>
-    </motion.div>
-  );
-};
-
-const AchievementCard = ({
-  achievement,
-  index,
-}: {
-  achievement: any;
-  index: number;
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      transition={{ delay: index * 0.1, duration: 0.5 }}
-      viewport={{ once: true }}
-      whileHover={{ scale: 1.05, y: -5 }}
-      className="group"
-    >
-      <MagicCard className="p-6 text-center h-full hover:shadow-2xl transition-all duration-500 border-white/10 hover:border-white/20">
-        <div className="space-y-4">
-          <motion.div
-            className="relative mx-auto w-fit"
-            whileHover={{ rotate: 5 }}
-          >
-            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 group-hover:from-primary/20 group-hover:to-accent/20 transition-all duration-300">
-              <achievement.icon
-                className={cn("h-8 w-8 mx-auto", achievement.color)}
-              />
-            </div>
-          </motion.div>
-          <div className="space-y-2">
-            <p className="text-2xl font-bold text-primary group-hover:text-accent transition-colors">
-              {achievement.metric}
-            </p>
-            <p className="text-sm font-medium text-muted-foreground leading-tight">
-              {achievement.text}
-            </p>
-          </div>
-        </div>
-      </MagicCard>
-    </motion.div>
-  );
-};
-
-export default function DeveloperInfoPage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
+  // SWR tuned for stability + UX
+  const { data: gh } = useSWR<GH>("/api/dev/github", fetcher, {
+    fallbackData: initial ?? undefined,
+    refreshInterval: 60_000,
+    keepPreviousData: true,
+    revalidateOnFocus: false,
+    dedupingInterval: 30_000,
   });
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const { data: status } = useSWR<Status>("/api/dev/status", fetcher, {
+    fallbackData: statusInitial ?? undefined,
+    refreshInterval: 30_000,
+    keepPreviousData: true,
+    revalidateOnFocus: false,
+    dedupingInterval: 15_000,
+  });
 
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Split text animation for hero title
-      if (titleRef.current) {
-        const text = titleRef.current.textContent;
-        if (text) {
-          titleRef.current.innerHTML = text
-            .split("")
-            .map(
-              (char, i) =>
-                `<span class="char" style="display: inline-block;">${
-                  char === " " ? "&nbsp;" : char
-                }</span>`
-            )
-            .join("");
+  const user = gh?.user;
+  const pinned = gh?.pinned ?? [];
+  const repos = gh?.repos ?? [];
+  const events = gh?.events ?? [];
 
-          gsap.fromTo(
-            ".char",
-            {
-              opacity: 0,
-              y: 50,
-              rotationX: -90,
-            },
-            {
-              opacity: 1,
-              y: 0,
-              rotationX: 0,
-              duration: 0.8,
-              ease: "back.out(1.7)",
-              stagger: 0.05,
-            }
-          );
-        }
-      }
+  // Status selector (pick best latency; user can override)
+  const [target, setTarget] = React.useState<string | null>(null);
+  const best = React.useMemo(() => {
+    if (target) return target;
+    const ok = (status?.results || []).filter((r) => r.ok);
+    if (!ok.length) return status?.best?.url || "https://sahansachintha.com";
+    const fastest = ok.reduce((a, b) => (a.latency < b.latency ? a : b));
+    return fastest.url;
+  }, [status, target]);
 
-      // Hero content animations
-      gsap.fromTo(
-        ".hero-subtitle",
-        {
-          opacity: 0,
-          y: 30,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          delay: 1,
-          ease: "power2.out",
-        }
-      );
+  // BG parallax
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start", "end"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
 
-      gsap.fromTo(
-        ".hero-buttons",
-        {
-          opacity: 0,
-          y: 30,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          delay: 1.5,
-          ease: "power2.out",
-        }
-      );
-
-      // Section reveals
-      gsap.utils.toArray(".reveal-section").forEach((element: any) => {
-        gsap.fromTo(
-          element,
-          {
-            opacity: 0,
-            y: 60,
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: element,
-              start: "top 80%",
-              end: "bottom 20%",
-              toggleActions: "play none none reverse",
-            },
-          }
-        );
-      });
-
-      // Floating animations
-      gsap.utils.toArray(".float-element").forEach((element: any, index) => {
-        gsap.to(element, {
-          y: -15,
-          duration: 2 + index * 0.2,
-          ease: "power1.inOut",
-          yoyo: true,
-          repeat: -1,
-          delay: index * 0.3,
-        });
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
+  const socials = [
+    {
+      name: "GitHub",
+      icon: Github,
+      href: user?.html_url || "https://github.com/ks-official-sahan",
+    },
+    {
+      name: "LinkedIn",
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/sahan-sachintha",
+    },
+    { name: "Email", icon: Mail, href: "mailto:ks.official.sahan@gmail.com" },
+    {
+      name: "WhatsApp",
+      icon: MessageCircle,
+      href: "https://wa.me/94768701148?text=Hello%20Sahan",
+    },
+  ];
 
   return (
     <ErrorBoundary>
-      <div ref={containerRef} className="min-h-screen relative">
-        {/* Enhanced Background */}
-        <motion.div className="fixed inset-0 z-0" style={{ y: backgroundY }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/10 to-primary/20" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(34,197,94,0.15),transparent_60%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(16,185,129,0.15),transparent_60%)]" />
-          <Spotlight
-            className="top-40 left-0 md:left-60 md:-top-20"
-            fill="rgba(34, 197, 94, 0.4)"
-          />
-        </motion.div>
+      <AudioProvider>
+        <Particals />
+        <Particals />
+        <div ref={ref} className="relative min-h-screen isolate">
+          {/* Cinematic Aurora / Grid background */}
+          <motion.div
+            aria-hidden
+            className="fixed inset-0 -z-10"
+            style={prefersReducedMotion ? undefined : { y }}
+          >
+            <div className="absolute inset-0 animate-aurora bg-[radial-gradient(800px_400px_at_12%_10%,color-mix(in_oklab,theme(colors.primary.DEFAULT)_18%,transparent),transparent_60%),radial-gradient(900px_500px_at_80%_70%,color-mix(in_oklab,theme(colors.accent.DEFAULT)_14%,transparent),transparent_60%),linear-gradient(180deg,theme(colors.background),color-mix(in_oklab,theme(colors.background)_82%,black_18%))]" />
+            <div className="absolute inset-0 opacity-[.08] bg-grid-small-[hsl(var(--border))]" />
+            <Spotlight
+              className="top-28 left-10 md:left-40"
+              fill="rgba(56,189,248,0.35)"
+            />
+          </motion.div>
 
-        <main className="relative z-10 pt-20">
-          {/* Hero Section */}
-          <section ref={heroRef} className="py-16 md:py-24">
-            <div className="max-w-4xl mx-auto px-6 space-y-8">
-              <div className="text-center space-y-6">
-                <div
-                  ref={titleRef}
-                  className="text-5xl md:text-7xl font-bold text-gradient"
-                >
-                  Meet the Developer
-                </div>
-
-                <div className="hero-subtitle space-y-4">
-                  <h2 className="text-2xl md:text-3xl font-bold">
-                    Sahan Sachintha
-                  </h2>
-                  <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto">
-                    Full-Stack Software Engineer specializing in immersive web
-                    experiences and scalable applications
+          {/* ===== HERO  (split, glass, cinematic) ===== */}
+          <section
+            className="safe-top pt-16 md:pt-24 pb-10 md:pb-14"
+            aria-labelledby="hero-title"
+          >
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 grid lg:grid-cols-[420px,1fr] gap-8 items-stretch">
+              {/* Portrait / vertical card */}
+              <MagicCard className="relative bg-card/70 backdrop-blur-xl border border-border rounded-3xl p-5 overflow-hidden">
+                <div className="absolute inset-x-0 -top-20 h-40 blur-2xl opacity-60 bg-gradient-to-r from-primary/40 via-accent/30 to-secondary/40" />
+                <div className="relative flex flex-col items-center">
+                  <Avatar className="h-32 w-32 ring-4 ring-primary/25 shadow-2xl">
+                    <AvatarImage
+                      src={user?.avatar_url}
+                      alt={`${user?.name || "Sahan"} avatar`}
+                    />
+                    <AvatarFallback className="text-3xl font-bold">
+                      SS
+                    </AvatarFallback>
+                  </Avatar>
+                  <h1
+                    id="hero-title"
+                    className="mt-4 text-center text-4xl font-extrabold leading-tight"
+                  >
+                    <span className="text-gradient-primary">Hyper-Luxury</span>
+                    <br />
+                    Developer
+                  </h1>
+                  <p className="mt-3 text-center text-muted-foreground">
+                    {user?.name || "Sahan Sachintha"} — Full-Stack Engineer
                   </p>
-                  <div className="flex flex-wrap justify-center gap-3">
-                    <Badge variant="secondary" className="px-4 py-2">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Sri Lanka
-                    </Badge>
-                    <Badge variant="secondary" className="px-4 py-2">
-                      <Calendar className="mr-2 h-4 w-4" />
-                      5+ Years Experience
-                    </Badge>
-                    <Badge variant="secondary" className="px-4 py-2">
-                      <Globe className="mr-2 h-4 w-4" />
-                      Available Worldwide
-                    </Badge>
-                  </div>
-                </div>
 
-                <div className="hero-buttons flex flex-wrap justify-center gap-4">
-                  <Button
-                    size="lg"
-                    className="group shadow-xl hover:shadow-primary/25 px-8"
-                    asChild
-                  >
-                    <Link
-                      href="https://github.com/ks-official-sahan"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  {/* Status selector (industrial-grade, accessible) */}
+                  <div className="mt-6 w-full">
+                    <label htmlFor="status" className="sr-only">
+                      Prefer a live portfolio endpoint
+                    </label>
+                    <div
+                      role="radiogroup"
+                      aria-label="Choose live portfolio endpoint"
+                      className="grid grid-cols-2 gap-2"
                     >
-                      <Github className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                      View GitHub
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="group px-8"
-                    asChild
-                  >
-                    <Link href="mailto:ks.official.sahan@gmail.com">
-                      <Mail className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                      Contact Me
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Developer Identity Card */}
-          <section className="reveal-section py-16">
-            <div className="max-w-4xl mx-auto px-6">
-              <MagicCard className="p-8 bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                  <motion.div
-                    className="flex-shrink-0 float-element"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    <Avatar className="h-32 w-32 ring-4 ring-primary/30 shadow-2xl">
-                      <AvatarImage
-                        src="https://avatars.githubusercontent.com/u/109258288?v=4"
-                        alt="Sahan Sachintha - Full-Stack Developer"
-                      />
-                      <AvatarFallback className="text-3xl bg-gradient-to-br from-primary to-accent text-white font-bold">
-                        SS
-                      </AvatarFallback>
-                    </Avatar>
-                  </motion.div>
-
-                  <div className="flex-1 text-center md:text-left space-y-4">
-                    <div className="space-y-2">
-                      <h3 className="text-2xl font-bold text-primary">
-                        Sahan Sachintha
-                      </h3>
-                      <p className="text-lg text-muted-foreground">
-                        Full-Stack Software Engineer
-                      </p>
-                    </div>
-
-                    <p className="text-muted-foreground leading-relaxed">
-                      Passionate about creating exceptional digital experiences
-                      with modern technologies. Specializing in React, Next.js,
-                      and full-stack development with a focus on performance,
-                      scalability, and user experience. Currently building the
-                      Green Roamer platform with cutting-edge web technologies.
-                    </p>
-
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                      {socialLinks.map((link) => (
-                        <Button
-                          key={link.name}
-                          variant="outline"
-                          size="sm"
-                          className={cn("group", link.color)}
-                          asChild
-                        >
-                          <Link
-                            href={link.href}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                      {(status?.results || []).map((r) => {
+                        const active = (target || best) === r.url;
+                        const ok = r.ok;
+                        return (
+                          <button
+                            key={r.url}
+                            role="radio"
+                            aria-checked={active}
+                            onClick={() => setTarget(r.url)}
+                            title={`${r.url} • ${
+                              ok ? `${Math.round(r.latency)}ms` : "Down"
+                            }`}
+                            className={`group rounded-xl border px-3 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 ${
+                              active
+                                ? "border-primary/50 bg-primary/10"
+                                : "border-border bg-card/60 hover:bg-card/80"
+                            } ${
+                              ok ? "text-foreground" : "opacity-60 line-through"
+                            }`}
                           >
-                            <link.icon className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
-                            {link.name}
-                            <ExternalLink className="ml-2 h-3 w-3" />
-                          </Link>
-                        </Button>
-                      ))}
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`size-2 rounded-full ${
+                                  ok ? "bg-emerald-500" : "bg-red-500"
+                                }`}
+                                aria-hidden
+                              />
+                              <span className="text-xs font-medium">
+                                {r.label}
+                              </span>
+                              <span className="ml-auto text-xs opacity-70">
+                                {ok
+                                  ? `${Math.max(
+                                      1,
+                                      Math.min(9999, Math.round(r.latency))
+                                    )}ms`
+                                  : "Down"}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Smart default: fastest OK endpoint. You can override
+                      above.
+                    </p>
+                  </div>
+
+                  <div className="mt-5 grid grid-cols-3 gap-2 w-full">
+                    <Badge variant="secondary" className="justify-center">
+                      <MapPin className="mr-1.5 h-4 w-4" />{" "}
+                      {user?.location || "Sri Lanka"}
+                    </Badge>
+                    <Badge variant="secondary" className="justify-center">
+                      <Calendar className="mr-1.5 h-4 w-4" /> 5+ Years
+                    </Badge>
+                    <Badge variant="secondary" className="justify-center">
+                      <Globe className="mr-1.5 h-4 w-4" /> Worldwide
+                    </Badge>
                   </div>
                 </div>
               </MagicCard>
-            </div>
-          </section>
 
-          {/* Technology Stack Grid */}
-          <section className="reveal-section py-16 bg-gradient-to-b from-transparent via-muted/20 to-transparent">
-            <div className="max-w-6xl mx-auto px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="text-center mb-12"
-              >
-                <h2 className="text-4xl md:text-5xl font-bold text-gradient mb-6">
-                  Technology Stack
-                </h2>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Technologies and frameworks I use to build exceptional digital
-                  experiences
-                </p>
-              </motion.div>
+              {/* Right column – value prop + CTAs */}
+              <MagicCard className="relative bg-card/70 backdrop-blur-xl border border-border rounded-3xl overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none [mask-image:linear-gradient(180deg,black,transparent)]">
+                  <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-72 w-[110%] rounded-full bg-gradient-to-r from-primary/25 via-accent/25 to-secondary/25 blur-2xl" />
+                </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {techStack.map((tech, index) => (
-                  <TechCard key={tech.name} tech={tech} index={index} />
-                ))}
-              </div>
-            </div>
-          </section>
+                <div className="relative p-8 md:p-10">
+                  <p className="text-lg md:text-xl text-muted-foreground md:max-w-prose lg:max-w-full">
+                    I design and engineer premium, **future-proof** products
+                    with <strong>Next.js</strong>, <strong>TypeScript</strong>,{" "}
+                    <strong>GSAP</strong>, <strong>Framer Motion</strong>,
+                    realtime stacks, robust CI/CD, <strong>SEO</strong> and
+                    meticulous attention to motion, a11y, and performance.
+                  </p>
 
-          {/* Contributions to Green Roamer */}
-          <section className="reveal-section py-16">
-            <div className="max-w-6xl mx-auto px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="text-center mb-12"
-              >
-                <h2 className="text-4xl md:text-5xl font-bold text-gradient mb-6">
-                  Green Roamer Contributions
-                </h2>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Key systems and features I've built for the Green Roamer
-                  platform
-                </p>
-              </motion.div>
-
-              <div className="grid lg:grid-cols-2 gap-6">
-                {contributions.map((contribution, index) => (
-                  <ContributionCard
-                    key={contribution.title}
-                    contribution={contribution}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Achievements */}
-          <section className="reveal-section py-16 bg-gradient-to-b from-transparent via-muted/20 to-transparent">
-            <div className="max-w-6xl mx-auto px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                viewport={{ once: true }}
-                className="text-center mb-12"
-              >
-                <h2 className="text-4xl md:text-5xl font-bold text-gradient mb-6">
-                  Achievements & Milestones
-                </h2>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Key accomplishments and metrics that define my development
-                  journey
-                </p>
-              </motion.div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {achievements.map((achievement, index) => (
-                  <AchievementCard
-                    key={achievement.text}
-                    achievement={achievement}
-                    index={index}
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Call-to-Action Footer */}
-          <section className="reveal-section py-16">
-            <div className="max-w-4xl mx-auto px-6">
-              <MagicCard className="p-8 text-center bg-white/10 backdrop-blur-md border border-white/20 shadow-xl">
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gradient">
-                      Want to Collaborate?
-                    </h2>
-                    <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                      Ready to bring your ideas to life? I'm available for
-                      freelance projects, collaborations, and full-time
-                      opportunities. Let's create something amazing together.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap justify-center gap-4">
-                    <Button size="lg" className="group shadow-lg" asChild>
+                  <div className="mt-6 flex flex-wrap gap-3 justify-center items-center">
+                    <Button
+                      size="lg"
+                      className="shadow-lg"
+                      asChild
+                      data-magnetic
+                    >
                       <Link
-                        href="https://github.com/ks-official-sahan"
+                        href={best}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label="View portfolio"
                       >
-                        <Github className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                        View GitHub
+                        <ShieldCheck className="mr-2 h-5 w-5" />
+                        View Portfolio
                         <ExternalLink className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
 
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="group"
-                      asChild
-                    >
-                      <Link href="mailto:ks.official.sahan@gmail.com">
-                        <Mail className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                        Contact Me
-                      </Link>
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="group"
-                      asChild
-                    >
-                      <Link
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          window.print();
-                        }}
+                    {socials.map((s) => (
+                      <Button
+                        key={s.name}
+                        size="lg"
+                        variant="outline"
+                        asChild
+                        data-magnetic
                       >
-                        <Download className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />
-                        Download CV
+                        <Link
+                          href={s.href}
+                          target={s.name !== "Email" ? "_blank" : undefined}
+                          rel="noopener noreferrer"
+                          aria-label={s.name}
+                        >
+                          <s.icon className="mr-2 h-5 w-5" />
+                          {s.name}
+                          {s.name !== "Email" && (
+                            <ExternalLink className="ml-2 h-4 w-4" />
+                          )}
+                        </Link>
+                      </Button>
+                    ))}
+
+                    <Button size="lg" variant="secondary" asChild>
+                      <Link
+                        href="/developer/cv"
+                        aria-label="Open print-ready CV mode"
+                      >
+                        <Zap className="mr-2 h-5 w-5" /> CV Mode
                       </Link>
                     </Button>
                   </div>
 
-                  <Separator />
-
-                  <div className="grid md:grid-cols-3 gap-6 text-center">
-                    <div className="space-y-2">
-                      <Coffee className="h-6 w-6 mx-auto text-amber-500" />
-                      <p className="text-sm font-medium">
-                        Available for Freelance
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Full-time & Part-time projects
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Heart className="h-6 w-6 mx-auto text-red-500" />
-                      <p className="text-sm font-medium">
-                        Open to Collaborations
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Team projects & partnerships
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Globe className="h-6 w-6 mx-auto text-blue-500" />
-                      <p className="text-sm font-medium">Remote Worldwide</p>
-                      <p className="text-xs text-muted-foreground">
-                        Flexible timezone coverage
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <p className="text-sm text-muted-foreground">
-                      Response time: Usually within 24 hours • Available
-                      Mon-Fri, 9AM-6PM (GMT+5:30)
-                    </p>
+                  {/* KPIs */}
+                  <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <Stat label="Followers" value={user?.followers} />
+                    <Stat label="Public Repos" value={user?.public_repos} />
+                    <Stat label="Following" value={user?.following} />
+                    <Stat
+                      label="Synced"
+                      value={
+                        gh?.ts ? new Date(gh.ts).toLocaleTimeString() : "—"
+                      }
+                    />
                   </div>
                 </div>
               </MagicCard>
             </div>
           </section>
-        </main>
 
-        {/* Ambient Elements */}
-        <div className="fixed inset-0 pointer-events-none z-5">
-          <motion.div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
-          />
-          <motion.div
-            className="absolute bottom-1/4 right-1/4 w-[32rem] h-[32rem] bg-accent/5 rounded-full blur-3xl"
-            animate={{
-              x: [0, -80, 0],
-              y: [0, 60, 0],
-              scale: [1, 0.8, 1],
-            }}
-            transition={{
-              duration: 30,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
-          />
+          {/* ===== Flagship Work ===== */}
+          <Section
+            title="Flagship Work"
+            subtitle="Curated repositories that embody my standards"
+            className="bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.06)_20%,transparent_60%)] dark:bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.18)_20%,transparent_60%)]"
+          >
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {(pinned.length ? pinned : repos.slice(0, 6)).map((r: any) => (
+                <RepoCard key={r.id} r={r} />
+              ))}
+              {!pinned.length && !repos.length && <SkeletonCard />}
+            </div>
+          </Section>
+
+          {/* ===== Recent Activity ===== */}
+          <Section title="Recent Activity" subtitle="Freshly updated codebases">
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {(gh?.repos || []).map((r: any) => (
+                <RepoCard key={r.id} r={r} />
+              ))}
+              {!gh?.repos?.length && <SkeletonCard />}
+            </div>
+          </Section>
+
+          {/* ===== Live GitHub Feed ===== */}
+          <Section
+            title="Live GitHub Feed"
+            subtitle="Public events in near-realtime"
+          >
+            <div className="mt-8 space-y-4">
+              {(events || []).slice(0, 10).map((e: any) => (
+                <MagicCard
+                  key={e.id}
+                  className="p-4 flex items-center gap-3 bg-card/70 backdrop-blur-xl border border-border"
+                >
+                  <Activity className="h-4 w-4 text-primary" aria-hidden />
+                  <div className="text-sm leading-relaxed">
+                    <span className="font-medium">
+                      {e.type.replace("Event", "")}
+                    </span>{" "}
+                    on{" "}
+                    <a
+                      href={e.repo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-4 decoration-dotted"
+                    >
+                      {e.repo.name}
+                    </a>{" "}
+                    •{" "}
+                    <span className="opacity-70">
+                      {new Date(e.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                </MagicCard>
+              ))}
+              {!events?.length && (
+                <div
+                  className="h-10 rounded-xl bg-muted/40 animate-pulse"
+                  aria-hidden
+                />
+              )}
+            </div>
+          </Section>
+
+          {/* ===== CTA ===== */}
+          <section className="py-16" aria-labelledby="cta">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6">
+              <MagicCard className="p-8 md:p-10 text-center bg-card/80 backdrop-blur-xl border border-border shadow-2xl">
+                <h2
+                  id="cta"
+                  className="text-3xl md:text-4xl font-extrabold text-shadow-ambient"
+                >
+                  Let’s build something premium
+                </h2>
+                <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+                  Design-driven engineering for products that must feel
+                  extraordinary—delivered with world-class performance.
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-4">
+                  <Button size="lg" className="shadow-lg" asChild>
+                    <Link
+                      href={
+                        user?.html_url || "https://github.com/ks-official-sahan"
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Github className="mr-2 h-5 w-5" /> GitHub{" "}
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="lg" asChild>
+                    <Link href="mailto:ks.official.sahan@gmail.com">
+                      <Mail className="mr-2 h-5 w-5" /> Contact
+                    </Link>
+                  </Button>
+                  <Button variant="secondary" size="lg" asChild>
+                    <Link href={best} target="_blank" rel="noopener noreferrer">
+                      <Globe className="mr-2 h-5 w-5" /> Portfolio{" "}
+                      <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+                <Separator className="my-6" />
+                <p className="text-sm text-muted-foreground">
+                  Response within 24h • Mon–Fri • GMT+5:30
+                </p>
+              </MagicCard>
+            </div>
+          </section>
+
+          {/* Floating audio switch preserved */}
+          <FloatingAudioSwitch />
         </div>
-      </div>
+      </AudioProvider>
     </ErrorBoundary>
   );
 }
+
+/* ---------------- small pieces ---------------- */
+
+function Section({
+  title,
+  subtitle,
+  className,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const id = title.replace(/\s+/g, "-").toLowerCase();
+  return (
+    <section className={`py-14 ${className || ""}`} aria-labelledby={id}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="text-center">
+          <h2
+            id={id}
+            className="text-3xl md:text-4xl font-extrabold tracking-tight"
+          >
+            {title}
+          </h2>
+          {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+        </div>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: any }) {
+  const display =
+    typeof value === "number" ? value.toLocaleString() : String(value ?? "—");
+  const pct =
+    typeof value === "number"
+      ? Math.max(6, Math.min(100, (value / 100) * 22))
+      : 0;
+  return (
+    <MagicCard className="p-4 text-center bg-card/70 backdrop-blur-xl border border-border">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 text-2xl font-extrabold">{display}</div>
+      <Progress value={pct} className="mt-2 h-1" />
+    </MagicCard>
+  );
+}
+
+function RepoCard({ r }: { r: any }) {
+  return (
+    <MagicCard className="group p-5 h-full bg-card/70 backdrop-blur-xl border border-border rounded-2xl hover:border-primary/40 transition">
+      <div className="flex items-start justify-between gap-3">
+        <Link
+          href={r.html_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-semibold underline decoration-dotted underline-offset-4 group-hover:text-primary transition-colors"
+        >
+          {r.name}
+        </Link>
+        <span className="text-xs opacity-70">{r.language || "—"}</span>
+      </div>
+      <p className="text-sm opacity-80 mt-2 line-clamp-3">
+        {r.description || "—"}
+      </p>
+      <div className="mt-3 flex items-center gap-4 text-xs opacity-80">
+        <span className="inline-flex items-center gap-1">
+          <Star className="h-3.5 w-3.5" /> {r.stargazers_count}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <GitFork className="h-3.5 w-3.5" /> {r.forks_count}
+        </span>
+        <span className="ml-auto">
+          Updated {new Date(r.updated_at).toLocaleDateString()}
+        </span>
+      </div>
+    </MagicCard>
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="h-36 rounded-2xl bg-muted/40 animate-pulse" aria-hidden />
+  );
+}
+
+// "use client";
+
+// import useSWR from "swr";
+// import { useMemo, useRef } from "react";
+// import {
+//   motion,
+//   useScroll,
+//   useTransform,
+//   useReducedMotion,
+// } from "framer-motion";
+// import Link from "next/link";
+// import {
+//   Github,
+//   Linkedin,
+//   Mail,
+//   MessageCircle,
+//   ExternalLink,
+//   Star,
+//   GitFork,
+//   Globe,
+//   MapPin,
+//   Calendar,
+//   Download,
+//   Activity,
+//   ShieldCheck,
+// } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import { Badge } from "@/components/ui/badge";
+// import { Progress } from "@/components/ui/progress";
+// import { Separator } from "@/components/ui/separator";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { MagicCard } from "@/components/ui/magic-card";
+// import { Spotlight } from "@/components/ui/spotlight";
+// import { ErrorBoundary } from "@/components/error-boundary";
+// import FloatingAudioSwitch from "@/components/FloatingAudioSwitch";
+// import { AudioProvider } from "@/context/AudioContext";
+
+// const fetcher = (u: string) => fetch(u).then((r) => r.json());
+
+// type GH = {
+//   user?: {
+//     login: string;
+//     name?: string;
+//     html_url: string;
+//     avatar_url: string;
+//     bio?: string;
+//     followers: number;
+//     following: number;
+//     public_repos: number;
+//     location?: string;
+//   };
+//   repos?: any[];
+//   pinned?: any[];
+//   events?: {
+//     id: string;
+//     type: string;
+//     repo: { name: string; url: string };
+//     created_at: string;
+//   }[];
+//   ts?: number;
+//   error?: boolean;
+// };
+// type Status = {
+//   results: {
+//     label: string;
+//     url: string;
+//     ok: boolean;
+//     status: number;
+//     latency: number;
+//   }[];
+//   best?: { url: string };
+//   ts?: number;
+// };
+
+// export default function DeveloperClient({
+//   initial,
+//   statusInitial,
+// }: {
+//   initial: GH | null;
+//   statusInitial: Status | null;
+// }) {
+//   const prefersReducedMotion = useReducedMotion();
+
+//   const { data: gh } = useSWR<GH>("/api/dev/github", fetcher, {
+//     fallbackData: initial ?? undefined,
+//     refreshInterval: 60_000,
+//     revalidateOnFocus: true,
+//   });
+
+//   const { data: status } = useSWR<Status>("/api/dev/status", fetcher, {
+//     fallbackData: statusInitial ?? undefined,
+//     refreshInterval: 30_000,
+//     revalidateOnFocus: true,
+//   });
+
+//   const user = gh?.user;
+//   const pinned = gh?.pinned ?? [];
+//   const repos = gh?.repos ?? [];
+//   const events = gh?.events ?? [];
+//   const bestPortfolio = status?.best?.url || "https://sahansachintha.com";
+
+//   const containerRef = useRef<HTMLDivElement>(null);
+//   const { scrollYProgress } = useScroll({
+//     target: containerRef,
+//     offset: ["start start", "end start"],
+//   });
+//   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+
+//   const socials = useMemo(
+//     () => [
+//       {
+//         name: "GitHub",
+//         icon: Github,
+//         href: user?.html_url || "https://github.com/ks-official-sahan",
+//       },
+//       {
+//         name: "LinkedIn",
+//         icon: Linkedin,
+//         href: "https://www.linkedin.com/in/sahan-sachintha",
+//       },
+//       { name: "Email", icon: Mail, href: "mailto:ks.official.sahan@gmail.com" },
+//       {
+//         name: "WhatsApp",
+//         icon: MessageCircle,
+//         href: "https://wa.me/94768701148?text=Hello%20Sahan",
+//       },
+//     ],
+//     [user]
+//   );
+
+//   return (
+//     <ErrorBoundary>
+//       <AudioProvider>
+//         <div ref={containerRef} className="relative min-h-screen isolate">
+//           {/* Cinematic background */}
+//           <motion.div
+//             aria-hidden
+//             className="fixed inset-0 -z-10 interactive-bg"
+//             style={prefersReducedMotion ? undefined : { y: bgY }}
+//           >
+//             <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_20%_20%,color-mix(in_oklab,theme(colors.primary.DEFAULT)_18%,transparent),transparent_60%),radial-gradient(900px_480px_at_80%_70%,color-mix(in_oklab,theme(colors.accent.DEFAULT)_14%,transparent),transparent_60%),linear-gradient(180deg,theme(colors.background),color-mix(in_oklab,theme(colors.background)_80%,black_20%))]" />
+//             <Spotlight
+//               className="top-40 left-8 md:left-40"
+//               fill="rgba(56,189,248,0.35)"
+//             />
+//           </motion.div>
+
+//           {/* HERO */}
+//           <section
+//             className="pt-20 pb-12 md:pb-16"
+//             aria-labelledby="dev-hero-title"
+//           >
+//             <div className="max-w-6xl mx-auto px-4 sm:px-6 grid md:grid-cols-[auto,1fr] gap-8 items-center">
+//               <MagicCard className="mx-auto md:mx-0 p-3 bg-card/60 backdrop-blur-xl border border-border rounded-2xl">
+//                 <Avatar className="h-28 w-28 md:h-36 md:w-36 ring-4 ring-primary/30 shadow-2xl">
+//                   <AvatarImage
+//                     src={user?.avatar_url}
+//                     alt={`${user?.name || "Sahan"} avatar`}
+//                   />
+//                   <AvatarFallback className="text-3xl font-bold">
+//                     {(user?.name || "SS").slice(0, 2).toUpperCase()}
+//                   </AvatarFallback>
+//                 </Avatar>
+//               </MagicCard>
+
+//               <div>
+//                 <h1
+//                   id="dev-hero-title"
+//                   className="text-4xl md:text-6xl font-extrabold leading-tight text-shadow-deep"
+//                 >
+//                   Hyper-Luxury{" "}
+//                   <span className="text-gradient-primary">Developer</span>
+//                 </h1>
+//                 <p className="mt-3 text-lg md:text-xl text-muted-foreground">
+//                   {user?.name || "Sahan Sachintha"} — Full-Stack Engineer
+//                   building premium, high-performance experiences with Next.js,
+//                   TypeScript, GSAP & Framer Motion.
+//                 </p>
+
+//                 <div
+//                   className="mt-5 flex flex-wrap gap-2"
+//                   aria-label="Profile badges"
+//                 >
+//                   <Badge variant="secondary" className="px-3 py-1.5">
+//                     <MapPin className="w-4 h-4 mr-1.5" />
+//                     {user?.location || "Sri Lanka"}
+//                   </Badge>
+//                   <Badge variant="secondary" className="px-3 py-1.5">
+//                     <Calendar className="w-4 h-4 mr-1.5" />
+//                     5+ Years
+//                   </Badge>
+//                   <Badge variant="secondary" className="px-3 py-1.5">
+//                     <Globe className="w-4 h-4 mr-1.5" />
+//                     Worldwide
+//                   </Badge>
+//                 </div>
+
+//                 <div className="mt-6 flex flex-wrap gap-3">
+//                   <Button size="lg" className="shadow-lg" asChild>
+//                     <Link
+//                       href={bestPortfolio}
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                       aria-label="Open best portfolio (live)"
+//                     >
+//                       <ShieldCheck className="w-5 h-5 mr-2" />
+//                       View Portfolio
+//                       <ExternalLink className="ml-2 w-4 h-4" />
+//                     </Link>
+//                   </Button>
+
+//                   {socials.map((s) => (
+//                     <Button key={s.name} size="lg" variant="outline" asChild>
+//                       <Link
+//                         href={s.href}
+//                         target={s.name !== "Email" ? "_blank" : undefined}
+//                         rel="noopener noreferrer"
+//                         aria-label={s.name}
+//                       >
+//                         <s.icon className="w-5 h-5 mr-2" />
+//                         {s.name}
+//                         {s.name !== "Email" && (
+//                           <ExternalLink className="ml-2 w-4 h-4" />
+//                         )}
+//                       </Link>
+//                     </Button>
+//                   ))}
+
+//                   <Button size="lg" variant="secondary" asChild>
+//                     <Link
+//                       href="/developer/cv"
+//                       aria-label="Open print-ready CV mode"
+//                     >
+//                       <Download className="w-5 h-5 mr-2" />
+//                       CV Mode
+//                     </Link>
+//                   </Button>
+//                 </div>
+
+//                 {/* Live status chips */}
+//                 <div className="mt-4 flex flex-wrap gap-2" aria-live="polite">
+//                   {(status?.results || []).map((r) => (
+//                     <span
+//                       key={r.url}
+//                       className={`text-xs px-2.5 py-1 rounded-full border ${
+//                         r.ok
+//                           ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+//                           : "bg-red-500/10 border-red-500/30 text-red-500"
+//                       }`}
+//                       title={`${r.url} • ${r.ok ? "OK" : "Down"} • ${
+//                         r.latency === Infinity ? "timeout" : `${r.latency}ms`
+//                       }`}
+//                     >
+//                       {r.label}:{" "}
+//                       {r.ok
+//                         ? `${Math.max(
+//                             1,
+//                             Math.min(9999, Math.round(r.latency))
+//                           )}ms`
+//                         : "Down"}
+//                     </span>
+//                   ))}
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* METRICS */}
+//           <section className="py-6" aria-labelledby="dev-metrics">
+//             <h2 id="dev-metrics" className="visually-hidden">
+//               Developer metrics
+//             </h2>
+//             <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+//               <Stat label="Followers" value={user?.followers} />
+//               <Stat label="Public Repos" value={user?.public_repos} />
+//               <Stat label="Following" value={user?.following} />
+//               <Stat
+//                 label="Synced"
+//                 value={gh?.ts ? new Date(gh.ts).toLocaleTimeString() : "—"}
+//               />
+//             </div>
+//           </section>
+
+//           {/* PINNED */}
+//           <Section
+//             title="Pinned Work"
+//             subtitle="Flagship repositories that represent my craft"
+//           >
+//             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+//               {(pinned.length ? pinned : repos.slice(0, 6)).map((r: any) => (
+//                 <RepoCard key={r.id} r={r} />
+//               ))}
+//               {!pinned.length && repos.length === 0 && <SkeletonCard />}
+//             </div>
+//           </Section>
+
+//           {/* RECENT */}
+//           <Section
+//             title="Recent Activity"
+//             subtitle="Freshly updated codebases"
+//             className="bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.06)_20%,transparent_60%)] dark:bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.18)_20%,transparent_60%)]"
+//           >
+//             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+//               {(gh?.repos || []).map((r: any) => (
+//                 <RepoCard key={r.id} r={r} />
+//               ))}
+//               {!gh?.repos?.length && <SkeletonCard />}
+//             </div>
+//           </Section>
+
+//           {/* TIMELINE */}
+//           <Section
+//             title="Live GitHub Feed"
+//             subtitle="Public events in near-realtime"
+//           >
+//             <div className="mt-8 space-y-4">
+//               {(events || []).slice(0, 10).map((e: any) => (
+//                 <MagicCard
+//                   key={e.id}
+//                   className="p-4 flex items-center gap-3 bg-card/60 backdrop-blur-xl border border-border"
+//                 >
+//                   <Activity className="w-4 h-4 text-primary" aria-hidden />
+//                   <div className="text-sm leading-relaxed">
+//                     <span className="font-medium">
+//                       {e.type.replace("Event", "")}
+//                     </span>{" "}
+//                     on{" "}
+//                     <a
+//                       href={e.repo.url}
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                       className="underline underline-offset-4 decoration-dotted"
+//                     >
+//                       {e.repo.name}
+//                     </a>{" "}
+//                     •{" "}
+//                     <span className="opacity-70">
+//                       {new Date(e.created_at).toLocaleString()}
+//                     </span>
+//                   </div>
+//                 </MagicCard>
+//               ))}
+//               {!events?.length && (
+//                 <div
+//                   className="h-10 rounded-md bg-muted/40 animate-pulse"
+//                   aria-hidden
+//                 />
+//               )}
+//             </div>
+//           </Section>
+
+//           {/* CTA */}
+//           <section className="py-16" aria-labelledby="dev-cta">
+//             <div className="max-w-4xl mx-auto px-4 sm:px-6">
+//               <MagicCard className="p-8 text-center bg-card/70 backdrop-blur-xl border border-border shadow-2xl">
+//                 <h2
+//                   id="dev-cta"
+//                   className="text-3xl md:text-4xl font-extrabold text-shadow-ambient"
+//                 >
+//                   Let’s build something premium
+//                 </h2>
+//                 <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
+//                   Design-driven engineering for products that must feel
+//                   extraordinary—delivered with world-class performance.
+//                 </p>
+//                 <div className="mt-6 flex flex-wrap justify-center gap-4">
+//                   <Button size="lg" className="shadow-lg" asChild>
+//                     <Link
+//                       href={
+//                         user?.html_url || "https://github.com/ks-official-sahan"
+//                       }
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                     >
+//                       <Github className="mr-2 h-5 w-5" /> GitHub{" "}
+//                       <ExternalLink className="ml-2 h-4 w-4" />
+//                     </Link>
+//                   </Button>
+//                   <Button variant="outline" size="lg" asChild>
+//                     <Link href="mailto:ks.official.sahan@gmail.com">
+//                       <Mail className="mr-2 h-5 w-5" /> Contact
+//                     </Link>
+//                   </Button>
+//                   <Button variant="secondary" size="lg" asChild>
+//                     <Link
+//                       href={bestPortfolio}
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                     >
+//                       <Globe className="mr-2 h-5 w-5" /> Portfolio{" "}
+//                       <ExternalLink className="ml-2 h-4 w-4" />
+//                     </Link>
+//                   </Button>
+//                 </div>
+//                 <Separator className="my-6" />
+//                 <p className="text-sm text-muted-foreground">
+//                   Response within 24h • Mon–Fri • GMT+5:30
+//                 </p>
+//               </MagicCard>
+//             </div>
+//           </section>
+
+//           {/* Audio toggle (position unchanged per invariant) */}
+//           <FloatingAudioSwitch />
+//         </div>
+//       </AudioProvider>
+//     </ErrorBoundary>
+//   );
+// }
+
+// /* ------- small pieces ------- */
+// function Section({
+//   title,
+//   subtitle,
+//   className,
+//   children,
+// }: {
+//   title: string;
+//   subtitle?: string;
+//   className?: string;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <section
+//       className={`py-14 ${className || ""}`}
+//       aria-labelledby={title.replace(/\s+/g, "-").toLowerCase()}
+//     >
+//       <div className="max-w-6xl mx-auto px-4 sm:px-6">
+//         <div className="text-center">
+//           <h2
+//             id={title.replace(/\s+/g, "-").toLowerCase()}
+//             className="text-3xl md:text-4xl font-extrabold"
+//           >
+//             {title}
+//           </h2>
+//           {subtitle && <p className="mt-2 text-muted-foreground">{subtitle}</p>}
+//         </div>
+//         {children}
+//       </div>
+//     </section>
+//   );
+// }
+
+// function Stat({ label, value }: { label: string; value: any }) {
+//   const display =
+//     typeof value === "number" ? value.toLocaleString() : String(value ?? "—");
+//   const pct =
+//     typeof value === "number"
+//       ? Math.max(4, Math.min(100, (value / 100) * 20))
+//       : 0;
+//   return (
+//     <MagicCard className="p-4 text-center bg-card/60 backdrop-blur-xl border border-border">
+//       <div className="text-xs text-muted-foreground">{label}</div>
+//       <div className="mt-1 text-2xl font-extrabold">{display}</div>
+//       <Progress value={pct} className="mt-2 h-1" />
+//     </MagicCard>
+//   );
+// }
+
+// function RepoCard({ r }: { r: any }) {
+//   return (
+//     <MagicCard className="p-5 h-full bg-card/60 backdrop-blur-xl border border-border hover:border-primary/40 transition">
+//       <div className="flex items-start justify-between gap-3">
+//         <Link
+//           href={r.html_url}
+//           target="_blank"
+//           rel="noopener noreferrer"
+//           className="font-semibold underline decoration-dotted underline-offset-4"
+//         >
+//           {r.name}
+//         </Link>
+//         <span className="text-xs opacity-70">{r.language || "—"}</span>
+//       </div>
+//       <p className="text-sm opacity-80 mt-2 line-clamp-3">
+//         {r.description || "—"}
+//       </p>
+//       <div className="mt-3 flex items-center gap-4 text-xs opacity-80">
+//         <span className="inline-flex items-center gap-1">
+//           <Star className="w-3.5 h-3.5" />
+//           {r.stargazers_count}
+//         </span>
+//         <span className="inline-flex items-center gap-1">
+//           <GitFork className="w-3.5 h-3.5" />
+//           {r.forks_count}
+//         </span>
+//         <span className="ml-auto">
+//           Updated {new Date(r.updated_at).toLocaleDateString()}
+//         </span>
+//       </div>
+//     </MagicCard>
+//   );
+// }
+
+// function SkeletonCard() {
+//   return (
+//     <div className="h-36 rounded-xl bg-muted/40 animate-pulse" aria-hidden />
+//   );
+// }

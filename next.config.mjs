@@ -1,4 +1,9 @@
+import bundleAnalyzer from "@next/bundle-analyzer";
 /** @type {import('next').NextConfig} */
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -144,8 +149,8 @@ const preconnectLinks = [
 const nextConfig = {
   reactStrictMode: true,
   compress: true,
+  generateEtags: true,
   poweredByHeader: false,
-  generateEtags: false,
 
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
@@ -181,6 +186,7 @@ const nextConfig = {
           ...securityHeaders,
           { key: "Content-Security-Policy", value: CSP },
           ...preconnectLinks.map((value) => ({ key: "Link", value })),
+          { key: "Vary", value: "Accept-Encoding, Save-Data" },
         ],
       },
       {
@@ -233,9 +239,30 @@ const nextConfig = {
     ];
   },
 
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{member}}",
+      preventFullImport: true,
+    },
+  },
+
   experimental: {
-    optimizePackageImports: ["framer-motion", "gsap", "@vercel/analytics"],
+    optimizePackageImports: [
+      "framer-motion",
+      "gsap",
+      "@vercel/analytics",
+      "lenis",
+      "three",
+      "lucide-react",
+      "@mantine/core",
+      // "@mantine/hooks",
+      // "@mantine/notifications",
+      // "@mantine/dates",
+      // "@mantine/modals",
+      "@tabler/icons-react",
+    ],
   },
 };
 
-export default nextConfig;
+// export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

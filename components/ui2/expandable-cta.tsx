@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "./svg-icons";
+import { trackContact } from "@/lib/analytics";
 
 export function ExpandableCTA() {
   const [open, setOpen] = useState(false);
@@ -19,13 +20,16 @@ export function ExpandableCTA() {
   const whatsapp = () => {
     const msg =
       "Hi! I'm interested in booking Lake View Villa Tangalle. Could you please provide availability and rates?";
-    window.open(
-      `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`,
-      "_blank",
-      "noopener"
-    );
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
+    trackContact("whatsapp", url, "Chat on WhatsApp");
+    setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
-  const call = () => window.open(`tel:${rawNumber}`, "_self");
+
+  const call = () => {
+    trackContact("phone", `tel:${rawNumber}`, "Call now");
+    setTimeout(() => window.open(`tel:${rawNumber}`, "_self"), 120);
+  };
+
   const book = () =>
     document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
 
@@ -100,6 +104,10 @@ export function ExpandableCTA() {
       style={{
         bottom: `calc(max(1rem, env(safe-area-inset-bottom)) + ${dockOffset}px)`,
       }}
+      // className="fixed z-[80] right-[max(2.2rem,env(safe-area-inset-right))] pointer-events-none"
+      // style={{
+      //   bottom: `calc(max(5.3rem, env(safe-area-inset-bottom)) + ${dockOffset}px)`,
+      // }}
       aria-live="polite"
     >
       {/* Glass panel */}

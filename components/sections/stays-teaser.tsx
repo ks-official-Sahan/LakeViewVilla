@@ -7,20 +7,18 @@ import { MessageCircle, Users, Star } from "lucide-react";
 import { RATES, STAYS_INTRO, BOOKING_FACTS, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { SectionReveal } from "@/components/motion/section-reveal";
+import { trackContact } from "@/lib/analytics";
 
 export function StaysTeaser() {
   const [selectedRoom, setSelectedRoom] = useState(0);
 
   const handleWhatsAppEnquiry = () => {
     const message = `Hi! I'd like to enquire about availability and rates for Lake View Villa Tangalle. 
-
-Room: ${BOOKING_FACTS.rooms[selectedRoom].name}
-Guests: ${BOOKING_FACTS.rooms[selectedRoom].sleeps}
-
-Could you please share the best available rate and confirm availability?`;
+    Could you please share the best available rate and confirm availability?`;
 
     const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
-    window.open(url, "_blank");
+    trackContact("whatsapp", url, "Chat on WhatsApp");
+    setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
 
   return (
@@ -48,12 +46,12 @@ Could you please share the best available rate and confirm availability?`;
               <div className="flex items-center">
                 <Star className="w-5 h-5 text-yellow-400 fill-current" />
                 <span className="ml-1 font-semibold">
-                  {BOOKING_FACTS.reviewMetrics.average}
+                  {BOOKING_FACTS?.reviewMetrics?.average}
                 </span>
               </div>
               <span className="text-gray-400">•</span>
               <span className="text-gray-600">
-                {BOOKING_FACTS.reviewMetrics.count} reviews
+                {BOOKING_FACTS?.reviewMetrics?.count} reviews
               </span>
             </div>
           </motion.div>
@@ -61,7 +59,7 @@ Could you please share the best available rate and confirm availability?`;
           <div className="max-w-4xl mx-auto">
             {/* Room Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              {BOOKING_FACTS.rooms.map((room, index) => (
+              {BOOKING_FACTS?.rooms?.map((room, index) => (
                 <motion.div
                   key={room.name}
                   initial={{ opacity: 0, y: 30 }}

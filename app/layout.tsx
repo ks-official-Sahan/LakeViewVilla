@@ -21,6 +21,10 @@ import { SITE_CONFIG } from "@/data/site";
 import { GTM } from "@/components/analytics/GTM";
 import MarketingPixels from "@/components/analytics/marketing-pixels";
 import GA from "@/components/analytics/GA";
+import { MantineProvider } from "@mantine/core";
+import { theme } from "@/config/mantine-theme";
+import { AudioProvider } from "@/context/AudioContext";
+import FloatingAudioSwitch from "@/components/FloatingAudioSwitch";
 
 if (
   !process.env.NEXT_PUBLIC_WHATSAPP &&
@@ -50,8 +54,19 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   alternates: { canonical: "/" },
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png", sizes: "32x32" }],
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
+      { url: "/favicon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/favicon.png", sizes: "any", type: "image/png" },
+      // { url: "/favicon.ico", sizes: "any" }, // classic fallback
+    ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+    // other: [
+    //   { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0a0f10" },
+    // ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -62,12 +77,8 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [
-      {
-        url: "/villa/drone_view_villa.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Lake View Villa Tangalle - Serene lagoon at sunrise",
-      },
+      // { url: "/villa/drone_view_villa.jpg", width: 1200, height: 630, alt: "Lake View Villa Tangalle - Serene lagoon at sunrise" },
+      { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle" },
     ],
   },
   twitter: {
@@ -75,7 +86,10 @@ export const metadata: Metadata = {
     title: SEO_CONFIG.title,
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic views.",
-    images: ["/villa/drone_view_villa.jpg"],
+    images: [
+      // "/villa/drone_view_villa.jpg",
+      "/og",
+    ],
   },
   robots: {
     index: true,
@@ -103,7 +117,6 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // Pass address fragments so LodgingBusiness is complete
   const graph = siteGraph({
     address: {
       streetAddress: SITE_CONFIG.addressStreet,
@@ -121,11 +134,6 @@ export default function RootLayout({
       <head>
         <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
         <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
-        {/* Keep these only if first paint uses Booking CDNs; otherwise remove to save sockets */}
-        <link rel="preconnect" href="https://cf.bstatic.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://cf.bstatic.com" />
-        <link rel="preconnect" href="https://r-xx.bstatic.com" crossOrigin="" />
-        <link rel="dns-prefetch" href="https://r-xx.bstatic.com" />
         <link
           rel="preconnect"
           href="https://vitals.vercel-analytics.com"
@@ -134,6 +142,16 @@ export default function RootLayout({
         <link
           rel="preconnect"
           href="https://www.googletagmanager.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        <link
+          rel="preconnect"
+          href="https://vitals.vercel-analytics.com"
           crossOrigin=""
         />
         <link
@@ -168,18 +186,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
-        <link
-          rel="preconnect"
-          href="https://vitals.vercel-analytics.com"
-          crossOrigin=""
-        />
-        {/* <GA /> */}
-        <GTM /> {/* ✅ loads GTM afterInteractive */}
+        <GTM />
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
         {process.env.NEXT_PUBLIC_GTM_ID ? (
@@ -193,29 +200,33 @@ export default function RootLayout({
           </noscript>
         ) : null}
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
+          attribute="class"
+          defaultTheme="dark"
+          // disableTransitionOnChange
         >
-          <LoadingScreen
-            logoSrc="/logo.png"
-            logoAlt="Lake View Villa Tangalle"
-            enableTapSkip
-          />
-          <ScrollProgress />
-          <Suspense fallback={null}>
-            <ClientEffects />
-          </Suspense>
-          <Navigation />
-          <main id="content" className="relative isolate">
-            <Suspense fallback={null}>{children}</Suspense>
-          </main>
-          <ExpandableCTA />
-          <WebVitals />
-          <Analytics />
-
-          <MarketingPixels />
+          <MantineProvider defaultColorScheme="dark" theme={theme}>
+            <AudioProvider>
+              <LoadingScreen
+                logoSrc="/logo.png"
+                logoAlt="Lake View Villa Tangalle"
+                enableTapSkip
+              />
+              <ScrollProgress />
+              <Suspense fallback={null}>
+                <ClientEffects />
+              </Suspense>
+              <Navigation />
+              <main id="content" className="relative isolate">
+                <Suspense fallback={null}>{children}</Suspense>
+              </main>
+              <ExpandableCTA />
+              <WebVitals />
+              <Analytics />
+              <MarketingPixels />
+              {/* <FloatingAudioSwitch /> */}
+            </AudioProvider>
+          </MantineProvider>
         </ThemeProvider>
       </body>
     </html>

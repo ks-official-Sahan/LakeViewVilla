@@ -1,67 +1,84 @@
-// components/analytics/marketing-pixels.tsx
 "use client";
 
+import { useEffect } from "react";
+import {
+  trackContact,
+  trackCta,
+  trackDevPortfolioClick,
+  trackMapOpen,
+} from "@/lib/analytics";
+
+declare global {
+  interface Window {
+    __contactListenerInstalled?: boolean;
+  }
+}
+
+const DEV_HOSTS = new Set([
+  "sahansachintha.com",
+  "dev.lakeviewvillatangalle.com",
+  "developer.lakeviewvillatangalle.com",
+  "sahan-ruddy.vercel.app",
+]);
+
+function isMapUrl(u: URL | null, raw: string) {
+  if (!u) return /^(maps:|geo:)/i.test(raw);
+  const h = u.hostname;
+  return (
+    (/(^|\.)google\.[^/]+$/i.test(h) && u.pathname.startsWith("/maps")) ||
+    /^maps\.app\.goo\.gl$/i.test(h) ||
+    (/^goo\.gl$/i.test(h) && u.pathname.startsWith("/maps"))
+  );
+}
+
 export default function MarketingPixels() {
-  // GTM-friendly click events for SEM/SMM attribution & conversions
-  const gadsId = process.env.NEXT_PUBLIC_GADS_ID; // e.g. "AW-XXXXXXXXX"
-  const gadsPhoneLabel = process.env.NEXT_PUBLIC_GADS_PHONE_CALL_LABEL; // e.g. "abcdEFGHijkLMnoPQR"
+  useEffect(() => {
+    if (typeof window === "undefined" || window.__contactListenerInstalled)
+      return;
+    window.__contactListenerInstalled = true;
 
-  // Helper: fire GA4/Ads if present, else only dataLayer push (GTM will route)
-  function fire(name: string, params: Record<string, any> = {}) {
-    // GTM layer
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({ event: name, ...params });
+    const handler = (e: MouseEvent) => {
+      const a = (e.target as HTMLElement)?.closest<HTMLAnchorElement>(
+        "a[href]"
+      );
+      if (!a) return;
 
-    // Optional: direct Ads call conversion on phone clicks (parallel to GTM)
-    if (
-      name === "phone_call_click" &&
-      (window as any).gtag &&
-      gadsId &&
-      gadsPhoneLabel
-    ) {
+      const href = a.getAttribute("href") || "";
+      const text = (a.textContent || "").trim();
+
+      // Normalize URL if possible
+      let u: URL | null = null;
       try {
-        (window as any).gtag("event", "conversion", {
-          send_to: `${gadsId}/${gadsPhoneLabel}`,
-        });
-      } catch {}
-    }
-  }
+        u = new URL(a.href);
+      } catch {
+        /* tel:, mailto:, geo:, bad absolute */
+      }
 
-  if (typeof window !== "undefined") {
-    document.addEventListener(
-      "click",
-      (e) => {
-        const el = (e.target as HTMLElement)?.closest("a");
-        if (!el) return;
-        const href = el.getAttribute("href") || "";
+      // Contacts
+      if (href.startsWith("tel:")) return trackContact("phone", href, text);
+      if (href.startsWith("mailto:")) return trackContact("email", href, text);
+      if (href.includes("wa.me") || href.includes("api.whatsapp.com"))
+        return trackContact("whatsapp", u?.toString() || href, text);
 
-        // tel: → phone call conversion
-        if (href.startsWith("tel:")) {
-          fire("phone_call_click", {
-            link_url: href,
-            cta: el.dataset.cta || "phone",
-          });
-        }
+      // Developer portfolio
+      if (u && DEV_HOSTS.has(u.hostname)) {
+        return trackDevPortfolioClick(u.toString(), u.hostname, text);
+      }
 
-        // WhatsApp deep links
-        if (href.includes("wa.me") || href.includes("api.whatsapp.com")) {
-          fire("whatsapp_click", {
-            link_url: href,
-            cta: el.dataset.cta || "whatsapp",
-          });
-        }
+      // Maps open (optional)
+      if (isMapUrl(u, href)) {
+        return trackMapOpen(u?.toString() || href, text);
+      }
 
-        // CTA buttons: add data-cta="book|visit|gallery|..." in markup
-        if (el.dataset.cta) {
-          fire("cta_click", {
-            cta: el.dataset.cta,
-            link_url: href || location.href,
-          });
-        }
-      },
-      { capture: true }
-    );
-  }
+      // Generic CTA via data-cta attribute (optional)
+      if (a.dataset.cta) {
+        return trackCta(a.dataset.cta, u?.toString() || href);
+      }
+    };
+
+    document.addEventListener("click", handler, true);
+    return () => document.removeEventListener("click", handler, true);
+  }, []);
 
   return null;
 }

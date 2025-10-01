@@ -13,6 +13,7 @@ import { SITE_CONFIG, DIRECTIONS, PROPERTY } from "@/data/content";
 import { buildWhatsAppUrl, cn } from "@/lib/utils";
 import { Controller } from "react-hook-form";
 import { GuestsSelect } from "@/components/ui2/guests-select";
+import { trackContact } from "@/lib/analytics";
 
 /* ---------- schema ---------- */
 const contactSchema = z.object({
@@ -148,7 +149,9 @@ export default function VisitPage() {
 
       // WhatsApp → fallback mailto
       const wa = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
-      window.open(wa, "_blank", "noopener");
+      //window.open(wa, "_blank", "noopener");
+      trackContact("whatsapp", wa, "Chat on WhatsApp");
+      setTimeout(() => window.open(wa, "_blank", "noopener"), 120);
 
       setTimeout(() => {
         const mailto = `mailto:info@lakeviewvillatangalle.com?subject=${encodeURIComponent(
@@ -254,10 +257,14 @@ export default function VisitPage() {
                     onClick={() => {
                       const msg =
                         "Hi! I need directions to Lake View Villa Tangalle. Could you share the exact pin?";
-                      window.open(
-                        buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, msg),
-                        "_blank",
-                        "noopener"
+                      const url = buildWhatsAppUrl(
+                        SITE_CONFIG.whatsappNumber,
+                        msg
+                      );
+                      trackContact("whatsapp", url, "Chat on WhatsApp");
+                      setTimeout(
+                        () => window.open(url, "_blank", "noopener"),
+                        120
                       );
                     }}
                     whileHover={{ y: -1, scale: 1.02 }}

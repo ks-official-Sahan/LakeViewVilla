@@ -31,7 +31,12 @@ if (!SRC) {
 }
 
 const tasks = [
-  ["public/favicon.png", 32],
+  ["public/favicon.png", 128],
+  ["public/favicon-16.png", 16],
+  ["public/favicon-32.png", 32],
+  ["public/favicon-48.png", 48],
+  ["public/favicon-64.png", 64],
+  ["public/favicon-96.png", 96],
   ["app/icon.png", 512],
   ["app/apple-icon.png", 180],
   ["public/icon-192.png", 192],

@@ -13,6 +13,7 @@ import { RATES, OFFERS, SITE_CONFIG, BOOKING_FACTS } from "@/data/content";
 import { buildWhatsAppUrl, cn } from "@/lib/utils";
 import { Controller } from "react-hook-form";
 import { GuestsSelect } from "@/components/ui2/guests-select";
+import { trackContact } from "@/lib/analytics";
 
 /* ---------- schema ---------- */
 const enquirySchema = z.object({
@@ -159,7 +160,10 @@ export default function StaysPage() {
         .join("\n");
 
       const wa = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, composed);
-      window.open(wa, "_blank", "noopener");
+
+      //window.open(wa, "_blank", "noopener");
+      trackContact("whatsapp", wa, "Chat on WhatsApp");
+      setTimeout(() => window.open(wa, "_blank", "noopener"), 120);
 
       setSubmitStatus("success");
       reset({ guests: 2 } as any);

@@ -1,10 +1,13 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+
+export const runtime = "edge";
+export const revalidate = 300;
 
 export async function GET() {
   const data = {
     timestamp: new Date().toISOString(),
     status: "healthy",
-  }
+  };
 
   return NextResponse.json(data, {
     headers: {
@@ -12,5 +15,5 @@ export async function GET() {
       "CDN-Cache-Control": "max-age=300",
       "Vercel-CDN-Cache-Control": "max-age=300",
     },
-  })
+  });
 }

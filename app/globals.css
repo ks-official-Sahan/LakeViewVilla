@@ -1,28 +1,39 @@
-/* =======================================================================
-   globals.css — Lake View Villa Tangalle
-   Tailwind v4 import + reorganized tokens, themes, utilities & effects
-   ======================================================================= */
+/* app/globals.css — unified, industrial-grade */
 
+/* Tailwind v4 core */
 @import "tailwindcss";
 
-/* =======================================================================
-   1) Root app variables (safe defaults)
-   ----------------------------------------------------------------------- */
+/* ----------------------- Root defaults & motion guard ----------------------- */
 :root {
-  /* Hero-driven scroll tokens (used by sections to blend/transition) */
   --hero-progress: 1;
-  /* 1 = hero gone */
   --hero-xfade: 0;
-  /* 0 = next section fully revealed */
+
+  /* font families injected by next/font (layout.tsx) */
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-montserrat);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* 8pt rhythm helpers (optional) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --radius: 14px;
+
+  /* portfolio tokens kept for compatibility */
+  --evision-br: #0000001f;
+  --evision-gd-bro: linear-gradient(to right, #0085ff 0%, #ff3370 52%, #ffaa33 100%);
+  --text-secondary: #9c9c9c;
+  --ct-shadow: inset 0 -6px 8px rgba(0, 0, 0, 0.112);
 }
 
-/* Text selection polish */
+/* Text selection */
 ::selection {
-  background: rgba(14, 165, 233, 0.24);
+  background: rgba(14, 165, 233, .24);
   color: #0a0e12;
 }
 
-/* Baseline rendering */
+/* Rendering baseline */
 html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
@@ -31,7 +42,6 @@ html {
   color-scheme: light;
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -40,41 +50,40 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
 }
 
-/* =======================================================================
-   2) Shadcn token mapping (LIGHT) — HSL space for UI primitives
-   ----------------------------------------------------------------------- */
+/* -------------------------- Light theme (HSL tokens) ----------------------- */
 :root {
-  --background: 210 20% 98%;
-  --foreground: 210 15% 8%;
-  --card: 0 0% 100%;
-  --card-foreground: 210 15% 8%;
-  --popover: 210 25% 99%;
-  --popover-foreground: 210 15% 8%;
-  --primary: 189 84% 33%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 205 70% 39%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 210 12% 55%;
-  --muted-foreground: 210 10% 40%;
-  --accent: 205 70% 39%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 180 10% 85%;
-  --input: 180 10% 85%;
-  --ring: 189 84% 33%;
-  --chart-1: 199 89% 48%;
-  --chart-2: 173 80% 40%;
-  --chart-3: 47 95% 54%;
-  --chart-4: 12 88% 62%;
-  --chart-5: 283 86% 53%;
+  --background: hsl(210 20% 98%);
+  --foreground: hsl(210 15% 8%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(210 15% 8%);
+  --popover: hsl(210 25% 99%);
+  --popover-foreground: hsl(210 15% 8%);
+  --primary: hsl(189 84% 33%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(205 70% 39%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(210 12% 55%);
+  --muted-foreground: hsl(210 10% 40%);
+  --accent: hsl(205 70% 39%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 84% 60%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(180 10% 85%);
+  --input: hsl(180 10% 85%);
+  --ring: hsl(189 84% 33%);
+  --chart-1: hsl(199 89% 48%);
+  --chart-2: hsl(173 80% 40%);
+  --chart-3: hsl(47 95% 54%);
+  --chart-4: hsl(12 88% 62%);
+  --chart-5: hsl(283 86% 53%);
+
   --sidebar-background: var(--background);
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
@@ -83,27 +92,14 @@ html {
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
-  --radius: 14px;
-}
 
-/* =======================================================================
-   3) Brand palette & gradients (Lagoon coastal) — Tailwind v4 @theme
-   ----------------------------------------------------------------------- */
-@theme inline {
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-montserrat);
-  --font-mono: var(--font-geist-mono);
-
+  /* brand colors for decorative layers */
   --color-background: #f4f7f6;
-  /* mist */
   --color-surface: #ffffff;
   --color-foreground: #0a0e12;
-  /* ink */
   --color-primary: #0e8e9a;
-  /* lagoon teal */
   --color-primary-foreground: #ffffff;
   --color-accent: #1b6ca8;
-  /* deep coastal blue */
   --color-accent-foreground: #ffffff;
   --color-muted: #6b7a85;
   --color-success: #0ea5e9;
@@ -114,42 +110,40 @@ html {
 
   --grad-lagoon: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 35%, #34d399 100%);
   --grad-sunrise: linear-gradient(120deg, #fb7185 0%, #f59e0b 60%, #34d399 100%);
-  --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, 0.7), rgba(10, 15, 16, 0.3));
+  --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, .7), rgba(10, 15, 16, .3));
 
-  --glass-bg: rgba(255, 255, 255, 0.14);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --glass-blur: 14px;
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --glass-bg: rgba(255, 255, 255, .14);
+  --glass-border: rgba(255, 255, 255, .35);
+  --glass-blur: 24px;
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, .12);
 }
 
-/* =======================================================================
-   4) Dark theme mapping — HSL primitives + brand overrides
-   ----------------------------------------------------------------------- */
+/* --------------------------- Dark theme overrides -------------------------- */
 .dark {
-  --background: 200 14% 6%;
-  --foreground: 195 35% 92%;
-  --card: 200 14% 7%;
-  --card-foreground: 195 35% 92%;
-  --popover: 200 14% 8%;
-  --popover-foreground: 195 35% 92%;
-  --primary: 199 89% 60%;
-  --primary-foreground: 200 50% 7%;
-  --secondary: 173 70% 55%;
-  --secondary-foreground: 200 50% 7%;
-  --muted: 200 10% 60%;
-  --muted-foreground: 200 12% 72%;
-  --accent: 173 70% 55%;
-  --accent-foreground: 200 50% 7%;
-  --destructive: 0 84% 62%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 200 20% 18%;
-  --input: 200 20% 18%;
-  --ring: 199 89% 60%;
-  --chart-1: 199 89% 60%;
-  --chart-2: 173 70% 55%;
-  --chart-3: 47 95% 58%;
-  --chart-4: 12 88% 62%;
-  --chart-5: 283 86% 64%;
+  --background: hsl(200 14% 6%);
+  --foreground: hsl(195 35% 92%);
+  --card: hsl(200 14% 7%);
+  --card-foreground: hsl(195 35% 92%);
+  --popover: hsl(200 14% 8%);
+  --popover-foreground: hsl(195 35% 92%);
+  --primary: hsl(199 89% 60%);
+  --primary-foreground: hsl(200 50% 7%);
+  --secondary: hsl(173 70% 55%);
+  --secondary-foreground: hsl(200 50% 7%);
+  --muted: hsl(200 10% 60%);
+  --muted-foreground: hsl(200 12% 72%);
+  --accent: hsl(173 70% 55%);
+  --accent-foreground: hsl(200 50% 7%);
+  --destructive: hsl(0 84% 62%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(200 20% 18%);
+  --input: hsl(200 20% 18%);
+  --ring: hsl(199 89% 60%);
+  --chart-1: hsl(199 89% 60%);
+  --chart-2: hsl(173 70% 55%);
+  --chart-3: hsl(47 95% 58%);
+  --chart-4: hsl(12 88% 62%);
+  --chart-5: hsl(283 86% 64%);
 
   --color-background: #0a0f10;
   --color-surface: #101518;
@@ -165,13 +159,15 @@ html {
   --color-border: #1f2a2e;
   --color-outline: #1f2a2e;
 
-  --glass-bg: rgba(16, 21, 24, 0.38);
-  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-bg: rgba(16, 21, 24, .38);
+  --glass-border: rgba(255, 255, 255, .14);
+
+  /* portfolio compat */
+  --evision-br: #ffffff1f;
+  --ct-shadow: inset 0 -12px 14px rgba(0, 0, 0, .3);
 }
 
-/* =======================================================================
-   5) Global layout safety
-   ----------------------------------------------------------------------- */
+/* ------------------------------ Base & helpers ----------------------------- */
 html,
 body,
 #__next {
@@ -183,16 +179,14 @@ body,
   min-width: 0;
 }
 
-/* Force dark native controls in inputs (better contrast on dark UI) */
 input,
 select,
 textarea {
   color-scheme: dark;
 }
 
-/* =======================================================================
-   6) Utilities — Glass, a11y, helpers, magnetic
-   ----------------------------------------------------------------------- */
+/* better dark-contrast */
+
 .glass {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -201,15 +195,15 @@ textarea {
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, .1);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, .1);
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, .3);
+  backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, .4);
   box-shadow: var(--glass-shadow);
 }
 
@@ -249,23 +243,15 @@ textarea {
 }
 
 [data-magnetic] {
-  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: all .3s cubic-bezier(.23, 1, .32, 1);
 }
 
 [data-magnetic]:hover {
   transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 10px 30px rgba(14, 142, 154, 0.3);
+  box-shadow: 0 10px 30px rgba(14, 142, 154, .3);
 }
 
-/* =======================================================================
-   7) Text Effects — Shadows, Glow, Stroke (NEW)
-   -----------------------------------------------------------------------
-   Usage examples:
-     <h1 class="text-white text-shadow-deep">Title</h1>
-     <h2 class="text-shadow-ambient">Adaptive shadow</h2>
-     <span class="text-stroke text-shadow-lg">Outlined</span>
-     <button class="text-glow-cyan">CTA</button>
-   ----------------------------------------------------------------------- */
+/* ------------------------------- Text effects ------------------------------ */
 @layer utilities {
   .text-shadow-none {
     text-shadow: none;
@@ -283,7 +269,6 @@ textarea {
     text-shadow: 0 4px 16px rgb(0 0 0 / .55);
   }
 
-  /* Cinematic stack for hero headings */
   .text-shadow-deep {
     text-shadow:
       0 1px 1px rgb(0 0 0 / .35),
@@ -291,7 +276,6 @@ textarea {
       0 12px 36px rgb(0 0 0 / .55);
   }
 
-  /* Theme-adaptive ambient shadow using currentColor */
   .text-shadow-ambient {
     text-shadow:
       0 2px 6px color-mix(in oklab, currentColor 30%, transparent),
@@ -299,122 +283,75 @@ textarea {
   }
 
   .dark .text-shadow-ambient {
-    text-shadow:
-      0 2px 6px rgb(0 0 0 / .4),
-      0 10px 30px rgb(0 0 0 / .55);
+    text-shadow: 0 2px 6px rgb(0 0 0 / .4), 0 10px 30px rgb(0 0 0 / .55);
   }
 
-  /* Neon/glow accents (good for CTAs) */
   .text-glow {
-    text-shadow:
-      0 0 8px color-mix(in oklab, currentColor 75%, transparent),
-      0 0 22px color-mix(in oklab, currentColor 45%, transparent),
-      0 0 44px color-mix(in oklab, currentColor 35%, transparent);
+    text-shadow: 0 0 8px color-mix(in oklab, currentColor 75%, transparent), 0 0 22px color-mix(in oklab, currentColor 45%, transparent), 0 0 44px color-mix(in oklab, currentColor 35%, transparent);
   }
 
   .text-glow-cyan {
-    text-shadow:
-      0 0 8px rgb(6 182 212 / .75),
-      0 0 20px rgb(6 182 212 / .45),
-      0 0 40px rgb(6 182 212 / .35);
+    text-shadow: 0 0 8px rgb(6 182 212 / .75), 0 0 20px rgb(6 182 212 / .45), 0 0 40px rgb(6 182 212 / .35);
   }
 
   .text-glow-amber {
-    text-shadow:
-      0 0 8px rgb(245 158 11 / .75),
-      0 0 22px rgb(245 158 11 / .45),
-      0 0 44px rgb(245 158 11 / .35);
+    text-shadow: 0 0 8px rgb(245 158 11 / .75), 0 0 22px rgb(245 158 11 / .45), 0 0 44px rgb(245 158 11 / .35);
   }
 
-  /* Outlines for legibility over busy images */
   .text-stroke {
-    -webkit-text-stroke: 1px rgb(0 0 0 / .35);
+    -webkit-text-stroke: 1px rgb(0 0 0 /.35);
   }
 
   .text-stroke-2 {
-    -webkit-text-stroke: 2px rgb(0 0 0 / .5);
+    -webkit-text-stroke: 2px rgb(0 0 0 /.5);
   }
 
-  /* High-contrast combo */
   .text-contrast-overlay {
-    -webkit-text-stroke: 1px rgb(0 0 0 / .4);
-    text-shadow:
-      0 1px 1px rgb(0 0 0 / .35),
-      0 4px 12px rgb(0 0 0 / .45);
+    -webkit-text-stroke: 1px rgb(0 0 0 /.4);
+    text-shadow: 0 1px 1px rgb(0 0 0 /.35), 0 4px 12px rgb(0 0 0 /.45);
   }
 
-  /* Drop-shadow for emoji/SVG (text-shadow doesn't affect transparent glyphs) */
   .drop-shadow-text {
-    filter: drop-shadow(0 4px 14px rgb(0 0 0 / .45));
+    filter: drop-shadow(0 4px 14px rgb(0 0 0 /.45));
   }
 }
 
-/* =======================================================================
-   8) Media niceties — Gradients, text gradients, cursor trail
-   ----------------------------------------------------------------------- */
+/* ------------------------------ Media niceties ----------------------------- */
 .text-gradient {
   background: var(--grad-lagoon);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .text-gradient-primary {
   background: linear-gradient(135deg, #0e8e9a, #38bdf8);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-/* Cursor trail (optional) */
-.cursor-trail {
-  position: fixed;
-  width: 4px;
-  height: 4px;
-  background: var(--grad-lagoon);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-}
-
-/* =======================================================================
-   9) Background patterns
-   ----------------------------------------------------------------------- */
-.interactive-bg {
-  background:
-    radial-gradient(circle at 20% 50%, rgba(14, 142, 154, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(45, 212, 191, 0.1) 0%, transparent 50%);
-  animation: backgroundShift 10s ease-in-out infinite;
-}
-
-/* =======================================================================
-   10) Scrollbar (WebKit)
-   ----------------------------------------------------------------------- */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.5);
+  background: rgba(241, 245, 249, .5);
   backdrop-filter: blur(10px);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(14, 142, 154, 0.6);
+  background: rgba(14, 142, 154, .6);
   border-radius: 4px;
   backdrop-filter: blur(10px);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(14, 142, 154, 0.8);
+  background: rgba(14, 142, 154, .8);
 }
 
-/* =======================================================================
-   11) Keyframes + animation helpers
-   ----------------------------------------------------------------------- */
+/* ------------------------------- Keyframes etc ----------------------------- */
 @keyframes kenBurns {
   0% {
     transform: scale(1) translate(0, 0);
@@ -425,11 +362,11 @@ textarea {
   }
 
   50% {
-    transform: scale(1.12) translate(1%, -0.5%);
+    transform: scale(1.12) translate(1%, -.5%);
   }
 
   75% {
-    transform: scale(1.06) translate(-0.5%, 1%);
+    transform: scale(1.06) translate(-.5%, 1%);
   }
 
   100% {
@@ -445,11 +382,11 @@ textarea {
 
   0%,
   100% {
-    transform: translateY(0px);
+    transform: translateY(0)
   }
 
   50% {
-    transform: translateY(-10px);
+    transform: translateY(-10px)
   }
 }
 
@@ -459,11 +396,11 @@ textarea {
 
 @keyframes shimmer {
   0% {
-    background-position: -200px 0;
+    background-position: -200px 0
   }
 
   100% {
-    background-position: calc(200px + 100%) 0;
+    background-position: calc(200px + 100%) 0
   }
 }
 
@@ -477,20 +414,90 @@ textarea {
 
   0%,
   100% {
-    background-position: 0% 50%, 100% 20%, 40% 80%;
+    background-position: 0% 50%, 100% 20%, 40% 80%
   }
 
   50% {
-    background-position: 100% 50%, 0% 80%, 60% 20%;
+    background-position: 100% 50%, 0% 80%, 60% 20%
   }
 }
 
-@keyframes cardShine {
-  0% {
-    transform: translateX(-20%);
+/* --- nav dynamic contrast (transparent top) --- */
+.nav-content-invert {
+  color: #fff;
+  mix-blend-mode: difference;
+  filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, .35));
+}
+
+@media (prefers-contrast: more) {
+  .nav-content-invert {
+    mix-blend-mode: normal;
+    color: hsl(var(--foreground));
+  }
+}
+
+/* Prevent nav overlap at page top */
+.safe-top {
+  scroll-margin-top: 100px;
+  padding-top: clamp(82px, 9vh, 108px);
+}
+
+/* Print niceties */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Icons readable over any backdrop */
+.drop-shadow-navicon {
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, .35));
+}
+
+/* Title/labels shadows for readability */
+.title-shadow {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .38), 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+.title-shadow-strong {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .48), 0 14px 36px rgba(0, 0, 0, .45), 0 28px 64px rgba(0, 0, 0, .55);
+}
+
+/* Luxury underline that adapts to currentColor */
+.hover-underline-lux {
+  position: relative;
+}
+
+.hover-underline-lux::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  opacity: .25;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+a:hover .hover-underline-lux::after,
+.hover-underline-lux:hover::after {
+  transform: scaleX(1);
+  opacity: .55;
+}
+
+/* Keep your high-contrast overrides */
+@media (prefers-contrast: more) {
+
+  .title-shadow,
+  .title-shadow-strong {
+    text-shadow: none;
   }
 
-  100% {
-    transform: translateX(120%);
+  .hover-underline-lux::after {
+    opacity: 1;
+    height: 2px;
   }
 }
