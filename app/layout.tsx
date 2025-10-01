@@ -202,10 +202,10 @@ export default function RootLayout({
         <ThemeProvider
           enableSystem
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           // disableTransitionOnChange
         >
-          <MantineProvider defaultColorScheme="dark" theme={theme}>
+          <MantineProvider defaultColorScheme="light" theme={theme}>
             <AudioProvider>
               <LoadingScreen
                 logoSrc="/logo.png"
