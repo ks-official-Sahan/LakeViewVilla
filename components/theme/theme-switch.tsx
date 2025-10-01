@@ -6,7 +6,7 @@ import { useMantineColorScheme } from "@mantine/core";
 import { useTheme } from "next-themes";
 import { Monitor, Moon, Sun } from "lucide-react";
 
-// Keep options stable across renders
+// Stable options (no re-creation)
 const OPTIONS = [
   { key: "light", icon: Sun, label: "Light" },
   { key: "system", icon: Monitor, label: "System" },
@@ -15,14 +15,14 @@ const OPTIONS = [
 type Key = (typeof OPTIONS)[number]["key"];
 
 export default function ThemeSwitch() {
-  // ── Hooks (order never changes)
+  // ── 1) Hooks: order is fixed and never conditional
   const { theme, setTheme, systemTheme, resolvedTheme } = useTheme();
   const { setColorScheme } = useMantineColorScheme({ keepTransitions: true });
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => setMounted(true), []);
 
-  // Apply both next-themes and Mantine in lockstep
+  // Keep next-themes & Mantine in lockstep
   const applyTheme = React.useCallback(
     (t: Key) => {
       setTheme(t);
@@ -31,7 +31,7 @@ export default function ThemeSwitch() {
     [setTheme, setColorScheme]
   );
 
-  // Update <meta name="theme-color"> after mount only (avoids SSR mismatch)
+  // Update <meta name="theme-color"> AFTER mount (avoids SSR diffs)
   React.useEffect(() => {
     if (!mounted) return;
     const eff: "light" | "dark" =
@@ -53,30 +53,7 @@ export default function ThemeSwitch() {
     if (meta) meta.setAttribute("content", color);
   }, [mounted, theme, systemTheme, resolvedTheme]);
 
-  // ── SSR-safe placeholder (no theme-driven ARIA/state before mount)
-  if (!mounted) {
-    return (
-      <div
-        aria-hidden
-        role="presentation"
-        className="inline-flex h-10 items-center gap-1 rounded-full border border-border/80 bg-card/40 px-1.5 py-1 backdrop-blur-sm"
-        data-mounted="false"
-      >
-        <div className="grid size-7 place-items-center rounded-full opacity-80">
-          <Sun size={16} />
-        </div>
-        <div className="grid size-7 place-items-center rounded-full opacity-80">
-          <Monitor size={16} />
-        </div>
-        <div className="grid size-7 place-items-center rounded-full opacity-80">
-          <Moon size={16} />
-        </div>
-      </div>
-    );
-  }
-
-  // ── Interactive radiogroup (client-only)
-  const currentKey: Key = (theme as Key) ?? "system";
+  // Refs & handlers are defined unconditionally (so hook order never changes)
   const btnRefs = React.useRef<HTMLButtonElement[]>([]);
   const setRef = React.useCallback(
     (el: HTMLButtonElement | null, i: number) => {
@@ -84,6 +61,8 @@ export default function ThemeSwitch() {
     },
     []
   );
+
+  const currentKey: Key = (theme as Key) ?? "system";
 
   const onKeyDown = React.useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -120,6 +99,31 @@ export default function ThemeSwitch() {
     [currentKey, applyTheme]
   );
 
+  // ── 2) Render: SSR-safe placeholder until `mounted` is true
+  const renderPlaceholder = !mounted;
+
+  if (renderPlaceholder) {
+    return (
+      <div
+        aria-hidden
+        role="presentation"
+        className="inline-flex h-10 items-center gap-1 rounded-full border border-border/80 bg-card/40 px-1.5 py-1 backdrop-blur-sm"
+        data-mounted="false"
+      >
+        <div className="grid size-7 place-items-center rounded-full opacity-80">
+          <Sun size={16} />
+        </div>
+        <div className="grid size-7 place-items-center rounded-full opacity-80">
+          <Monitor size={16} />
+        </div>
+        <div className="grid size-7 place-items-center rounded-full opacity-80">
+          <Moon size={16} />
+        </div>
+      </div>
+    );
+  }
+
+  // ── 3) Interactive UI (client)
   return (
     <div
       role="radiogroup"
@@ -157,7 +161,7 @@ export default function ThemeSwitch() {
         );
       })}
 
-      {/* SR-only live region to announce changes */}
+      {/* Live announcement (client only) */}
       <span className="sr-only" aria-live="polite" role="status">
         Theme set to {theme}.
       </span>
