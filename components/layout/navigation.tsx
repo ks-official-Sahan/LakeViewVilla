@@ -23,7 +23,7 @@ const NAV_ITEMS = [
   { href: "/stays", label: "Stays", icon: Bed },
   { href: "/visit", label: "Visit", icon: MapPin },
   { href: "/faq", label: "FAQ", icon: HelpCircle },
-  { href: "/developer", label: "Developer", icon: Code },
+  // { href: "/developer", label: "Developer", icon: Code },
 ];
 
 export function Navigation() {
