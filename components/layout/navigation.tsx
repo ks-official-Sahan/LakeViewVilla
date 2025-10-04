@@ -103,9 +103,11 @@ export function Navigation() {
                   </Link>
                 );
               })}
-              {/* <div className="ml-1 rounded-lg px-1.5 py-1">
-                <ThemeSwitch />
-              </div> */}
+              {process.env.NODE_ENV !== "production" && (
+                <div className="ml-1 rounded-lg px-1.5 py-1">
+                  <ThemeSwitch />
+                </div>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -150,9 +152,11 @@ export function Navigation() {
                     </Link>
                   );
                 })}
-                {/* <div className="rounded-lg px-4 py-3">
-                  <ThemeSwitch />
-                </div> */}
+                {process.env.NODE_ENV !== "production" && (
+                  <div className="rounded-lg px-4 py-3">
+                    <ThemeSwitch />
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
