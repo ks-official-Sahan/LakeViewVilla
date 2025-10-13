@@ -45,7 +45,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       {/* Background media + scrim */}
       <div className="absolute inset-0 -z-10">
         <Image
-          src="/villa/drone_view_villa.jpg"
+          src="/villa/villa_img_02.jpeg"
           alt="Lake View Villa - aerial view"
           role="img"
           fill
@@ -54,7 +54,7 @@ export function PinnedHero({ nextSectionId }: Props) {
           placeholder="blur"
           blurDataURL={BLUR}
           quality={80}
-          className="object-cover"
+          className="object-cover contrast-125 blur-sm"
           draggable={false}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.68)_0%,rgba(0,0,0,.35)_40%,rgba(0,0,0,.15)_70%,rgba(0,0,0,0)_100%)] dark:bg-[linear-gradient(180deg,rgba(0,0,0,.78)_0%,rgba(0,0,0,.42)_45%,rgba(0,0,0,.18)_75%,rgba(0,0,0,0)_100%)]" />
@@ -72,18 +72,18 @@ export function PinnedHero({ nextSectionId }: Props) {
               textShadow: "0 0 30px rgba(0,0,0,.45), 0 2px 18px rgba(0,0,0,.6)",
             }}
           >
-            <span className="block text-[clamp(1.6rem,7vw,4.75rem)]">
+            <span className="block text-shadow-deep text-[clamp(1.6rem,7vw,4.75rem)]">
               <p>{HERO_CONTENT.titleParts[0]}</p>
               <p>{HERO_CONTENT.titleParts[1]}</p>
             </span>
           </motion.h1>
 
           <motion.p
-            className="mx-auto font-medium text-white/95 text-[clamp(0.95rem,3.6vw,1.375rem)] max-w-[68ch] mb-7"
+            className="mx-auto text-shadow-deep font-medium text-white/95 text-[clamp(0.95rem,3.6vw,1.375rem)] max-w-[68ch] mb-7"
             initial={{ y: allowMotion ? 40 : 0, opacity: allowMotion ? 0 : 1 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-            style={{ textShadow: "0 2px 18px rgba(0,0,0,.55)" }}
+            // style={{ textShadow: "0 2px 18px rgba(0,0,0,.55)" }}
           >
             <span>{HERO_CONTENT.tagline}</span>
           </motion.p>
@@ -96,7 +96,7 @@ export function PinnedHero({ nextSectionId }: Props) {
           >
             <Button
               size="lg"
-              className="glass-strong text-white border-white/40 hover:border-white/60 px-5 py-3 md:px-8 md:py-5 md:text-lg font-semibold"
+              className="glass-strong text-shadow-deep text-white border-white/40 hover:border-white/60 px-5 py-3 md:px-8 md:py-5 md:text-lg font-semibold"
               onClick={handleGallery}
               aria-label="View photo gallery of Lake View Villa"
             >
@@ -106,7 +106,7 @@ export function PinnedHero({ nextSectionId }: Props) {
             <Button
               size="lg"
               variant="outline"
-              className="border-2 hover:border-cyan-400/70 hover:text-cyan-100 bg-cyan-500/30 backdrop-blur-2xl text-white border-cyan-300/80 px-5 py-3 md:px-8 md:py-5 md:text-lg hover:glass font-semibold"
+              className="border-2 text-shadow-deep hover:border-cyan-400/70 hover:text-cyan-100 bg-cyan-500/30 backdrop-blur-2xl text-white border-cyan-300/80 px-5 py-3 md:px-8 md:py-5 md:text-lg hover:glass font-semibold"
               onClick={handleWhatsApp}
               aria-label="Contact us via WhatsApp to book your stay"
             >

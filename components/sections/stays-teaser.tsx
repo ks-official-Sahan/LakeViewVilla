@@ -8,6 +8,13 @@ import { RATES, STAYS_INTRO, BOOKING_FACTS, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { SectionReveal } from "@/components/motion/section-reveal";
 import { trackContact } from "@/lib/analytics";
+import {
+  IconBrandAirbnb,
+  IconBrandBooking,
+  IconBrandFacebook,
+  IconBrandInstagram,
+  IconBrandWhatsapp,
+} from "@tabler/icons-react";
 
 export function StaysTeaser() {
   const [selectedRoom, setSelectedRoom] = useState(0);
@@ -148,13 +155,12 @@ export function StaysTeaser() {
               </div>
             </motion.div> */}
 
-            {/* WhatsApp Mini-Enquiry */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-center"
+              className="text-center flex flex-col gap-2"
             >
               <Button
                 size="lg"
@@ -162,9 +168,75 @@ export function StaysTeaser() {
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold"
                 data-magnetic
               >
-                <MessageCircle className="w-5 h-5 mr-2" />
+                <IconBrandWhatsapp className="w-6 h-6 mr-2" />
                 Get Best Rate on WhatsApp
               </Button>
+
+              <div className="flex sm:flex-col md:flex-row lg:flex-row justify-evenly gap-3">
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      "https://www.airbnb.com/l/CfK96vPd",
+                      "_blank",
+                      "noopener"
+                    )
+                  }
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold"
+                  data-magnetic
+                >
+                  <IconBrandAirbnb size={8} className="w-8 h-8 mr-2" />
+                  AirBNB
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      "https://www.booking.com/Pulse-81UlHU",
+                      "_blank",
+                      "noopener"
+                    )
+                  }
+                  className="flex-1 bg-sky-600 hover:bg-sky-700 text-white px-8 py-4 text-lg font-semibold"
+                  data-magnetic
+                >
+                  <IconBrandBooking size={8} className="w-8 h-8 mr-2" />
+                  Booking.com
+                </Button>
+              </div>
+
+              <div className="flex sm:flex-col md:flex-row lg:flex-row justify-evenly gap-3">
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      "https://www.instagram.com/lakeviewvillatangalle",
+                      "_blank",
+                      "noopener"
+                    )
+                  }
+                  className="flex-1 bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 text-lg font-semibold"
+                  data-magnetic
+                >
+                  <IconBrandInstagram size={8} className="w-8 h-8 mr-2" />
+                  Instagram
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      "https://www.facebook.com/share/17M3VXHKbZ/?mibextid=wwXIfr",
+                      "_blank",
+                      "noopener"
+                    )
+                  }
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold"
+                  data-magnetic
+                >
+                  <IconBrandFacebook size={8} className="w-8 h-8 mr-2" />
+                  Facebook
+                </Button>
+              </div>
 
               <p className="text-sm text-gray-600 mt-4 max-w-md mx-auto">
                 Message us directly for personalized rates, instant

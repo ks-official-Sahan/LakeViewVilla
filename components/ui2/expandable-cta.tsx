@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "./svg-icons";
 import { trackContact } from "@/lib/analytics";
+import { IconBrandWhatsapp } from "@tabler/icons-react";
 
 export function ExpandableCTA() {
   const [open, setOpen] = useState(false);
@@ -146,7 +147,7 @@ export function ExpandableCTA() {
               >
                 <div className="flex items-center gap-3">
                   <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
-                    <WhatsAppIcon className="h-5 w-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
+                    <IconBrandWhatsapp className="h-6 w-6 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]" />
                   </span>
                   <div className="flex-1">
                     <p className="font-semibold leading-5">Chat on WhatsApp</p>
@@ -217,14 +218,14 @@ export function ExpandableCTA() {
           onClick={() => setOpen((v) => !v)}
           whileTap={{ scale: 0.96 }}
           className="relative grid place-items-center h-10 w-10 md:h-14 md:w-14 rounded-full shadow-2xl ring-1 ring-white/50
-                     bg-[conic-gradient(from_180deg_at_50%_50%,#25D366_0%,#1FC85F_40%,#128C7E_100%)]
+                     bg-green-500
                      hover:brightness-110 transition"
         >
           {/* white inner ring for contrast on noisy media */}
           <span className="absolute inset-[3px] rounded-full ring-1 ring-white/40 pointer-events-none" />
           {/* neon aura */}
           <span className="absolute -inset-1 rounded-full bg-emerald-400/25 blur-xl pointer-events-none" />
-          <WhatsAppIcon className="relative w-5 h-5 md:h-7 md:w-7 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]" />
+          <IconBrandWhatsapp className="relative w-7 h-7 md:h-8 md:w-8 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.45)]" />
           {/* online dot */}
           {!open && (
             <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-cyan-400 ring-2 ring-white/95" />

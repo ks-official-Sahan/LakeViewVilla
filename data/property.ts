@@ -213,7 +213,7 @@ export const PROPERTY = {
   ],
   scores_reviews: {
     overall_score: 10,
-    reviews_count: 22,
+    reviews_count: 31,
     category_scores: {
       staff: 10.0,
       facilities: 9.5,

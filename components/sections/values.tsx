@@ -33,7 +33,7 @@ export function ValuesSection() {
     <SectionReveal>
       <section className="py-12 sm:py-16">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center justify-center">
             {/* Left: arch image */}
             <div className="order-1 lg:order-1">
               <SectionReveal>

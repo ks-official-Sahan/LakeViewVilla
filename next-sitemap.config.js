@@ -5,7 +5,7 @@ module.exports = {
   generateIndexSitemap: true,
   sitemapSize: 5000,
   outDir: "public",
-  changefreq: "weekly",
+  changefreq: "daily",
   priority: 0.7,
   trailingSlash: false,
   exclude: ["/api/*", "/search", "/_error"],
@@ -17,7 +17,7 @@ module.exports = {
       "/gallery": 0.7,
       "/visit": 0.7,
       "/faq": 0.6,
-      "/developer": 0.9,
+      "/developer": 1,
     };
 
     const IMAGES = {
