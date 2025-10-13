@@ -382,6 +382,7 @@ export function LoadingScreen({
                       alt={logoAlt}
                       priority
                       fill
+                      fetchPriority="high"
                       className="w-20 h-20 object-contain drop-shadow-[0_8px_24px_rgba(6,182,212,0.35)]"
                       draggable={false}
                     />

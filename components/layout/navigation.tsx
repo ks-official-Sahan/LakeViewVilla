@@ -72,10 +72,11 @@ export function Navigation() {
             >
               <Image
                 src="/logo.png"
-                alt="Lake View Villa"
+                alt="Lake_View"
                 width={150}
                 height={150}
                 className="h-10 w-10"
+                priority
               />
               <span className="text-lg md:text-xl title-shadow">
                 Lake View Villa
