@@ -1,8 +1,9 @@
 import SeoJsonLd from "@/components/SeoJsonLd";
-import { PinnedHero } from "@/components/sections/pinned-hero";
 import { Highlights } from "@/components/sections/highlights";
 import { Footer } from "@/components/layout/footer";
 import { BelowFold } from "@/components/layout/below-fold";
+// import { PinnedHero } from "@/components/sections/pinned-hero";
+import { PinnedHero } from "@/components/sections/hero";
 
 export default function HomePage() {
   return (

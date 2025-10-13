@@ -4,7 +4,10 @@ Allow: /
 
 # *
 User-agent: *
-Disallow: /search, /_next/, /api/, /_error
+Disallow: /search
+Disallow: /_next/
+Disallow: /api/
+Disallow: /_error
 
 # Host
 Host: https://lakeviewvillatangalle.com
