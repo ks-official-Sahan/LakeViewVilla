@@ -31,9 +31,9 @@ export default function FacilitiesSection() {
   }, [api]);
 
   return (
-    <section className="relative py-12 sm:py-16 md:py-20">
-      <div className="mx-auto max-w-7xl px-4">
-        <SectionReveal>
+    <SectionReveal>
+      <section className="py-12 sm:py-16 md:py-20">
+        <div className="container mx-auto px-4">
           <header className="mb-8 sm:mb-10 md:mb-12">
             <p className="text-sm sm:text-base font-medium text-primary">
               Best Choice
@@ -52,76 +52,76 @@ export default function FacilitiesSection() {
               and fully theme-aware.
             </p>
           </header>
-        </SectionReveal>
 
-        <Carousel
-          setApi={setApi}
-          className="w-full"
-          opts={{ align: "start", loop: true }}
-        >
-          {/* Gutters without page overflow */}
-          <CarouselContent className="-ml-2 p-2 sm:-ml-3">
-            {FACILITIES.map((f) => (
-              <CarouselItem
-                key={f.id}
-                className="
+          <Carousel
+            setApi={setApi}
+            className="w-full"
+            opts={{ align: "start", loop: true }}
+          >
+            {/* Gutters without page overflow */}
+            <CarouselContent className="-ml-2 p-2 sm:-ml-3">
+              {FACILITIES.map((f) => (
+                <CarouselItem
+                  key={f.id}
+                  className="
                   pl-2 sm:pl-3
                   basis-full          /* 1 on small */
                   md:basis-1/2        /* 2 on medium */
                   lg:basis-1/3        /* 3 on large and up */
                 "
-              >
-                <div className="h-full">
-                  <FacilityCard
-                    title={f.title}
-                    description={f.description}
-                    image={f.image}
-                    alt={f.alt}
-                    badge={f.badge}
-                    className="
+                >
+                  <div className="h-full">
+                    <FacilityCard
+                      title={f.title}
+                      description={f.description}
+                      image={f.image}
+                      alt={f.alt}
+                      badge={f.badge}
+                      className="
                       h-full
                       sm:min-h-[22rem]
                       md:min-h-[24rem]
                       lg:min-h-[26rem]
                     "
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
 
-          {/* Controls (kept inside container - no overflow) */}
-          <CarouselPrevious
-            aria-label="Previous facilities"
-            className="
+            {/* Controls (kept inside container - no overflow) */}
+            <CarouselPrevious
+              aria-label="Previous facilities"
+              className="
               left-2 md:left-3
               bg-card/90 backdrop-blur
               ring-1 ring-border hover:bg-card
               text-foreground shadow-sm
             "
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </CarouselPrevious>
-          <CarouselNext
-            aria-label="Next facilities"
-            className="
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </CarouselPrevious>
+            <CarouselNext
+              aria-label="Next facilities"
+              className="
               right-2 md:right-3
               bg-card/90 backdrop-blur
               ring-1 ring-border hover:bg-card
               text-foreground shadow-sm
             "
-          >
-            <ChevronRight className="h-5 w-5" />
-          </CarouselNext>
-        </Carousel>
+            >
+              <ChevronRight className="h-5 w-5" />
+            </CarouselNext>
+          </Carousel>
 
-        {/* SR-only status for a11y */}
-        <p className="sr-only" aria-live="polite">
-          Slide {selected + 1} of {FACILITIES.length}
-        </p>
+          {/* SR-only status for a11y */}
+          <p className="sr-only" aria-live="polite">
+            Slide {selected + 1} of {FACILITIES.length}
+          </p>
 
-        {/* <hr className="mt-10 md:mt-12 h-px w-full bg-border/70" /> */}
-      </div>
-    </section>
+          {/* <hr className="mt-10 md:mt-12 h-px w-full bg-border/70" /> */}
+        </div>
+      </section>
+    </SectionReveal>
   );
 }
