@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/villa/drone_view_villa.jpg",
+        url: "/villa/drone_view_villa.webp",
         width: 1200,
         height: 630,
         alt: "Lake View Villa Tangalle",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Visit Us — Lake View Villa Tangalle",
     description: "Directions & quick contact.",
-    images: ["/villa/drone_view_villa.jpg"],
+    images: ["/villa/drone_view_villa.webp"],
   },
 };
 

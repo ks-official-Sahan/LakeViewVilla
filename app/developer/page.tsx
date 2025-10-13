@@ -41,6 +41,9 @@ export default function DeveloperPage() {
       "https://github.com/ks-official-sahan",
       "https://www.linkedin.com/in/sahan-sachintha",
       "https://developer.lakeviewvillatangalle.com",
+      "https://dev.lakeviewvillatangalle.com",
+      "https://sahansachintha.com",
+      "https://www.sahansachintha.com",
     ],
   };
   const profile = {

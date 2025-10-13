@@ -9,7 +9,7 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Navigation } from "@/components/layout/navigation";
 import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
-import { LoadingScreen } from "@/components/ui2/loading-screen";
+// import { LoadingScreen } from "@/components/ui2/loading-screen";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
 
@@ -20,11 +20,12 @@ import { SITE_CONFIG } from "@/data/site";
 
 import { GTM } from "@/components/analytics/GTM";
 import MarketingPixels from "@/components/analytics/marketing-pixels";
-import GA from "@/components/analytics/GA";
 import { MantineProvider } from "@mantine/core";
 import { theme } from "@/config/mantine-theme";
 import { AudioProvider } from "@/context/AudioContext";
-import FloatingAudioSwitch from "@/components/FloatingAudioSwitch";
+import Script from "next/script";
+import dynamic from "next/dynamic";
+import ClientLoadingScreen from "@/components/ClientLoadingScreen";
 
 if (
   !process.env.NEXT_PUBLIC_WHATSAPP &&
@@ -32,6 +33,15 @@ if (
 ) {
   throw new Error("NEXT_PUBLIC_WHATSAPP is required for production builds");
 }
+
+// const LoadingScreen = dynamic(
+//   () =>
+//     import("@/components/ui2/loading-screen").then((mod) => mod.LoadingScreen),
+//   {
+//     ssr: false,
+//     loading: () => null,
+//   }
+// );
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -55,13 +65,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any", type: "image/x-icon" },
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
       { url: "/favicon-96.png", sizes: "96x96", type: "image/png" },
       { url: "/favicon.png", sizes: "any", type: "image/png" },
-      // { url: "/favicon.ico", sizes: "any" }, // classic fallback
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
     // other: [
@@ -133,7 +143,25 @@ export default function RootLayout({
     >
       <head>
         <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
-        <link rel="preload" href="/villa/drone_view_villa.jpg" as="image" />
+        <link
+          rel="preload"
+          href="/villa/villa_img_02.avif"
+          as="image"
+          type="image/avif"
+        />
+        <link
+          rel="preload"
+          href="/villa/villa_img_02.webp"
+          as="image"
+          type="image/webp"
+        />
+        <link
+          rel="preload"
+          href="/favicon-32.png"
+          as="image"
+          type="image/png"
+        />
+
         <link
           rel="preconnect"
           href="https://vitals.vercel-analytics.com"
@@ -159,6 +187,22 @@ export default function RootLayout({
           href="https://connect.facebook.net"
           crossOrigin=""
         />
+
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16.png"
+        />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+
         <script
           id="ld-graph"
           type="application/ld+json"
@@ -186,9 +230,9 @@ export default function RootLayout({
             }),
           }}
         />
-        <GTM />
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
+        <GTM />
         {process.env.NEXT_PUBLIC_GTM_ID ? (
           <noscript>
             <iframe
@@ -207,7 +251,7 @@ export default function RootLayout({
         >
           <MantineProvider defaultColorScheme="light" theme={theme}>
             <AudioProvider>
-              <LoadingScreen
+              <ClientLoadingScreen
                 logoSrc="/logo.png"
                 logoAlt="Lake View Villa Tangalle"
                 enableTapSkip
@@ -221,9 +265,15 @@ export default function RootLayout({
                 <Suspense fallback={null}>{children}</Suspense>
               </main>
               <ExpandableCTA />
-              <WebVitals />
-              <Analytics />
-              <MarketingPixels />
+              <Script id="ga" strategy="afterInteractive">
+                <Analytics />
+              </Script>
+              <Script id="web-vitals" strategy="afterInteractive">
+                <WebVitals />
+              </Script>
+              <Script id="marketing-pixels" strategy="lazyOnload">
+                <MarketingPixels />
+              </Script>
               {/* <FloatingAudioSwitch /> */}
             </AudioProvider>
           </MantineProvider>

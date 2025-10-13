@@ -2,7 +2,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export function ArchedMedia({
-  src = "/villa/with_guests_01.jpeg",
+  src = "/villa/with_guests_01.webp",
   alt = "Lake View Villa — garden and lake",
   className,
   priority,

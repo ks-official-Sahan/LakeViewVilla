@@ -26,26 +26,26 @@ type Experience = {
 const EXPERIENCES: Experience[] = [
   {
     name: "Rekawa Turtle Beach",
-    image: "/images/turtle-beach.jpg",
+    image: "/images/turtle-beach.webp",
     description: "Watch sea turtles nest beneath a vault of stars.",
     // ctaHref: "https://maps.app.goo.gl/",
     // ctaLabel: "Open in Maps",
   },
   {
     name: "Mulkirigala Rock Temple",
-    image: "/images/rock-temple.jpg",
+    image: "/images/rock-temple.webp",
     description: "5th-century cave murals carved into towering rock.",
   },
   {
     name: "Yala Safari Day Trip",
     // video: "/videos/yala-safari.mp4",
-    // thumb: "/images/yala-safari.jpg",
-    image: "/images/yala-safari.jpg",
+    // thumb: "/images/yala-safari.webp",
+    image: "/images/yala-safari.webp",
     description: "Leopards, elephants, and raw Sri Lankan wilderness.",
   },
   {
     name: "Hummanaya Blowhole",
-    image: "/images/blowhole.jpg",
+    image: "/images/blowhole.webp",
     description: "A rare marine geyser — nature’s pulse meeting ocean.",
   },
 ];

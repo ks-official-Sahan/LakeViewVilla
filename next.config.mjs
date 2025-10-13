@@ -134,16 +134,16 @@ const CSP = [
 // HTTP Link-based preconnects
 // ───────────────────────────────
 const preconnectLinks = [
-  "<https://www.googletagmanager.com>; rel=preconnect; crossorigin",
-  "<https://www.google-analytics.com>; rel=preconnect; crossorigin",
-  "<https://region1.google-analytics.com>; rel=preconnect; crossorigin",
-  "<https://connect.facebook.net>; rel=preconnect; crossorigin",
-  "<https://vitals.vercel-analytics.com>; rel=preconnect; crossorigin",
-  "<https://va.vercel-scripts.com>; rel=preconnect; crossorigin",
-  "<https://maps.googleapis.com>; rel=preconnect; crossorigin",
-  "<https://maps.gstatic.com>; rel=preconnect; crossorigin",
-  "<https://fonts.googleapis.com>; rel=preconnect",
   "<https://fonts.gstatic.com>; rel=preconnect; crossorigin",
+  "<https://www.googletagmanager.com>; rel=preconnect; crossorigin",
+  "<https://vitals.vercel-analytics.com>; rel=preconnect; crossorigin",
+  // "<https://www.google-analytics.com>; rel=preconnect; crossorigin",
+  // "<https://region1.google-analytics.com>; rel=preconnect; crossorigin",
+  // "<https://connect.facebook.net>; rel=preconnect; crossorigin",
+  // "<https://va.vercel-scripts.com>; rel=preconnect; crossorigin",
+  // "<https://maps.googleapis.com>; rel=preconnect; crossorigin",
+  // "<https://maps.gstatic.com>; rel=preconnect; crossorigin",
+  // "<https://fonts.googleapis.com>; rel=preconnect",
 ];
 
 const nextConfig = {

@@ -14,7 +14,7 @@ export const FACILITIES: Facility[] = [
     title: "Bedroom 1",
     description:
       "A spacious super king bedroom with air-conditioning and a cooling fan, designed for restful sleep. Bright, airy, and elegantly furnished for your comfort.",
-    image: "/villa/room_01_img_01.jpeg",
+    image: "/villa/room_01_img_01.webp",
     alt: "Super king Bedroom 1 with canopy net",
   },
   {
@@ -23,7 +23,7 @@ export const FACILITIES: Facility[] = [
     title: "Bedroom 2",
     description:
       "Another super king bedroom offering the same comfort, complete with modern amenities, fresh linens, and a calming atmosphere — perfect for families or friends.",
-    image: "/villa/room_02_img_01.jpeg",
+    image: "/villa/room_02_img_01.webp",
     alt: "Super king Bedroom 2 with four-poster bed",
   },
   {
@@ -32,7 +32,7 @@ export const FACILITIES: Facility[] = [
     title: "Kitchen",
     description:
       "A fully equipped modern kitchen with a stove, fridge, washing machine, and all essentials — cook home-style meals or fresh local dishes with ease.",
-    image: "/villa/kitchen_img_02.jpeg",
+    image: "/villa/kitchen_img_02.webp",
     alt: "Modern kitchen essentials",
   },
   {
@@ -41,7 +41,7 @@ export const FACILITIES: Facility[] = [
     title: "Outdoor",
     description:
       "Relax on the wide veranda overlooking the private garden and tranquil lake. Sunrise views, bird watching, and peaceful greenery await.",
-    image: "/villa/villa_img_01.jpeg",
+    image: "/villa/villa_img_01.webp",
     alt: "Wide veranda and private garden",
   },
   {
@@ -50,7 +50,7 @@ export const FACILITIES: Facility[] = [
     title: "Bathroom 1",
     description:
       "Spacious and well-designed with a refreshing hot-water shower — perfect after a day at the beach or exploring Tangalle.",
-    image: "/villa/room_01_img_04_bathroom.jpeg",
+    image: "/villa/room_01_img_04_bathroom.webp",
     alt: "Bathroom with hot water shower",
   },
   {
@@ -59,7 +59,7 @@ export const FACILITIES: Facility[] = [
     title: "Bathroom 2",
     description:
       "Equally comfortable and modern, ensuring every guest has easy access to private facilities.",
-    image: "/villa/room_02_img_04_bathroom.jpeg",
+    image: "/villa/room_02_img_04_bathroom.webp",
     alt: "Second bathroom",
   },
   {
@@ -68,7 +68,7 @@ export const FACILITIES: Facility[] = [
     title: "Cot",
     description:
       "A baby cot is available for families traveling with little ones — a child-friendly getaway made easy.",
-    image: "/villa/room_01_img_03_cot.jpeg",
+    image: "/villa/room_01_img_03_cot.webp",
     alt: "Baby cot in master bedroom",
   },
   {
@@ -77,7 +77,7 @@ export const FACILITIES: Facility[] = [
     title: "Balcony",
     description:
       "Step onto the balcony for serene lake views, morning sunshine, and soothing sounds of nature — perfect for coffee, reading, or quiet reflection.",
-    image: "/villa/villa_outside_01.jpeg",
+    image: "/villa/villa_outside_01.webp",
     alt: "Balcony with lake view at sunrise",
   },
 ];

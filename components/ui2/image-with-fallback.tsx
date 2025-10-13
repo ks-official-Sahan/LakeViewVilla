@@ -21,7 +21,7 @@ interface ImageWithFallbackProps {
 
 export function ImageWithFallback({
   src,
-  fallbackSrc = "/villa/lake_img_01.jpg",
+  fallbackSrc = "/villa/lake_img_01.webp",
   alt,
   className,
   fill,

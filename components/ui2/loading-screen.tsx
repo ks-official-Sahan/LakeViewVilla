@@ -41,7 +41,8 @@ export function LoadingScreen({
   title = "Lake View Villa",
   subtitle = "Tangalle, Sri Lanka",
   // keep short list; large lists can delay decode() on Safari
-  criticalAssets = ["/hero_720p.webm", "/villa/drone_view_villa.jpg"],
+  criticalAssets = ["/villa/villa_img_02.webp"],
+  // criticalAssets = ["/hero_720p.webm", "/villa/villa_img_02.webp"],
   minDurationMs = 900,
   hardTimeoutMs = 4500,
   enableTapSkip = false,

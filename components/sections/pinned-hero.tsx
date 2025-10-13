@@ -303,7 +303,7 @@ export function PinnedHero({ nextSectionId }: Props) {
           aria-hidden="true"
         >
           <Image
-            src="/villa/drone_view_villa.jpg"
+            src="/villa/drone_view_villa.webp"
             alt=""
             role="presentation"
             fill
@@ -327,7 +327,7 @@ export function PinnedHero({ nextSectionId }: Props) {
             muted
             loop
             playsInline
-            poster="/villa/drone_view_villa.jpg"
+            poster="/villa/drone_view_villa.webp"
             onPlay={() => setIsVideoPlaying(true)}
             onPause={() => setIsVideoPlaying(false)}
             onLoadedData={() => {
