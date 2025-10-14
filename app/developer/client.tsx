@@ -10,10 +10,7 @@ import {
   useTransform,
 } from "framer-motion";
 import {
-  Github,
-  Linkedin,
   Mail,
-  MessageCircle,
   ExternalLink,
   ShieldCheck,
   Globe,
@@ -23,7 +20,6 @@ import {
   Star,
   GitFork,
   Zap,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,6 +32,11 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import FloatingAudioSwitch from "@/components/FloatingAudioSwitch";
 import { AudioProvider } from "@/context/AudioContext";
 import Particals from "@/components/ui2/Particles";
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconBrandWhatsapp,
+} from "@tabler/icons-react";
 
 type GH = {
   user?: {
@@ -127,19 +128,19 @@ export default function DeveloperClient({
   const socials = [
     {
       name: "GitHub",
-      icon: Github,
+      icon: IconBrandGithub,
       href: user?.html_url || "https://github.com/ks-official-sahan",
     },
     {
       name: "LinkedIn",
-      icon: Linkedin,
+      icon: IconBrandLinkedin,
       href: "https://www.linkedin.com/in/sahan-sachintha",
     },
     { name: "Email", icon: Mail, href: "mailto:ks.official.sahan@gmail.com" },
     {
       name: "WhatsApp",
-      icon: MessageCircle,
-      href: "https://wa.me/94768701148?text=Hello%20Sahan",
+      icon: IconBrandWhatsapp,
+      href: "https://wa.me/94768701148?text=Hello%20Sahan.%20I%20want%20to%20contact%20you.%20I%20saw%20your%20portfolio%20from%20lake%20view5villa.",
     },
   ];
 
@@ -440,7 +441,7 @@ export default function DeveloperClient({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      <Github className="mr-2 h-5 w-5" /> GitHub{" "}
+                      <IconBrandGithub className="mr-2 h-5 w-5" /> GitHub{" "}
                       <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>

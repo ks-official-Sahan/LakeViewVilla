@@ -95,7 +95,7 @@ export default function GlobalError({ error, reset }: Props) {
               Go home
             </a>
             <a
-              href="mailto:ks.official.sahan@gmail.com?subject=Site%20Error&body=Hi%2C%20I%20encountered%20an%20error%20on%20Lake%20View%20Villa.%0A%0A"
+              href={`mailto:ks.official.sahan@gmail.com?subject=Site%20Error&body=Hi%2C%20I%20encountered%20an%20error%20on%20Lake%20View%20Villa.%0A%0A`}
               className="px-5 py-2.5 rounded-lg border hover:bg-muted transition"
             >
               Contact support
@@ -125,6 +125,15 @@ export default function GlobalError({ error, reset }: Props) {
             >
               {copied ? "Copied!" : "Copy details"}
             </button>
+          </div>
+
+          <div className="block my-3 mx-auto">
+            <a
+              className="px-6 py-3 rounded-2xl hover:ring-2 decoration-0 hover:scale-110"
+              href="/developer"
+            >
+              Developer
+            </a>
           </div>
         </main>
       </body>
