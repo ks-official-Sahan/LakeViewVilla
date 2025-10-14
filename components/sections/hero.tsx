@@ -82,9 +82,13 @@ export function PinnedHero({ nextSectionId }: Props) {
             className="font-bold text-shadow-deep mb-4 font-display leading-tight opacity-0 translate-y-6 animate-hero-in"
             // keep it semantic and server-rendered — text content is from HERO_CONTENT
           >
-            <span className="block text-shadow-deep text-[clamp(1.6rem,7vw,4.75rem)]">
-              <span>{HERO_CONTENT.titleParts[0]}</span>
-              <span>{HERO_CONTENT.titleParts[1]}</span>
+            <span className="block text-shadow-deep">
+              <p className="text-[clamp(1.6rem,7vw,4.75rem)]">
+                {HERO_CONTENT.titleParts[0]}
+              </p>
+              <p className="text-[clamp(1.2rem,6vw,3.5rem)]">
+                {HERO_CONTENT.titleParts[1]}
+              </p>
             </span>
           </h1>
 
