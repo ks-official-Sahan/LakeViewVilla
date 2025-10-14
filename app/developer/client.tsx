@@ -140,7 +140,7 @@ export default function DeveloperClient({
     {
       name: "WhatsApp",
       icon: IconBrandWhatsapp,
-      href: "https://wa.me/94768701148?text=Hello%20Sahan.%20I%20want%20to%20contact%20you.%20I%20saw%20your%20portfolio%20from%20lake%20view5villa.",
+      href: "https://wa.me/94768701148?text=Hello%20Sahan.%20I%20want%20to%20contact%20you.%20I%20saw%20your%20portfolio%20from%20lake%20view%20villa.",
     },
   ];
 
