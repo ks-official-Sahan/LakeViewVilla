@@ -13,6 +13,7 @@ import type {
   VideoObject,
 } from "schema-dts";
 import { SITE_CONFIG, siteConfig } from "@/data/site";
+import { PROPERTY } from "@/data/property";
 
 // Prefer env at runtime; fall back to canonical constant.
 const PHONE = process.env.NEXT_PUBLIC_WHATSAPP ?? SITE_CONFIG.whatsappNumber;
@@ -83,27 +84,45 @@ export function lodgingBusinessSchema(opts?: {
     hasMap: SITE_CONFIG.googleMapsUrl,
     address: {
       "@type": "PostalAddress",
-      streetAddress: opts?.address?.streetAddress ?? SITE_CONFIG.addressStreet, // NEW
+      streetAddress: opts?.address?.streetAddress ?? SITE_CONFIG.addressStreet,
       addressLocality: "Tangalle",
-      addressRegion: opts?.address?.addressRegion ?? SITE_CONFIG.addressRegion, // NEW
-      postalCode: opts?.address?.postalCode ?? SITE_CONFIG.postalCode, // NEW
+      addressRegion: opts?.address?.addressRegion ?? SITE_CONFIG.addressRegion,
+      postalCode: opts?.address?.postalCode ?? SITE_CONFIG.postalCode,
       addressCountry: "LK",
     },
     amenityFeature: [
-      { "@type": "LocationFeatureSpecification", name: "Air Conditioning" },
-      { "@type": "LocationFeatureSpecification", name: "Free Wi-Fi" },
       {
         "@type": "LocationFeatureSpecification",
-        name: "Chef Service (on request)",
+        name: "Air conditioning",
+        value: true,
       },
-      { "@type": "LocationFeatureSpecification", name: "Free Private Parking" },
       {
         "@type": "LocationFeatureSpecification",
-        name: "Beach Access (≈650 m)",
+        name: "Free WiFi",
+        value: true,
       },
-      { "@type": "LocationFeatureSpecification", name: "Laundry (on request)" },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Chef service (on request)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Free private parking on site",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Beach access (≈650 m)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Laundry (on request)",
+        value: true,
+      },
     ],
-    sameAs: SITE_CONFIG.sameAs, // NEW
+    sameAs: SITE_CONFIG.sameAs,
   } as const;
 
   if (opts?.starRating) {
@@ -116,6 +135,134 @@ export function lodgingBusinessSchema(opts?: {
     };
   }
   return base;
+}
+
+export function vacationRentalSchema() {
+  const images = (PROPERTY.images_sample || []).map((src) =>
+    src.startsWith("/") ? `${siteConfig.url}${src}` : `${siteConfig.url}/${src}`
+  );
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "VacationRental",
+    "@id": `${siteConfig.url}/#vacationRental`,
+    name: SITE_CONFIG.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    image: images.slice(0, 8),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: SITE_CONFIG.addressStreet,
+      addressLocality: PROPERTY.address.city,
+      addressRegion: SITE_CONFIG.addressRegion,
+      postalCode: SITE_CONFIG.postalCode,
+      addressCountry: "LK",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: SITE_CONFIG.coordinates.lat,
+      longitude: SITE_CONFIG.coordinates.lng,
+    },
+    telephone: SITE_CONFIG.whatsappNumber,
+    priceRange: "$$",
+    checkinTime: "14:00:00",
+    checkoutTime: "11:00:00",
+    amenityFeature: [
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Free WiFi",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Free private parking on site",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Air conditioning",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Kitchen",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Beachfront",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Balcony",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Terrace",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Garden",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Lake view",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Family rooms",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Airport shuttle (additional charge)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Laundry facilities",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Breakfast available",
+        value: true,
+      },
+    ],
+    numberOfRooms: PROPERTY.occupancy.bedrooms,
+    maximumAttendeeCapacity: PROPERTY.occupancy.max_guests,
+    sameAs: SITE_CONFIG.sameAs,
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: PROPERTY.scores_reviews.overall_score,
+      reviewCount: PROPERTY.scores_reviews.reviews_count,
+      bestRating: 10,
+      worstRating: 1,
+    },
+    review: [
+      {
+        "@type": "Review",
+        author: {
+          "@type": "Person",
+          name: "REPLACE_WITH_GUEST_NAME",
+        },
+        datePublished: "REPLACE_WITH_REVIEW_DATE",
+        name: "REPLACE_WITH_REVIEW_HEADLINE",
+        reviewBody: "REPLACE_WITH_REVIEW_TEXT",
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: PROPERTY.scores_reviews.overall_score,
+          bestRating: 10,
+          worstRating: 1,
+        },
+      },
+    ],
+  } as const;
 }
 
 export function breadcrumbSchema(
@@ -215,6 +362,7 @@ export function siteGraph(opts?: Parameters<typeof lodgingBusinessSchema>[0]) {
     webSiteSchema(),
     organizationSchema(),
     lodgingBusinessSchema(opts),
+    vacationRentalSchema(),
   ];
   return {
     "@context": "https://schema.org",

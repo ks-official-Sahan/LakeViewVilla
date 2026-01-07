@@ -142,7 +142,6 @@ export default function RootLayout({
       className={`${montserrat.variable} ${inter.variable}`}
     >
       <head>
-        <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
         <link
           rel="preload"
           href="/villa/optimized/villa_img_02.webp"
@@ -265,15 +264,10 @@ export default function RootLayout({
                 <Suspense fallback={null}>{children}</Suspense>
               </main>
               <ExpandableCTA />
-              <Script id="ga" strategy="afterInteractive">
-                <Analytics />
-              </Script>
-              <Script id="web-vitals" strategy="afterInteractive">
-                <WebVitals />
-              </Script>
-              <Script id="marketing-pixels" strategy="lazyOnload">
-                <MarketingPixels />
-              </Script>
+              {/* Analytics & tracking components (client-side) */}
+              <Analytics />
+              <WebVitals />
+              <MarketingPixels />
               {/* <FloatingAudioSwitch /> */}
             </AudioProvider>
           </MantineProvider>

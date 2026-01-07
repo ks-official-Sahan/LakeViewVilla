@@ -1,5 +1,4 @@
   import { NextResponse } from "next/server";
-  export const runtime = "edge";
   const USERNAME = "ks-official-Sahan";
 
   async function gh(path: string) {

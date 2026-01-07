@@ -152,9 +152,13 @@ const nextConfig = {
   generateEtags: true,
   poweredByHeader: false,
 
-  eslint: { ignoreDuringBuilds: true },
+  // Next.js 16 performance features
+  cacheComponents: true,
+  reactCompiler: true,
+
   typescript: { ignoreBuildErrors: true },
 
+  skipTrailingSlashRedirect: true,
   images: {
     unoptimized: false,
     formats: ["image/avif", "image/webp"],
@@ -162,6 +166,12 @@ const nextConfig = {
     imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        // port: "",
+        // pathname: "/dbme0nn1m/**",
+      },
       { protocol: "https", hostname: "**" },
       { protocol: "https", hostname: "*.booking.com" },
       { protocol: "https", hostname: "lakeviewvillatangalle.com" },
@@ -241,7 +251,7 @@ const nextConfig = {
 
   modularizeImports: {
     "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{member}}",
+      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
       preventFullImport: true,
     },
   },
@@ -253,7 +263,6 @@ const nextConfig = {
       "@vercel/analytics",
       "lenis",
       "three",
-      "lucide-react",
       "@mantine/core",
       // "@mantine/hooks",
       // "@mantine/notifications",
@@ -261,6 +270,10 @@ const nextConfig = {
       // "@mantine/modals",
       "@tabler/icons-react",
     ],
+
+    // Turbopack file system cache (dev + build)
+    turbopackFileSystemCacheForDev: true,
+    turbopackFileSystemCacheForBuild: true,
   },
 };
 
