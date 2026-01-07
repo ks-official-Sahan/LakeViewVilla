@@ -33,7 +33,7 @@ const sendMessage = (location: string) => {
 const EXPERIENCES: Experience[] = [
   {
     name: "Rekawa Turtle Beach",
-    image: "/images/optimized/turtle-beach.webp",
+    image: "/images/optimized/rekawa.webp",
     description:
       "Rekawa Turtle Beach is one of Sri Lanka’s most important turtle nesting sites.",
     // ctaHref: "https://maps.app.goo.gl/",
