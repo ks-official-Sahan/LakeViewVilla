@@ -40,12 +40,18 @@ export function PinnedHero({ nextSectionId }: Props) {
       <div className="absolute inset-0 -z-10">
         <picture>
           {/* AVIF first */}
-          <source srcSet="/villa/villa_img_02.avif" type="image/avif" />
+          <source
+            srcSet="/villa/optimized/villa_img_02.webp"
+            type="image/avif"
+          />
           {/* then WebP */}
-          <source srcSet="/villa/villa_img_02.webp" type="image/webp" />
+          <source
+            srcSet="/villa/optimized/villa_img_02.webp"
+            type="image/webp"
+          />
           {/* fallback — prefer an optimized JPEG/PNG if you have it */}
           <img
-            src="/villa/villa_img_02.webp"
+            src="/villa/optimized/villa_img_02.webp"
             alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
             className="w-full h-full object-cover contrast-125 blur-sm transform-gpu will-change-transform"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -63,7 +69,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       {/* Noscript fallback for crawlers / non-JS LCP (good for SEO) */}
       <noscript>
         <img
-          src="/villa/villa_img_02.webp"
+          src="/villa/optimized/villa_img_02.webp"
           alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
           style={{
             width: "100%",
@@ -219,7 +225,7 @@ export function PinnedHero({ nextSectionId }: Props) {
 //       {/* Background image (LCP) + scrim */}
 //       <div className="absolute inset-0 -z-10">
 //         <Image
-//           src="/villa/villa_img_02.webp"
+//           src="/villa/optimized/villa_img_02.webp"
 //           alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
 //           role="img"
 //           fill
@@ -238,7 +244,7 @@ export function PinnedHero({ nextSectionId }: Props) {
 //       {/* Noscript fallback for crawlers / non-JS LCP (good for SEO) */}
 //       <noscript>
 //         <img
-//           src="/villa/villa_img_02.webp"
+//           src="/villa/optimized/villa_img_02.webp"
 //           alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
 //           style={{
 //             width: "100%",

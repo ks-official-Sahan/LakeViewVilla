@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/villa/drone_view_villa.webp",
+        url: "/villa/optimized/drone_view_villa.webp",
         width: 1200,
         height: 630,
         alt: "Lake View Villa Tangalle — lagoon at sunrise",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Stays & Rates — Lake View Villa Tangalle",
     description: "Best direct rates. A/C rooms, chef services, fast Wi-Fi.",
-    images: ["/villa/drone_view_villa.webp"],
+    images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
 

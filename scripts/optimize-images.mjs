@@ -3,8 +3,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 
-const SRC = "public/villa";
-const OUT = "public/villa";
+const SRC = "public/images/new";
+const OUT = "public/images/optimized/new";
 const qJpg = 82;
 
 for (const f of await fs.readdir(SRC)) {

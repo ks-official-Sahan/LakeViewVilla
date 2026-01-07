@@ -171,8 +171,9 @@ export default function VisitPage() {
 
   // Stable, keyless embed
   const mapsEmbedSrc = useMemo(() => {
-    const { lat, lng } = SITE_CONFIG.coordinates;
-    return `https://www.google.com/maps?q=${lat},${lng}&z=14&output=embed`;
+    // const { lat, lng } = SITE_CONFIG.coordinates;
+    // return `https://www.google.com/maps?q=${lat},${lng}&z=14&output=embed`;
+    return SITE_CONFIG.googleMapsUrl;
   }, []);
 
   return (

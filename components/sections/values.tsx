@@ -38,7 +38,7 @@ export function ValuesSection() {
             <div className="order-1 lg:order-1">
               <SectionReveal>
                 <ArchedMedia
-                  src="/villa/with_guests_02.webp"
+                  src="/villa/optimized/with_guests_02.webp"
                   alt="Garden & lake view"
                   priority
                   className="lg:sticky lg:top-24"

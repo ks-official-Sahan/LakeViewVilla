@@ -9,7 +9,8 @@ import { SectionReveal } from "@/components/motion/section-reveal";
 import { trackContact, trackMapOpen } from "@/lib/analytics";
 
 export function MapDirections() {
-  const mapsEmbedSrc = `https://www.google.com/maps?q=${SITE_CONFIG.coordinates.lat},${SITE_CONFIG.coordinates.lng}&hl=en&z=15&output=embed`;
+  // const mapsEmbedSrc = `https://www.google.com/maps?q=${SITE_CONFIG.coordinates.lat},${SITE_CONFIG.coordinates.lng}&hl=en&z=15&output=embed`;
+  const mapsEmbedSrc = SITE_CONFIG.googleMapsUrl;
 
   const handleGetDirections = () => {
     const url = SITE_CONFIG.googleMapsUrl;

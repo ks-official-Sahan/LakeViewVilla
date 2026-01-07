@@ -12,6 +12,8 @@ import {
   useTransform,
 } from "framer-motion";
 import { ChevronLeft, ChevronRight, MapPin, Play } from "lucide-react";
+import { buildWhatsAppUrl } from "@/lib/utils";
+import { SITE_CONFIG } from "@/data/site";
 
 type Experience = {
   name: string;
@@ -23,30 +25,77 @@ type Experience = {
   ctaLabel?: string;
 };
 
+const sendMessage = (location: string) => {
+  const msg = `Hi, I would like to book a day trip to ${location} with Lake View Villa.`;
+  return buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, msg);
+};
+
 const EXPERIENCES: Experience[] = [
   {
     name: "Rekawa Turtle Beach",
-    image: "/images/turtle-beach.webp",
-    description: "Watch sea turtles nest beneath a vault of stars.",
+    image: "/images/optimized/turtle-beach.webp",
+    description:
+      "Rekawa Turtle Beach is one of Sri Lanka’s most important turtle nesting sites.",
     // ctaHref: "https://maps.app.goo.gl/",
     // ctaLabel: "Open in Maps",
+    ctaHref: sendMessage("Rekawa Turtle Beach"),
+    ctaLabel: "Book Now",
+  },
+  {
+    name: "Hiriketiya Beach",
+    image: "/images/optimized/hiriketiya.webp",
+    description: "Hiriketiya Beach is one of Sri Lanka’s most popular bays.",
+    ctaHref: sendMessage("Hiriketiya Beach"),
+    ctaLabel: "Book Now",
+  },
+  {
+    name: "Kayaking in Tangalle Lagoon",
+    image: "/images/optimized/kayaking.webp",
+    description:
+      "Guests can enjoy peaceful kayaking trips in the calm waters of Tangalle Lagoon. Surrounded by mangroves, birds, and serene nature.",
+    ctaHref: sendMessage("Tangalle Lagoon Kayaking"),
+    ctaLabel: "Book Now",
+  },
+  {
+    name: "Kalamatiya Bird Sanctuary",
+    image: "/images/optimized/kalamatiya.webp",
+    description:
+      "Kalamatiya Bird Sanctuary is a coastal wetland reserve famous for its rich biodiversity and migratory birds.",
+    ctaHref: sendMessage("Kalamatiya Bird Sanctuary"),
+    ctaLabel: "Book Now",
   },
   {
     name: "Mulkirigala Rock Temple",
-    image: "/images/rock-temple.webp",
-    description: "5th-century cave murals carved into towering rock.",
+    image: "/images/optimized/mulkirigala.webp",
+    description:
+      "Mulkirigala Rock Temple, also known as Raja Maha Vihara, is an ancient Buddhist monastery built on a massive rock formation.",
+    ctaHref: sendMessage("Mulkirigala Rock Temple"),
+    ctaLabel: "Book Now",
   },
   {
-    name: "Yala Safari Day Trip",
+    name: "Yala National Park Safari",
     // video: "/videos/yala-safari.mp4",
     // thumb: "/images/yala-safari.webp",
-    image: "/images/yala-safari.webp",
+    image: "/images/optimized/yala.webp",
     description: "Leopards, elephants, and raw Sri Lankan wilderness.",
+    ctaHref: sendMessage("Yala National Park"),
+    ctaLabel: "Book Now",
   },
   {
     name: "Hummanaya Blowhole",
-    image: "/images/blowhole.webp",
-    description: "A rare marine geyser — nature’s pulse meeting ocean.",
+    image: "/images/optimized/blowhole.webp",
+    description:
+      "Hummanaya Blow Hole is the largest natural blowhole in Sri Lanka, located along the southern coastline.",
+    ctaHref: sendMessage("Hummanaya Blowhole"),
+    ctaLabel: "Book Now",
+  },
+  {
+    name: "Sigiriya Rock Fortress",
+    image: "/images/optimized/sigiriya.webp",
+    description:
+      "Sigiriya Rock Fortress is a UNESCO World Heritage Site and one of Sri Lanka's most iconic landmarks.",
+    ctaHref: sendMessage("Sigiriya Rock Fortress"),
+    ctaLabel: "Book Now",
   },
 ];
 
@@ -143,7 +192,7 @@ export function ExperiencesReel() {
         </video>
       ) : (
         <Image
-          src={exp.image || "/placeholder.jpg"}
+          src={exp.image || "/placeholder.webp"}
           alt=""
           role="presentation"
           fill
@@ -160,7 +209,7 @@ export function ExperiencesReel() {
   const PeekMedia = ({ exp }: { exp: Experience }) => (
     <div className="absolute inset-0">
       <Image
-        src={exp.thumb || exp.image || "/placeholder.jpg"}
+        src={exp.thumb || exp.image || "/placeholder.webp"}
         alt=""
         role="presentation"
         fill
@@ -326,7 +375,7 @@ export function ExperiencesReel() {
                 <div className="absolute inset-0 grid place-items-center p-6 text-white">
                   <div className="text-center max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.45)]">
                     <motion.h3
-                      className="text-3xl md:text-4xl font-bold text-balance"
+                      className="text-3xl md:text-4xl font-bold text-balance text-shadow-deep"
                       initial={{ y: 18, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{
@@ -338,7 +387,7 @@ export function ExperiencesReel() {
                       {EXPERIENCES[index].name}
                     </motion.h3>
                     <motion.p
-                      className="mt-3 text-lg md:text-xl text-white/95 text-pretty"
+                      className="mt-3 text-lg md:text-xl text-white/95 text-pretty text-shadow-deep"
                       initial={{ y: 14, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{
@@ -355,7 +404,7 @@ export function ExperiencesReel() {
                         href={EXPERIENCES[index].ctaHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 mt-6 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur px-4 py-2 text-sm font-medium ring-1 ring-white/25 transition"
+                        className="inline-flex items-center gap-2 mt-6 rounded-full bg-white/15 hover:bg-white/25 glass-strong shadow-2xl px-4 py-2 text-sm font-medium ring-1 ring-white/25 transition text-shadow-deep box-shadow-deep"
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{

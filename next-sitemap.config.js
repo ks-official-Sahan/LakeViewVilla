@@ -41,74 +41,69 @@ const PRIORITY_MAP = {
 /** IMAGE MAP — complete list of all images for `/` and `/gallery` */
 const IMAGE_MAP = {
   // "/": [
-  //   { url: "/villa/yala-safari.webp", title: "Yala Safari Adventure" },
-  //   { url: "/villa/yala-safari.avif", title: "Yala Safari Adventure" },
-  //   { url: "/villa/turtle-beach.webp", title: "Turtle Beach Experience" },
-  //   { url: "/villa/turtle-beach.avif", title: "Turtle Beach Experience" },
-  //   { url: "/villa/blowhole.webp", title: "Hummanaya Blowhole View" },
-  //   { url: "/villa/blowhole.avif", title: "Hummanaya Blowhole View" },
-  //   { url: "/villa/villa_img_01.webp", title: "Lake View Villa Exterior" },
-  //   { url: "/villa/villa_img_01.avif", title: "Lake View Villa Exterior" },
-  //   { url: "/villa/villa_img_02.webp", title: "Villa Garden & Exterior" },
-  //   { url: "/villa/villa_img_02.avif", title: "Villa Garden & Exterior" },
-  //   { url: "/villa/beach_img_01.webp", title: "Private Beach View" },
-  //   { url: "/villa/beach_img_01.avif", title: "Private Beach View" },
-  //   { url: "/villa/with_guests_01.webp", title: "Guests Enjoying the Villa" },
-  //   { url: "/villa/with_guests_01.avif", title: "Guests Enjoying the Villa" },
-  //   { url: "/villa/with_guests_02.webp", title: "Guests at Dining Area" },
-  //   { url: "/villa/with_guests_02.avif", title: "Guests at Dining Area" },
-  //   { url: "/villa/with_guests_04_dining.webp", title: "Dining with Guests" },
-  //   { url: "/villa/with_guests_04_dining.avif", title: "Dining with Guests" },
-  //   { url: "/villa/room_02_img_01.webp", title: "Room 2 – Twin Beds" },
-  //   { url: "/villa/room_02_img_01.avif", title: "Room 2 – Twin Beds" },
-  //   { url: "/villa/villa_outside_01.webp", title: "Villa Exterior Garden" },
-  //   { url: "/villa/villa_outside_01.avif", title: "Villa Exterior Garden" },
+  //   { url: "/villa/optimized/yala-safari.webp", title: "Yala Safari Adventure" },
+  //   { url: "/villa/optimized/turtle-beach.webp", title: "Turtle Beach Experience" },
+  //   { url: "/villa/optimized/blowhole.webp", title: "Hummanaya Blowhole View" },
+  //   { url: "/villa/optimized/villa_img_01.webp", title: "Lake View Villa Exterior" },
+  //   { url: "/villa/optimized/villa_img_02.webp", title: "Villa Garden & Exterior" },
+  //   { url: "/villa/optimized/beach_img_01.webp", title: "Private Beach View" },
+  
+  //   { url: "/villa/optimized/with_guests_01.webp", title: "Guests Enjoying the Villa" },
+  
+  //   { url: "/villa/optimized/with_guests_02.webp", title: "Guests at Dining Area" },
+  
+  //   { url: "/villa/optimized/with_guests_04_dining.webp", title: "Dining with Guests" },
+  
+  //   { url: "/villa/optimized/room_02_img_01.webp", title: "Room 2 – Twin Beds" },
+  
+  //   { url: "/villa/optimized/villa_outside_01.webp", title: "Villa Exterior Garden" },
+  
   // ],
   // "/gallery": [
-  //   { url: "/villa/beach_img_01.webp", title: "Private Beach View" },
-  //   { url: "/villa/beach_img_01.avif", title: "Private Beach View" },
-  //   { url: "/villa/garden_img_01.webp", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_01.avif", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_02.webp", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_02.avif", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_03.webp", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_03.avif", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_04.webp", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_04.avif", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_05.webp", title: "Garden Walkway" },
-  //   { url: "/villa/garden_img_05.avif", title: "Garden Walkway" },
-  //   { url: "/villa/kitchen_img_01.webp", title: "Villa Kitchen Interior" },
-  //   { url: "/villa/kitchen_img_01.avif", title: "Villa Kitchen Interior" },
-  //   { url: "/villa/kitchen_img_02.webp", title: "Villa Kitchen" },
-  //   { url: "/villa/kitchen_img_02.avif", title: "Villa Kitchen" },
-  //   { url: "/villa/kitchen_img_03.webp", title: "Villa Kitchen" },
-  //   { url: "/villa/kitchen_img_03.avif", title: "Villa Kitchen" },
-  //   { url: "/villa/kitchen_img_04.webp", title: "Villa Kitchen" },
-  //   { url: "/villa/kitchen_img_04.avif", title: "Villa Kitchen" },
-  //   { url: "/villa/lake_img_01.webp", title: "Lake View" },
-  //   { url: "/villa/lake_img_01.avif", title: "Lake View" },
-  //   { url: "/villa/lake_img_02.webp", title: "Lake View" },
-  //   { url: "/villa/lake_img_02.avif", title: "Lake View" },
-  //   { url: "/villa/room_01_img_01.webp", title: "Room 1 – King Bed" },
-  //   { url: "/villa/room_01_img_01.avif", title: "Room 1 – King Bed" },
-  //   { url: "/villa/room_01_img_02.webp", title: "Room 1 – King Bed" },
-  //   { url: "/villa/room_01_img_02.avif", title: "Room 1 – King Bed" },
-  //   { url: "/villa/room_01_img_03_cot.webp", title: "Room 1 – Cot Bed" },
-  //   { url: "/villa/room_01_img_03_cot.avif", title: "Room 1 – Cot Bed" },
-  //   { url: "/villa/room_01_img_04_bathroom.webp", title: "Room 1 Bathroom" },
-  //   { url: "/villa/room_01_img_04_bathroom.avif", title: "Room 1 Bathroom" },
-  //   { url: "/villa/room_01_img_05_bathroom.webp", title: "Room 1 Bathroom" },
-  //   { url: "/villa/room_01_img_05_bathroom.avif", title: "Room 1 Bathroom" },
-  //   { url: "/villa/room_02_img_01.webp", title: "Room 2 – King Bed" },
-  //   { url: "/villa/room_02_img_01.avif", title: "Room 2 – King Bed" },
-  //   { url: "/villa/room_02_img_02.webp", title: "Room 2 – King Bed" },
-  //   { url: "/villa/room_02_img_02.avif", title: "Room 2 – King Bed" },
-  //   { url: "/villa/room_02_img_03.webp", title: "Room 2 – Bed" },
-  //   { url: "/villa/room_02_img_03.avif", title: "Room 2 – Bed" },
-  //   { url: "/villa/room_02_img_04_bathroom.webp", title: "Room 2 Bathroom" },
-  //   { url: "/villa/room_02_img_04_bathroom.avif", title: "Room 2 Bathroom" },
-  //   { url: "/villa/room_img_01.webp", title: "Bedroom Interior" },
-  //   { url: "/villa/room_img_01.avif", title: "Bedroom Interior" },
+  //   { url: "/villa/optimized/beach_img_01.webp", title: "Private Beach View" },
+  
+  //   { url: "/villa/optimized/garden_img_01.webp", title: "Garden Walkway" },
+  
+  //   { url: "/villa/optimized/garden_img_02.webp", title: "Garden Walkway" },
+  
+  //   { url: "/villa/optimized/garden_img_03.webp", title: "Garden Walkway" },
+  
+  //   { url: "/villa/optimized/garden_img_04.webp", title: "Garden Walkway" },
+  
+  //   { url: "/villa/optimized/garden_img_05.webp", title: "Garden Walkway" },
+  
+  //   { url: "/villa/optimized/kitchen_img_01.webp", title: "Villa Kitchen Interior" },
+  
+  //   { url: "/villa/optimized/kitchen_img_02.webp", title: "Villa Kitchen" },
+  
+  //   { url: "/villa/optimized/kitchen_img_03.webp", title: "Villa Kitchen" },
+  
+  //   { url: "/villa/optimized/kitchen_img_04.webp", title: "Villa Kitchen" },
+  
+  //   { url: "/villa/optimized/lake_img_01.webp", title: "Lake View" },
+  
+  //   { url: "/villa/optimized/lake_img_02.webp", title: "Lake View" },
+  
+  //   { url: "/villa/optimized/room_01_img_01.webp", title: "Room 1 – King Bed" },
+  
+  //   { url: "/villa/optimized/room_01_img_02.webp", title: "Room 1 – King Bed" },
+  
+  //   { url: "/villa/optimized/room_01_img_03_cot.webp", title: "Room 1 – Cot Bed" },
+  
+  //   { url: "/villa/optimized/room_01_img_04_bathroom.webp", title: "Room 1 Bathroom" },
+  
+  //   { url: "/villa/optimized/room_01_img_05_bathroom.webp", title: "Room 1 Bathroom" },
+  
+  //   { url: "/villa/optimized/room_02_img_01.webp", title: "Room 2 – King Bed" },
+  
+  //   { url: "/villa/optimized/room_02_img_02.webp", title: "Room 2 – King Bed" },
+  
+  //   { url: "/villa/optimized/room_02_img_03.webp", title: "Room 2 – Bed" },
+  
+  //   { url: "/villa/optimized/room_02_img_04_bathroom.webp", title: "Room 2 Bathroom" },
+  
+  //   { url: "/villa/optimized/room_img_01.webp", title: "Bedroom Interior" },
+  
   // ],
 };
 
@@ -146,7 +141,7 @@ module.exports = {
     //           description:
     //             "A short hero video showcasing Lake View Villa Tangalle.",
     //           content_loc: abs("/hero.webm"),
-    //           thumbnail_loc: abs("/villa/villa_img_01.webp"),
+    //           thumbnail_loc: abs("/villa/optimized/villa_img_01.webp"),
     //           duration: 18,
     //         },
     //       ]

@@ -21,7 +21,7 @@ export async function GET(req) {
   let bgDataUrl = null;
 
   try {
-    const res = await fetch(`${origin}/villa/drone_view_villa.webp`, {
+    const res = await fetch(`${origin}/villa/optimized/drone_view_villa.webp`, {
       cache: "force-cache",
     });
     if (res.ok) {

@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/villa/drone_view_villa.webp",
+        url: "/villa/optimized/drone_view_villa.webp",
         width: 1200,
         height: 630,
         alt: "Aerial view of the lagoon and villa at sunrise",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: "Gallery - Lake View Villa Tangalle",
     description:
       "See our lagoon, interiors, and surroundings in the photo gallery.",
-    images: ["/villa/drone_view_villa.webp"],
+    images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
 
@@ -47,19 +47,19 @@ function getGalleryImages() {
 
   const fallbacks = [
     {
-      src: "/villa/drone_view_villa.webp",
+      src: "/villa/optimized/drone_view_villa.webp",
       alt: "Aerial view of the lagoon and villa at sunrise",
       w: 1200,
       h: 800,
     },
     {
-      src: "/villa/room_02_img_01.webp",
+      src: "/villa/optimized/room_02_img_01.webp",
       alt: "Living area with modern furnishings",
       w: 1200,
       h: 800,
     },
     {
-      src: "/villa/garden_img_01.webp",
+      src: "/villa/optimized/garden_img_01.webp",
       alt: "Garden path and greenery around the villa",
       w: 1200,
       h: 800,

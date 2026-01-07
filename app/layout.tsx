@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [
-      // { url: "/villa/drone_view_villa.jpg", width: 1200, height: 630, alt: "Lake View Villa Tangalle - Serene lagoon at sunrise" },
+      // { url: "/villa/optimized/drone_view_villa.jpg", width: 1200, height: 630, alt: "Lake View Villa Tangalle - Serene lagoon at sunrise" },
       { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle" },
     ],
   },
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic views.",
     images: [
-      // "/villa/drone_view_villa.jpg",
+      // "/villa/optimized/drone_view_villa.jpg",
       "/og",
     ],
   },
@@ -145,13 +145,13 @@ export default function RootLayout({
         <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
         <link
           rel="preload"
-          href="/villa/villa_img_02.avif"
+          href="/villa/optimized/villa_img_02.webp"
           as="image"
           type="image/avif"
         />
         <link
           rel="preload"
-          href="/villa/villa_img_02.webp"
+          href="/villa/optimized/villa_img_02.webp"
           as="image"
           type="image/webp"
         />

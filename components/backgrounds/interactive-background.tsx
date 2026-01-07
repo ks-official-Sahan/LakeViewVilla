@@ -149,7 +149,7 @@ export function InteractiveBackground({
           data-parallax="0.3"
           className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: "url('/villa/garden_img_01.webp')",
+            backgroundImage: "url('/villa/optimized/garden_img_01.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -158,7 +158,7 @@ export function InteractiveBackground({
           data-parallax="0.5"
           className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: "url('/villa/garden_img_02.webp')",
+            backgroundImage: "url('/villa/optimized/garden_img_02.webp')",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
