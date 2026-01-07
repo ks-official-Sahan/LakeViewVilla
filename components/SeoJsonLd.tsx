@@ -74,8 +74,8 @@ export default function SeoJsonLd({
     telephone: "+94-70-116-4056",
     priceRange: "$$",
     currenciesAccepted: "USD, LKR, EUR",
-    checkinTime: "14:00",
-    checkoutTime: "11:00",
+    checkinTime: "14:00:00+05:30",
+    checkoutTime: "11:00:00+05:30",
     acceptsReservations: "True",
     address: {
       "@type": "PostalAddress",

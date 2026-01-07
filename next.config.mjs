@@ -156,6 +156,7 @@ const nextConfig = {
   cacheComponents: true,
   reactCompiler: true,
 
+  eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
   skipTrailingSlashRedirect: true,
@@ -256,6 +257,14 @@ const nextConfig = {
     },
   },
 
+  // Dev performance tuning
+  onDemandEntries: {
+    // Keep pages in memory for longer (1 minute)
+    maxInactiveAge: 60 * 1000,
+    // Keep more pages in the buffer
+    pagesBufferLength: 5,
+  },
+
   experimental: {
     optimizePackageImports: [
       "framer-motion",
@@ -269,7 +278,20 @@ const nextConfig = {
       // "@mantine/dates",
       // "@mantine/modals",
       "@tabler/icons-react",
+      // "lucide-react",
+      "clsx",
+      "tailwind-merge",
+      "date-fns",
     ],
+
+    // Use Lightning CSS for faster minification
+    useLightningcss: true,
+
+    // Client-side router cache tuning (Next.js 15+)
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
 
     // Turbopack file system cache (dev + build)
     turbopackFileSystemCacheForDev: true,

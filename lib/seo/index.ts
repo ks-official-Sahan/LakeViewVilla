@@ -70,7 +70,7 @@ export function lodgingBusinessSchema(opts?: {
   // const base: WithContext<LodgingBusiness> = {
   const base = {
     "@context": "https://schema.org",
-    "@type": ["LodgingBusiness", "VacationRental"],
+    "@type": "LodgingBusiness",
     "@id": `${siteConfig.url}/#lodging`,
     name: siteConfig.name,
     description: siteConfig.description,
@@ -142,14 +142,29 @@ export function vacationRentalSchema() {
     src.startsWith("/") ? `${siteConfig.url}${src}` : `${siteConfig.url}/${src}`
   );
 
+  const maxGuests = PROPERTY.occupancy.max_guests;
+  const bedrooms = PROPERTY.occupancy.bedrooms;
+  const bathrooms = PROPERTY.occupancy.bathrooms;
+
+  const stableId = `${siteConfig.url}-vacation-rental-1`;
+
   return {
     "@context": "https://schema.org",
     "@type": "VacationRental",
+    additionalType: "LodgingBusiness",
     "@id": `${siteConfig.url}/#vacationRental`,
     name: SITE_CONFIG.name,
     description: siteConfig.description,
     url: siteConfig.url,
     image: images.slice(0, 8),
+    identifier: [
+      stableId,
+      {
+        "@type": "PropertyValue",
+        name: "listingId",
+        value: stableId,
+      },
+    ],
     address: {
       "@type": "PostalAddress",
       streetAddress: SITE_CONFIG.addressStreet,
@@ -165,8 +180,89 @@ export function vacationRentalSchema() {
     },
     telephone: SITE_CONFIG.whatsappNumber,
     priceRange: "$$",
-    checkinTime: "14:00:00",
-    checkoutTime: "11:00:00",
+    checkinTime: "14:00:00+05:30",
+    checkoutTime: "11:00:00+05:30",
+    occupancy: {
+      "@type": "QuantitativeValue",
+      value: maxGuests,
+      unitCode: "C62",
+    },
+    containsPlace: {
+      "@type": "Accommodation",
+      name: "Entire villa",
+      occupancy: {
+        "@type": "QuantitativeValue",
+        value: maxGuests,
+        unitCode: "C62",
+      },
+      numberOfBedrooms: bedrooms,
+      numberOfBathroomsTotal: bathrooms,
+      numberOfRooms: bedrooms + bathrooms + 2,
+      bed: [
+        {
+          "@type": "BedDetails",
+          typeOfBed: "King",
+          numberOfBeds: 2,
+        },
+      ],
+      amenityFeature: [
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Free WiFi",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Air conditioning",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Kitchen",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Washer",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Dryer",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Free private parking on site",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Balcony",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Terrace",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Garden",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Lake view",
+          value: true,
+        },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Television",
+          value: true,
+        },
+      ],
+    },
     amenityFeature: [
       {
         "@type": "LocationFeatureSpecification",
@@ -234,8 +330,8 @@ export function vacationRentalSchema() {
         value: true,
       },
     ],
-    numberOfRooms: PROPERTY.occupancy.bedrooms,
-    maximumAttendeeCapacity: PROPERTY.occupancy.max_guests,
+    numberOfRooms: bedrooms,
+    maximumAttendeeCapacity: maxGuests,
     sameAs: SITE_CONFIG.sameAs,
     aggregateRating: {
       "@type": "AggregateRating",

@@ -7,7 +7,7 @@ import svgToDataUri from "mini-svg-data-uri";
 // NextUI plugin is omitted (v3/v4 compat risk, Mantine covers needs).
 
 const config: Config = {
-  darkMode: ["class", '[data-mantine-color-scheme="light"]'],
+  darkMode: ["class", '[data-mantine-color-scheme="dark"]'],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
