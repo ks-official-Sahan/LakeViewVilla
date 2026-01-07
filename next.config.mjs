@@ -156,7 +156,7 @@ const nextConfig = {
   cacheComponents: true,
   reactCompiler: true,
 
-  eslint: { ignoreDuringBuilds: true },
+  // eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
   skipTrailingSlashRedirect: true,

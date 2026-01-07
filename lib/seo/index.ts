@@ -138,9 +138,16 @@ export function lodgingBusinessSchema(opts?: {
 }
 
 export function vacationRentalSchema() {
-  const images = (PROPERTY.images_sample || []).map((src) =>
-    src.startsWith("/") ? `${siteConfig.url}${src}` : `${siteConfig.url}/${src}`
-  );
+  const images = [
+    `${siteConfig.url}/villa/optimized/villa_img_02.webp`,
+    `${siteConfig.url}/villa/optimized/drone_view_villa.webp`,
+    `${siteConfig.url}/villa/optimized/room_01_img_01.webp`,
+    `${siteConfig.url}/villa/optimized/room_02_img_01.webp`,
+    `${siteConfig.url}/villa/optimized/kitchen_img_01.webp`,
+    `${siteConfig.url}/villa/optimized/garden_img_01.webp`,
+    `${siteConfig.url}/villa/optimized/lake_img_01.webp`,
+    `${siteConfig.url}/villa/optimized/with_guests_04_dinning.webp`
+  ];
 
   const maxGuests = PROPERTY.occupancy.max_guests;
   const bedrooms = PROPERTY.occupancy.bedrooms;
@@ -156,7 +163,7 @@ export function vacationRentalSchema() {
     name: SITE_CONFIG.name,
     description: siteConfig.description,
     url: siteConfig.url,
-    image: images.slice(0, 8),
+    image: images,
     identifier: [
       stableId,
       {
@@ -340,24 +347,6 @@ export function vacationRentalSchema() {
       bestRating: 10,
       worstRating: 1,
     },
-    review: [
-      {
-        "@type": "Review",
-        author: {
-          "@type": "Person",
-          name: "REPLACE_WITH_GUEST_NAME",
-        },
-        datePublished: "REPLACE_WITH_REVIEW_DATE",
-        name: "REPLACE_WITH_REVIEW_HEADLINE",
-        reviewBody: "REPLACE_WITH_REVIEW_TEXT",
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: PROPERTY.scores_reviews.overall_score,
-          bestRating: 10,
-          worstRating: 1,
-        },
-      },
-    ],
   } as const;
 }
 
