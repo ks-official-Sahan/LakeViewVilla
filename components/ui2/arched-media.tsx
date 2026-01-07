@@ -43,6 +43,7 @@ export function ArchedMedia({
             alt={alt}
             sizes="(max-width: 640px) 96vw, (max-width: 1024px) 42vw, 520px"
             className="object-cover"
+            loading={priority ? "eager" : "lazy"}
             priority={priority}
           />
           {/* Gentle vignette to match your reference */}

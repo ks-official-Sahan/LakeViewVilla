@@ -196,7 +196,7 @@ export function ExperiencesReel() {
           alt=""
           role="presentation"
           fill
-          priority
+          loading="lazy"
           sizes="(max-width: 1024px) 100vw, 1024px"
           className="object-cover"
           placeholder="blur"

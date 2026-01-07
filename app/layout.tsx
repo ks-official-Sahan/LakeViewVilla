@@ -142,12 +142,8 @@ export default function RootLayout({
       className={`${montserrat.variable} ${inter.variable}`}
     >
       <head>
-        <link
-          rel="preload"
-          href="/villa/optimized/villa_img_02.webp"
-          as="image"
-          type="image/avif"
-        />
+        <link rel="canonical" href={SITE_CONFIG.primaryDomain} />
+
         <link
           rel="preload"
           href="/villa/optimized/villa_img_02.webp"

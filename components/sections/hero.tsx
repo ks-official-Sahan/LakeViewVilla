@@ -55,6 +55,8 @@ export function PinnedHero({ nextSectionId }: Props) {
             alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
             className="w-full h-full object-cover contrast-125 blur-sm transform-gpu will-change-transform"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            width={1920}
+            height={1080}
             loading="eager"
             fetchPriority="high"
             decoding="async"
@@ -71,6 +73,8 @@ export function PinnedHero({ nextSectionId }: Props) {
         <img
           src="/villa/optimized/villa_img_02.webp"
           alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
+          width={1920}
+          height={1080}
           style={{
             width: "100%",
             height: "auto",
