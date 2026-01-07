@@ -12,7 +12,8 @@ import { trackContact } from "@/lib/analytics";
 type Props = { nextSectionId: string };
 
 // small blur placeholder (keep your BLUR or a very small base64)
-const BLUR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/...";
+const BLUR =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQFBhESIRMxQWH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABkRAAIDAQAAAAAAAAAAAAAAAAECAAMRIf/aAAwDAQACEQMRAD8Atu0NQZjIyW8sMUkUbAAqBsR+1nGoLlri/lkJ9NVSlKpuSxi5DYz/2Q==";
 
 export function PinnedHero({ nextSectionId }: Props) {
   const rootRef = useRef<HTMLElement | null>(null);
@@ -88,8 +89,8 @@ export function PinnedHero({ nextSectionId }: Props) {
             // }}
           >
             <span className="block text-shadow-deep text-[clamp(1.6rem,7vw,4.75rem)]">
-              <span>{HERO_CONTENT.titleParts[0]}</span>
-              <span>{HERO_CONTENT.titleParts[1]}</span>
+              <span className="block">{HERO_CONTENT.titleParts[0]}</span>
+              <span className="block">{HERO_CONTENT.titleParts[1]}</span>
             </span>
           </motion.h1>
 
