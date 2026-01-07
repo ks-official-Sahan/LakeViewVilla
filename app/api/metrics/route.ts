@@ -1,7 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-export const runtime = "edge"
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -12,13 +10,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Log metrics (in production, send to analytics service)
-    console.log("[Web Vitals]", {
-      name: body.name,
-      value: body.value,
-      rating: body.rating,
-      url: body.url,
-      timestamp: body.timestamp,
-    })
+    // console.log("[Web Vitals]", {
+    //   name: body.name,
+    //   value: body.value,
+    //   rating: body.rating,
+    //   url: body.url,
+    //   timestamp: body.timestamp,
+    // })
 
     return NextResponse.json(
       { success: true },

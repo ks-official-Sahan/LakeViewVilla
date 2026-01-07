@@ -29,3 +29,13 @@ next-env.d.ts
 backup
 backups
 backup.*
+
+WARP.md
+performance-fixes.md
+schema.json
+
+.gemini/
+gemini.md
+gha-creds-*.json
+
+.github/

@@ -3,8 +3,6 @@ import Script from "next/script";
 import SeoJsonLd from "@/components/SeoJsonLd";
 import DevClient from "./client";
 
-export const revalidate = 60;
-
 export const metadata: Metadata = {
   title: "Developer – Sahan | Hyper-Luxury Full-Stack Engineer",
   description:

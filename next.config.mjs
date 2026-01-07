@@ -152,9 +152,14 @@ const nextConfig = {
   generateEtags: true,
   poweredByHeader: false,
 
-  eslint: { ignoreDuringBuilds: true },
+  // Next.js 16 performance features
+  cacheComponents: true,
+  reactCompiler: true,
+
+  // eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
+  skipTrailingSlashRedirect: true,
   images: {
     unoptimized: false,
     formats: ["image/avif", "image/webp"],
@@ -162,6 +167,12 @@ const nextConfig = {
     imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        // port: "",
+        // pathname: "/dbme0nn1m/**",
+      },
       { protocol: "https", hostname: "**" },
       { protocol: "https", hostname: "*.booking.com" },
       { protocol: "https", hostname: "lakeviewvillatangalle.com" },
@@ -241,9 +252,17 @@ const nextConfig = {
 
   modularizeImports: {
     "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{member}}",
+      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
       preventFullImport: true,
     },
+  },
+
+  // Dev performance tuning
+  onDemandEntries: {
+    // Keep pages in memory for longer (1 minute)
+    maxInactiveAge: 60 * 1000,
+    // Keep more pages in the buffer
+    pagesBufferLength: 5,
   },
 
   experimental: {
@@ -253,14 +272,30 @@ const nextConfig = {
       "@vercel/analytics",
       "lenis",
       "three",
-      "lucide-react",
       "@mantine/core",
       // "@mantine/hooks",
       // "@mantine/notifications",
       // "@mantine/dates",
       // "@mantine/modals",
       "@tabler/icons-react",
+      // "lucide-react",
+      "clsx",
+      "tailwind-merge",
+      "date-fns",
     ],
+
+    // Use Lightning CSS for faster minification
+    useLightningcss: true,
+
+    // Client-side router cache tuning (Next.js 15+)
+    staleTimes: {
+      dynamic: 30,
+      static: 180,
+    },
+
+    // Turbopack file system cache (dev + build)
+    turbopackFileSystemCacheForDev: true,
+    turbopackFileSystemCacheForBuild: true,
   },
 };
 

@@ -8,7 +8,7 @@ import {
   Menu,
   X,
   Home,
-  ImageIcon,
+  Image as ImageIcon,
   Bed,
   MapPin,
   HelpCircle,

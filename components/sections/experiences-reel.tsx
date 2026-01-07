@@ -134,7 +134,8 @@ export function ExperiencesReel() {
   const x = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 420, damping: 34, mass: 0.8 });
   const reveal = useTransform(springX, [-160, 0, 160], [0.9, 0, 0.9]); // how much to “tease” peeks on drag
-  const blurAmt = useTransform(springX, [-200, 0, 200], [1.25, 1.75, 1.25]); // low blur while dragging, higher when idle
+  const rawBlur = useTransform(springX, [-200, 0, 200], [1.25, 1.75, 1.25]); // low blur while dragging, higher when idle
+  const blurAmt = useTransform(rawBlur, (v) => `blur(${v}px)`);
 
   const onDragEnd = () => {
     setDragging(false);
@@ -196,7 +197,7 @@ export function ExperiencesReel() {
           alt=""
           role="presentation"
           fill
-          priority
+          loading="lazy"
           sizes="(max-width: 1024px) 100vw, 1024px"
           className="object-cover"
           placeholder="blur"
@@ -297,9 +298,8 @@ export function ExperiencesReel() {
               <motion.div
                 className="absolute inset-0"
                 style={{
-                  backdropFilter:
-                    blurAmt && `blur(${(blurAmt as any).get?.() ?? 1.6}px)`,
-                  WebkitBackdropFilter: "blur(1.6px)",
+                  backdropFilter: blurAmt,
+                  WebkitBackdropFilter: blurAmt,
                   background:
                     "linear-gradient(90deg, rgba(2,6,23,0.55), rgba(2,6,23,0.35) 35%, transparent 95%)",
                   maskImage:
@@ -329,9 +329,8 @@ export function ExperiencesReel() {
               <motion.div
                 className="absolute inset-0"
                 style={{
-                  backdropFilter:
-                    blurAmt && `blur(${(blurAmt as any).get?.() ?? 1.6}px)`,
-                  WebkitBackdropFilter: "blur(1.6px)",
+                  backdropFilter: blurAmt,
+                  WebkitBackdropFilter: blurAmt,
                   background:
                     "linear-gradient(270deg, rgba(2,6,23,0.55), rgba(2,6,23,0.35) 35%, transparent 95%)",
                   maskImage:

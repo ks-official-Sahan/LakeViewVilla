@@ -15,7 +15,7 @@ Thank you for your interest in contributing to a project under the Supreme Propr
 
 ## 🧭 Contribution Principles
 
-1. 📄 **Read the [SUPREME_LICENSE.md](./SUPREME_LICENSE.md)**  
+1. 📄 **Read the [LICENSE.md](./LICENSE.md)**  
    You must fully agree to the license terms before contributing.
 
 2. 🔐 **All Contributions are Property of the Licensor**  

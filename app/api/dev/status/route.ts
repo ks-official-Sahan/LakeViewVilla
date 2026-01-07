@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-export const runtime = "edge";
 const TARGETS = [
   { label: "Primary", url: "https://sahansachintha.com" },
   { label: "Alt", url: "https://sahan-ruddy.vercel.app" },
