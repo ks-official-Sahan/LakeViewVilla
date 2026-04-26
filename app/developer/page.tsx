@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import SeoJsonLd from "@/components/SeoJsonLd";
+import { serializeJsonLd } from "@/lib/utils";
 import DevClient from "./client";
 
 export const metadata: Metadata = {
@@ -64,12 +65,12 @@ export default function DeveloperPage() {
       <Script
         id="ld-developer-person"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(person) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(person) }}
       />
       <Script
         id="ld-developer-profile"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(profile) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(profile) }}
       />
       <DevClient initial={null} statusInitial={null} />
     </main>

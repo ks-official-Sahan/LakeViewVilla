@@ -3,6 +3,7 @@ import { SectionReveal } from "@/components/motion/section-reveal";
 import { PROPERTY } from "@/data/content";
 // import { generateBreadcrumbSchema } from "@/lib/seo/structured-data";
 import { breadcrumbSchema } from "@/lib/seo";
+import { serializeJsonLd } from "@/lib/utils";
 import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
@@ -87,7 +88,7 @@ export default function Page() {
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: serializeJsonLd(
             breadcrumbSchema([
               { name: "Home", url: "https://lakeviewvillatangalle.com/" },
               {

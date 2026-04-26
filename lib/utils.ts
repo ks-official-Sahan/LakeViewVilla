@@ -32,6 +32,19 @@ export function buildWhatsAppUrl(a: string, b?: string): string {
   return `https://wa.me/${phone}?text=${msg}`;
 }
 
+/**
+ * Safely stringifies JSON-LD objects for use in <script> tags.
+ * Escapes characters that could be used for script injection (XSS).
+ */
+export function serializeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\\\u003c")
+    .replace(/>/g, "\\\\u003e")
+    .replace(/&/g, "\\\\u0026")
+    .replace(/\u2028/g, "\\\\u2028")
+    .replace(/\u2029/g, "\\\\u2029");
+}
+
 /** Opinionated link builder for composed details */
 export function buildWhatsAppLink({
   name,
