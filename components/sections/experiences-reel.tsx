@@ -194,7 +194,7 @@ export function ExperiencesReel() {
       ) : (
         <Image
           src={exp.image || "/placeholder.webp"}
-          alt=""
+          alt="Guest experience at Lake View Villa Tangalle"
           role="presentation"
           fill
           loading="lazy"
@@ -211,7 +211,7 @@ export function ExperiencesReel() {
     <div className="absolute inset-0">
       <Image
         src={exp.thumb || exp.image || "/placeholder.webp"}
-        alt=""
+        alt="Guest experience at Lake View Villa Tangalle"
         role="presentation"
         fill
         loading="lazy"

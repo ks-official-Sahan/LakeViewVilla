@@ -304,7 +304,7 @@ export function PinnedHero({ nextSectionId }: Props) {
         >
           <Image
             src="/villa/optimized/drone_view_villa.webp"
-            alt=""
+            alt="Lake View Villa Tangalle — serene lagoon and private villa aerial view"
             role="presentation"
             fill
             className="object-cover"

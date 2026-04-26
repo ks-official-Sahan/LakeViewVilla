@@ -49,8 +49,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: SEO_CONFIG.title,
-  description: SEO_CONFIG.description,
+  title: {
+    default: "Lake View Villa | Tangalle Private Villa",
+    template: "%s | Lake View Villa Tangalle",
+  },
+  description: "Book your Sri Lankan getaway today. Experience tranquility at Lake View Villa Tangalle. Private villa on a serene lagoon with A/C bedrooms and fast Wi-Fi.",
   keywords: SEO_CONFIG.keywords,
   metadataBase: new URL(siteConfig.url),
   alternates: { canonical: "/" },
@@ -95,6 +98,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
   },
 };
 
