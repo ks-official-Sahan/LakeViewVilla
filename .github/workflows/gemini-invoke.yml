@@ -38,6 +38,8 @@ jobs:
           permission-pull-requests: 'write'
 
       - name: 'Run Gemini CLI'
+        if: |-
+          ${{ secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY || (vars.GCP_WIF_PROVIDER && vars.SERVICE_ACCOUNT_EMAIL && vars.GOOGLE_CLOUD_PROJECT) }}
         id: 'run_gemini'
         uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         env:

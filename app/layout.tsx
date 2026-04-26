@@ -9,7 +9,6 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Navigation } from "@/components/layout/navigation";
 import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
-// import { LoadingScreen } from "@/components/ui2/loading-screen";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
 
@@ -33,15 +32,6 @@ if (
 ) {
   throw new Error("NEXT_PUBLIC_WHATSAPP is required for production builds");
 }
-
-// const LoadingScreen = dynamic(
-//   () =>
-//     import("@/components/ui2/loading-screen").then((mod) => mod.LoadingScreen),
-//   {
-//     ssr: false,
-//     loading: () => null,
-//   }
-// );
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -74,9 +64,6 @@ export const metadata: Metadata = {
       { url: "/favicon.png", sizes: "any", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    // other: [
-    //   { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0a0f10" },
-    // ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -87,7 +74,6 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [
-      // { url: "/villa/optimized/drone_view_villa.jpg", width: 1200, height: 630, alt: "Lake View Villa Tangalle - Serene lagoon at sunrise" },
       { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle" },
     ],
   },
@@ -96,10 +82,7 @@ export const metadata: Metadata = {
     title: SEO_CONFIG.title,
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic views.",
-    images: [
-      // "/villa/optimized/drone_view_villa.jpg",
-      "/og",
-    ],
+    images: ["/og"],
   },
   robots: {
     index: true,
@@ -264,7 +247,6 @@ export default function RootLayout({
               <Analytics />
               <WebVitals />
               <MarketingPixels />
-              {/* <FloatingAudioSwitch /> */}
             </AudioProvider>
           </MantineProvider>
         </ThemeProvider>
