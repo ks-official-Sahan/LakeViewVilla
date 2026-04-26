@@ -46,7 +46,9 @@ jobs:
     # For PRs: only if not from a fork
     # For issues: only on open/reopen
     # For comments: only if user types @gemini-cli and is OWNER/MEMBER/COLLABORATOR
+    # Only run if at least one auth method is available
     if: |-
+      (secrets.GEMINI_API_KEY != '' || secrets.GOOGLE_API_KEY != '' || vars.GCP_WIF_PROVIDER != '') && (
       (
         github.event_name == 'pull_request' &&
         github.event.pull_request.head.repo.fork == false
@@ -57,7 +59,7 @@ jobs:
         github.event.sender.type == 'User' &&
         startsWith(github.event.comment.body || github.event.review.body || github.event.issue.body, '@gemini-cli') &&
         contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association || github.event.review.author_association || github.event.issue.author_association)
-      )
+      ))
     runs-on: 'ubuntu-latest'
     permissions:
       contents: 'read'
