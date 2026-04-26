@@ -3,17 +3,16 @@ import { SectionReveal } from "@/components/motion/section-reveal";
 import { PROPERTY } from "@/data/content";
 // import { generateBreadcrumbSchema } from "@/lib/seo/structured-data";
 import { breadcrumbSchema } from "@/lib/seo";
+import { serializeJsonLd } from "@/lib/utils";
 import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
-  title: "Gallery - Lake View Villa Tangalle",
-  description:
-    "Explore Lake View Villa Tangalle through a curated photo gallery of the lagoon, interiors, and surroundings.",
+  title: "Gallery — Lake View Villa Tangalle | Lagoon & Interiors",
+  description: "Explore our curated photo gallery. See the serene Tangalle lagoon, modern villa interiors, and beautiful natural surroundings.",
   alternates: { canonical: "/gallery" },
   openGraph: {
-    title: "Gallery - Lake View Villa Tangalle",
-    description:
-      "See the lagoon, villa interiors, and the grounds at Lake View Villa Tangalle.",
+    title: "Gallery — Lake View Villa Tangalle | Lagoon & Interiors",
+    description: "Explore our curated photo gallery. See the serene Tangalle lagoon, modern villa interiors, and beautiful natural surroundings.",
     url: "https://lakeviewvillatangalle.com/gallery",
     type: "website",
     images: [
@@ -27,9 +26,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Gallery - Lake View Villa Tangalle",
-    description:
-      "See our lagoon, interiors, and surroundings in the photo gallery.",
+    title: "Gallery — Lake View Villa Tangalle | Lagoon & Interiors",
+    description: "Explore our curated photo gallery. See the serene Tangalle lagoon, modern villa interiors, and beautiful natural surroundings.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
@@ -87,7 +85,7 @@ export default function Page() {
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
+          __html: serializeJsonLd(
             breadcrumbSchema([
               { name: "Home", url: "https://lakeviewvillatangalle.com/" },
               {

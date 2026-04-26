@@ -9,7 +9,6 @@ import { ScrollProgress } from "@/components/ui/scroll-progress";
 import { Navigation } from "@/components/layout/navigation";
 import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
-// import { LoadingScreen } from "@/components/ui2/loading-screen";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
 
@@ -17,6 +16,7 @@ import { ClientEffects } from "@/components/layout/client-effects";
 import { siteGraph } from "@/lib/seo";
 import { siteConfig, SEO_CONFIG } from "@/data/content";
 import { SITE_CONFIG } from "@/data/site";
+import { serializeJsonLd } from "@/lib/utils";
 
 import { GTM } from "@/components/analytics/GTM";
 import MarketingPixels from "@/components/analytics/marketing-pixels";
@@ -34,15 +34,6 @@ if (
   throw new Error("NEXT_PUBLIC_WHATSAPP is required for production builds");
 }
 
-// const LoadingScreen = dynamic(
-//   () =>
-//     import("@/components/ui2/loading-screen").then((mod) => mod.LoadingScreen),
-//   {
-//     ssr: false,
-//     loading: () => null,
-//   }
-// );
-
 const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
@@ -58,8 +49,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: SEO_CONFIG.title,
-  description: SEO_CONFIG.description,
+  title: {
+    default: "Lake View Villa | Tangalle Private Villa",
+    template: "%s | Lake View Villa Tangalle",
+  },
+  description: "Book your Sri Lankan getaway today. Experience tranquility at Lake View Villa Tangalle. Private villa on a serene lagoon with A/C bedrooms and fast Wi-Fi.",
   keywords: SEO_CONFIG.keywords,
   metadataBase: new URL(siteConfig.url),
   alternates: { canonical: "/" },
@@ -74,9 +68,6 @@ export const metadata: Metadata = {
       { url: "/favicon.png", sizes: "any", type: "image/png" },
     ],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-    // other: [
-    //   { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#0a0f10" },
-    // ],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -87,7 +78,6 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [
-      // { url: "/villa/optimized/drone_view_villa.jpg", width: 1200, height: 630, alt: "Lake View Villa Tangalle - Serene lagoon at sunrise" },
       { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle" },
     ],
   },
@@ -96,10 +86,7 @@ export const metadata: Metadata = {
     title: SEO_CONFIG.title,
     description:
       "Private villa on a serene lagoon in Tangalle with panoramic views.",
-    images: [
-      // "/villa/optimized/drone_view_villa.jpg",
-      "/og",
-    ],
+    images: ["/og"],
   },
   robots: {
     index: true,
@@ -111,6 +98,9 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
   },
 };
 
@@ -201,13 +191,13 @@ export default function RootLayout({
         <script
           id="ld-graph"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(graph) }}
         />
         <script
           id="ld-nav"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "SiteNavigationElement",
               name: ["Home", "Gallery", "Stays", "Visit", "FAQ", "Developer"],
@@ -264,7 +254,6 @@ export default function RootLayout({
               <Analytics />
               <WebVitals />
               <MarketingPixels />
-              {/* <FloatingAudioSwitch /> */}
             </AudioProvider>
           </MantineProvider>
         </ThemeProvider>
