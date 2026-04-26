@@ -51,7 +51,7 @@ jobs:
 
       - name: 'Run Gemini pull request review'
         if: |-
-          ${{ secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY || (vars.GCP_WIF_PROVIDER && vars.SERVICE_ACCOUNT_EMAIL && vars.GOOGLE_CLOUD_PROJECT) }}
+          ${{ secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY || (vars.GCP_WIF_PROVIDER && vars.GOOGLE_CLOUD_PROJECT && (vars.GOOGLE_GENAI_USE_VERTEXAI || vars.GOOGLE_GENAI_USE_GCA)) }}
         uses: 'google-github-actions/run-gemini-cli@v0' # ratchet:exclude
         id: 'gemini_pr_review'
         env:

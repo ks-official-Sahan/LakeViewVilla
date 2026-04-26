@@ -21,11 +21,11 @@ const abs = (path) =>
 /** Page priorities */
 const PRIORITY_MAP = {
   "/": 1.0,
+  "/gallery": 0.9,
   "/stays": 0.9,
-  "/visit": 0.7,
-  "/faq": 0.6,
-  "/developer": 1.0,
-  "/developer/cv": 1.0,
+  "/visit": 0.8,
+  "/faq": 0.8,
+  "/developer": 0.7,
   "/links/airbnb": 0.85,
   "/links/instagram": 0.75,
   "/links/facebook": 0.75,

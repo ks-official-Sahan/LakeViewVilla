@@ -6,13 +6,9 @@ export const contentType = "image/png";
 
 function toBase64(ab) {
   // Edge-safe base64 (no Node Buffer)
-  let binary = "";
   const bytes = new Uint8Array(ab);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
-  // btoa is available in edge runtime
   // @ts-ignore
-  return btoa(binary);
+  return bytes.toBase64();
 }
 
 export async function GET(req) {

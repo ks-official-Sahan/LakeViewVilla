@@ -4,9 +4,8 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import StaysPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Stays & Rates — Lake View Villa Tangalle",
-  description:
-    "Direct WhatsApp for best rates. A/C rooms, lagoon views, chef services, fast Wi-Fi. Book your stay in Tangalle.",
+  title: "Stays & Rates — Lake View Villa Tangalle | Direct Booking",
+  description: "Book your stay at Lake View Villa Tangalle. Message us on WhatsApp for the best direct rates, instant confirmation, and personalized service.",
   keywords: [
     "Tangalle villa",
     "Tangalle lagoon stay",

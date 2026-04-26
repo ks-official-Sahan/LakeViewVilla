@@ -3,13 +3,12 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import VisitPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Visit Us — Lake View Villa Tangalle (Map, Directions & Contact)",
-  description:
-    "Find Lake View Villa Tangalle with precise directions. Open in Google Maps or WhatsApp for the exact pin.",
+  title: "Visit Us — Lake View Villa Tangalle | Map & Directions",
+  description: "Find easy directions to Lake View Villa Tangalle. View our Google Maps location and contact us via WhatsApp for your arrival.",
   alternates: { canonical: "/visit" },
   openGraph: {
-    title: "Visit Us — Lake View Villa Tangalle",
-    description: "Map, driving directions, and quick contact options.",
+    title: "Visit Us — Lake View Villa Tangalle | Map & Directions",
+    description: "Find easy directions to Lake View Villa Tangalle. View our Google Maps location and contact us via WhatsApp for your arrival.",
     url: "https://lakeviewvillatangalle.com/visit",
     type: "website",
     images: [
