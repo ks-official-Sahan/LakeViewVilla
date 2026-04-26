@@ -18,6 +18,14 @@ defaults:
 
 jobs:
   review:
+    if: |-
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.fork == false &&
+      (
+        vars.GCP_WIF_PROVIDER ||
+        secrets.GEMINI_API_KEY ||
+        secrets.GOOGLE_API_KEY
+      )
     runs-on: 'ubuntu-latest'
     timeout-minutes: 7
     permissions:

@@ -16,6 +16,7 @@ import { ClientEffects } from "@/components/layout/client-effects";
 import { siteGraph } from "@/lib/seo";
 import { siteConfig, SEO_CONFIG } from "@/data/content";
 import { SITE_CONFIG } from "@/data/site";
+import { serializeJsonLd } from "@/lib/utils";
 
 import { GTM } from "@/components/analytics/GTM";
 import MarketingPixels from "@/components/analytics/marketing-pixels";
@@ -184,13 +185,13 @@ export default function RootLayout({
         <script
           id="ld-graph"
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(graph) }}
         />
         <script
           id="ld-nav"
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: serializeJsonLd({
               "@context": "https://schema.org",
               "@type": "SiteNavigationElement",
               name: ["Home", "Gallery", "Stays", "Visit", "FAQ", "Developer"],

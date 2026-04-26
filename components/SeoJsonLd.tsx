@@ -2,6 +2,7 @@
 "use client";
 import Script from "next/script";
 import React from "react";
+import { serializeJsonLd } from "@/lib/utils";
 
 type Breadcrumb = { name: string; url: string };
 type Faq = { q: string; a: string };
@@ -128,7 +129,7 @@ export default function SeoJsonLd({
           id={`ld-${idx}`}
           type="application/ld+json"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(b) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(b) }}
         />
       ))}
     </>
