@@ -3,7 +3,7 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import FAQClient from "./client";
 
 export const metadata: Metadata = {
-  title: "FAQ — Lake View Villa Tangalle | Frequently Asked Questions",
+  title: "FAQ — Frequently Asked Questions",
   description: "Have questions about your stay? Find answers about facilities, bookings, directions, and more for Lake View Villa Tangalle.",
   alternates: { canonical: "/faq" },
   openGraph: {

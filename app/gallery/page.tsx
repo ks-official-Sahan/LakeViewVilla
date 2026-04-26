@@ -6,7 +6,7 @@ import { breadcrumbSchema } from "@/lib/seo";
 import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
-  title: "Gallery — Lake View Villa Tangalle | Lagoon & Interiors",
+  title: "Gallery — Lagoon & Interiors",
   description: "Explore our curated photo gallery. See the serene Tangalle lagoon, modern villa interiors, and beautiful natural surroundings.",
   alternates: { canonical: "/gallery" },
   openGraph: {
