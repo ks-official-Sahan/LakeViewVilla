@@ -121,6 +121,21 @@ export function lodgingBusinessSchema(opts?: {
         name: "Laundry (on request)",
         value: true,
       },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Airport pickups",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Fast Wi-Fi (~50+ Mbps)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "Chef on request",
+        value: true,
+      },
     ],
     sameAs: SITE_CONFIG.sameAs,
   } as const;
