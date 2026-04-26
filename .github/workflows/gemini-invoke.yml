@@ -19,6 +19,8 @@ defaults:
 jobs:
   invoke:
     runs-on: 'ubuntu-latest'
+    if: |-
+      ${{ secrets.GEMINI_API_KEY || secrets.GOOGLE_API_KEY || (vars.GCP_WIF_PROVIDER && vars.GOOGLE_CLOUD_PROJECT && (vars.GOOGLE_GENAI_USE_VERTEXAI || vars.GOOGLE_GENAI_USE_GCA)) }}
     permissions:
       contents: 'read'
       id-token: 'write'
