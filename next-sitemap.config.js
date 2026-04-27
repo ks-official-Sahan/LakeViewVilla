@@ -21,21 +21,19 @@ const abs = (path) =>
 /** Page priorities */
 const PRIORITY_MAP = {
   "/": 1.0,
-  "/gallery": 0.9,
   "/stays": 0.9,
-  "/visit": 0.8,
+  "/gallery": 0.8,
   "/faq": 0.8,
+  "/visit": 0.8,
   "/developer": 0.7,
-  "/links/airbnb": 0.85,
-  "/links/instagram": 0.75,
-  "/links/facebook": 0.75,
-  "/links/booking": 0.8,
-  "/links/airbnb/view": 0.85,
-  "/links/instagram/view": 0.75,
-  "/links/facebook/view": 0.75,
-  "/links/booking/view": 0.8,
-  // "/watch/hero": 0.8,
-  "/gallery": 0.7,
+  "/links/airbnb": 0.5,
+  "/links/instagram": 0.5,
+  "/links/facebook": 0.5,
+  "/links/booking": 0.5,
+  "/links/airbnb/view": 0.5,
+  "/links/instagram/view": 0.5,
+  "/links/facebook/view": 0.5,
+  "/links/booking/view": 0.5,
 };
 
 /** IMAGE MAP — complete list of all images for `/` and `/gallery` */
@@ -160,6 +158,16 @@ module.exports = {
   robotsTxtOptions: {
     policies: [
       { userAgent: "*", allow: "/" },
+      { userAgent: "GPTBot", allow: "/" },
+      { userAgent: "ChatGPT-User", allow: "/" },
+      { userAgent: "Google-Extended", allow: "/" },
+      { userAgent: "PerplexityBot", allow: "/" },
+      { userAgent: "ClaudeBot", allow: "/" },
+      { userAgent: "Applebot", allow: "/" },
+      { userAgent: "Bytespider", allow: "/" },
+      { userAgent: "cohere-ai", allow: "/" },
+      { userAgent: "anthropic-ai", allow: "/" },
+      { userAgent: "OAI-SearchBot", allow: "/" },
       { userAgent: "*", disallow: ["/search", "/_next/", "/api/", "/_error"] },
     ],
     additionalSitemaps: [`${SITE_URL.replace(/\/$/, "")}/sitemap.xml`],

@@ -3,12 +3,12 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import FAQClient from "./client";
 
 export const metadata: Metadata = {
-  title: "FAQ — Stays, Booking & Directions",
-  description: "Have questions about your stay? Find answers about facilities, bookings, directions, and more for Lake View Villa Tangalle.",
+  title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
+  description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
   alternates: { canonical: "/faq" },
   openGraph: {
-    title: "FAQ — Stays, Booking & Directions",
-    description: "Have questions about your stay? Find answers about facilities, bookings, directions, and more for Lake View Villa Tangalle.",
+    title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
+    description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
     url: "https://lakeviewvillatangalle.com/faq",
     type: "website",
     images: [
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "FAQ — Lake View Villa Tangalle",
-    description: "Answers about stays & travel.",
+    title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
+    description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };

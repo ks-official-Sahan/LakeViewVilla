@@ -3,12 +3,12 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import VisitPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Visit Us — Lake View Villa Tangalle | Map & Directions",
-  description: "Find easy directions to Lake View Villa Tangalle. View our Google Maps location and contact us via WhatsApp for your arrival.",
+  title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
+  description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
   alternates: { canonical: "/visit" },
   openGraph: {
-    title: "Visit Us — Lake View Villa Tangalle | Map & Directions",
-    description: "Find easy directions to Lake View Villa Tangalle. View our Google Maps location and contact us via WhatsApp for your arrival.",
+    title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
+    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
     url: "https://lakeviewvillatangalle.com/visit",
     type: "website",
     images: [
@@ -22,8 +22,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Visit Us — Lake View Villa Tangalle",
-    description: "Directions & quick contact.",
+    title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
+    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
