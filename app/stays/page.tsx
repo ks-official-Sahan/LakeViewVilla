@@ -4,9 +4,13 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import StaysPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Stays & Rates — Lake View Villa Tangalle | Direct Booking",
-  description: "Book your stay at Lake View Villa Tangalle. Message us on WhatsApp for the best direct rates, instant confirmation, and personalized service.",
+  title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+  description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
   keywords: [
+    "Tangalle accommodation",
+    "Tangalle rental",
+    "private room Tangalle",
+    "best places to stay in Tangalle",
     "Tangalle villa",
     "Tangalle lagoon stay",
     "Sri Lanka villa",
@@ -15,9 +19,8 @@ export const metadata: Metadata = {
   ],
   alternates: { canonical: "/stays" },
   openGraph: {
-    title: "Stays & Rates — Lake View Villa Tangalle",
-    description:
-      "Private villa on Tangalle’s serene lagoon — direct booking via WhatsApp.",
+    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+    description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
     url: "https://lakeviewvillatangalle.com/stays",
     type: "website",
     images: [
@@ -31,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stays & Rates — Lake View Villa Tangalle",
-    description: "Best direct rates. A/C rooms, chef services, fast Wi-Fi.",
+    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+    description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };

@@ -50,11 +50,27 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Lake View Villa | Tangalle Private Villa",
+    default: "Private Villa Tangalle — Lagoon Stay | Lake View Villa Tangalle",
     template: "%s | Lake View Villa Tangalle",
   },
-  description: "Book your Sri Lankan getaway today. Experience tranquility at Lake View Villa Tangalle. Private villa on a serene lagoon with A/C bedrooms and fast Wi-Fi.",
-  keywords: SEO_CONFIG.keywords,
+  description: "Book Lake View Villa Tangalle. A private vacation rental and lodging business offering panoramic lake views, comfortable A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
+  keywords: [
+    "private villa Tangalle",
+    "Lake View Villa Tangalle",
+    "Lake View Villa Tangalle 2026",
+    "panoramic lagoon views",
+    "fast Wi-Fi villa",
+    "chef service villa Tangalle",
+    "vacationers",
+    "Sri Lanka vacation rental",
+    "Tangalle accommodation alternative",
+    "Lake View Villa vs hotels",
+    "Lake View Villa Tangalle pricing",
+    "best places to stay in Tangalle",
+    "lagoon stay Sri Lanka",
+    "beachfront alternative Tangalle",
+    "Tangalle Airbnb",
+  ],
   metadataBase: new URL(siteConfig.url),
   alternates: { canonical: "/" },
   icons: {
@@ -71,14 +87,14 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: SEO_CONFIG.title,
-    description: "Private villa on a serene lagoon in Tangalle.",
+    title: "Private Villa Tangalle | Lake View Villa Tangalle",
+    description: "Lake View Villa Tangalle is a private vacation rental in Sri Lanka. It helps travelers relax with A/C rooms, fast Wi-Fi, and scenic lagoon views.",
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
     siteName: siteConfig.name,
     images: [
-      { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle" },
+      { url: "/og", width: 1200, height: 630, alt: "Lake View Villa Tangalle — Lagoon view" },
     ],
   },
   twitter: {

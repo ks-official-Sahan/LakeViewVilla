@@ -54,9 +54,14 @@ export default function SeoJsonLd({
     "@id": `${BASE}#website`,
     url: BASE,
     name: "Lake View Villa Tangalle",
+    description: "Lake View Villa Tangalle is a private vacation rental and lodging business helping travelers experience tranquility in Tangalle.",
+    publisher: { "@id": `${BASE}#org` },
     potentialAction: {
       "@type": "SearchAction",
-      target: `${BASE}/search?q={search_term_string}`,
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${BASE}/search?q={search_term_string}`,
+      },
       "query-input": "required name=search_term_string",
     },
   };

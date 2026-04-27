@@ -5,13 +5,18 @@ import { BelowFold } from "@/components/layout/below-fold";
 // import { PinnedHero } from "@/components/sections/pinned-hero";
 import { PinnedHero } from "@/components/sections/hero";
 
+import { FAQ_ITEMS } from "@/data/content";
+
 export default function HomePage() {
+  const homepageFaq = FAQ_ITEMS.map((item) => ({ q: item.question, a: item.answer }));
+
   return (
     <main>
       <SeoJsonLd
         breadcrumb={[
           { name: "Home", url: "https://lakeviewvillatangalle.com" },
         ]}
+        faq={homepageFaq}
       />
       <PinnedHero nextSectionId="highlights" />
       <section id="highlights">
