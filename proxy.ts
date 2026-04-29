@@ -2,7 +2,8 @@
  * proxy.ts — Next.js 16 request proxy (replaces middleware.ts)
  *
  * Runs in Node.js runtime by default.
- * Handles auth gating for /admin routes, security headers, and rate limiting.
+ * Uses lightweight cookie-based session detection for route protection.
+ * Full session validation happens in Server Components and API routes.
  */
 import { NextRequest, NextResponse } from "next/server";
 
@@ -12,7 +13,10 @@ export function proxy(request: NextRequest) {
   // ── Admin auth gate ──────────────────────────────────────────────────────
   // Protect all /admin routes except /admin/login
   if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
+    // Check for Auth.js session cookie (JWT strategy)
     const sessionToken =
+      request.cookies.get("authjs.session-token")?.value ??
+      request.cookies.get("__Secure-authjs.session-token")?.value ??
       request.cookies.get("next-auth.session-token")?.value ??
       request.cookies.get("__Secure-next-auth.session-token")?.value;
 
@@ -23,13 +27,26 @@ export function proxy(request: NextRequest) {
     }
   }
 
+  // Redirect authenticated users away from login page
+  if (pathname === "/admin/login") {
+    const sessionToken =
+      request.cookies.get("authjs.session-token")?.value ??
+      request.cookies.get("__Secure-authjs.session-token")?.value ??
+      request.cookies.get("next-auth.session-token")?.value ??
+      request.cookies.get("__Secure-next-auth.session-token")?.value;
+
+    if (sessionToken) {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
+  }
+
   // ── Security headers ─────────────────────────────────────────────────────
   const response = NextResponse.next();
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set(
     "Referrer-Policy",
-    "strict-origin-when-cross-origin"
+    "strict-origin-when-cross-origin",
   );
 
   return response;

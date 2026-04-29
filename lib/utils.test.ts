@@ -6,7 +6,7 @@ import {
   safeArray,
   safeNumber,
   safeString
-} from './utils.ts';
+} from './utils';
 
 describe('Utility Functions', () => {
   describe('safeArray', () => {

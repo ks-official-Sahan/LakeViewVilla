@@ -108,9 +108,14 @@ html {
   --color-border: #d9e2e1;
   --color-outline: #d9e2e1;
 
+  /* Premium accent — sunset gold */
+  --color-gold: #b8933f;
+  --color-gold-muted: #9a7c35;
+
   --grad-lagoon: linear-gradient(120deg, #0ea5e9 0%, #22d3ee 35%, #34d399 100%);
   --grad-sunrise: linear-gradient(120deg, #fb7185 0%, #f59e0b 60%, #34d399 100%);
   --grad-inkglass: linear-gradient(180deg, rgba(10, 15, 16, .7), rgba(10, 15, 16, .3));
+  --grad-gold: linear-gradient(120deg, #b8933f 0%, #d4a853 50%, #b8933f 100%);
 
   --glass-bg: rgba(255, 255, 255, .14);
   --glass-border: rgba(255, 255, 255, .35);
@@ -159,8 +164,14 @@ html {
   --color-border: #1f2a2e;
   --color-outline: #1f2a2e;
 
+  /* Premium accent — sunset gold */
+  --color-gold: #d4a853;
+  --color-gold-muted: #b8933f;
+
   --glass-bg: rgba(16, 21, 24, .38);
   --glass-border: rgba(255, 255, 255, .14);
+
+  --grad-gold: linear-gradient(120deg, #d4a853 0%, #f5d89a 50%, #d4a853 100%);
 
   /* portfolio compat */
   --evision-br: #ffffff1f;
@@ -401,6 +412,17 @@ textarea {
   animation: float 3s ease-in-out infinite;
 }
 
+@keyframes scrollLine {
+  0%   { transform: translateY(-100%); opacity: 1; }
+  80%  { transform: translateY(200%); opacity: 0; }
+  100% { transform: translateY(-100%); opacity: 0; }
+}
+
+@keyframes progressBar {
+  from { width: 0% }
+  to   { width: 100% }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -200px 0
@@ -584,4 +606,118 @@ a:hover .hover-underline-lux::after,
 @media (prefers-color-scheme: dark) {
   .prose { --tw-prose-invert: 1; }
 }
-.dark .prose { --tw-prose-invert: 1; }
+.dark .prose { --tw-prose-invert: 1; }
+
+/* ─────────────────────────────────────────────────────────────────
+   Phase 5 — Premium Scroll & Interaction Utilities
+   ───────────────────────────────────────────────────────────────── */
+
+/* Film grain overlay for cinematic feel */
+.grain-overlay::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+/* Smooth section connector — gradient fade */
+.section-connector {
+  position: relative;
+}
+.section-connector::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, var(--color-background), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Premium button hover ripple */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), rgba(255,255,255,.2) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.btn-ripple:hover::after {
+  opacity: 1;
+}
+
+/* Perspective container for 3D card effects */
+.perspective-container {
+  perspective: 1200px;
+  perspective-origin: center;
+}
+
+/* Card tilt effect */
+.card-tilt {
+  transition: transform .4s cubic-bezier(.23, 1, .32, 1);
+  transform-style: preserve-3d;
+}
+.card-tilt:hover {
+  transform: rotateX(2deg) rotateY(-3deg) translateY(-4px);
+}
+
+/* Premium scrollbar (dark mode) */
+.dark ::-webkit-scrollbar-track {
+  background: rgba(10, 15, 16, .5);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, .3);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, .5);
+}
+
+/* Text balance for headings */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Body text readability */
+p, li {
+  text-wrap: pretty;
+}
+
+/* Smooth image loading */
+img[data-nimg] {
+  transition: opacity .4s ease;
+}
+
+/* Focus ring for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Skip link for accessibility */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 10000;
+  padding: 8px 16px;
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  border-radius: 0 0 8px 8px;
+  font-weight: 600;
+  transition: top .2s ease;
+}
+.skip-link:focus {
+  top: 0;
+}

@@ -93,7 +93,7 @@ export function ExpandableCTA() {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: reduceMotion ? 0.16 : 0.28, ease: "easeOut" },
+      transition: { duration: reduceMotion ? 0.16 : 0.28, ease: "easeOut" as const },
     },
     exit: { opacity: 0, y: 10, scale: 0.98, transition: { duration: 0.18 } },
   };
@@ -217,9 +217,7 @@ export function ExpandableCTA() {
           aria-label={open ? "Close chat options" : "Open chat options"}
           onClick={() => setOpen((v) => !v)}
           whileTap={{ scale: 0.96 }}
-          className="relative grid place-items-center h-10 w-10 md:h-14 md:w-14 rounded-full shadow-2xl ring-1 ring-white/50
-                     bg-green-500
-                     hover:brightness-110 transition"
+          className="relative grid place-items-center h-10 w-10 md:h-14 md:w-14 rounded-full shadow-2xl ring-1 ring-white/50 bg-green-500 hover:brightness-110 transition"
         >
           {/* white inner ring for contrast on noisy media */}
           <span className="absolute inset-[3px] rounded-full ring-1 ring-white/40 pointer-events-none" />

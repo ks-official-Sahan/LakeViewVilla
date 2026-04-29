@@ -294,13 +294,6 @@ export function PinnedHero({ nextSectionId }: Props) {
         </button>
       </div>
 
-      <style>{`
-        @keyframes scrollLine {
-          0%   { transform: translateY(-100%); opacity: 1; }
-          80%  { transform: translateY(200%); opacity: 0; }
-          100% { transform: translateY(-100%); opacity: 0; }
-        }
-      `}</style>
     </section>
   );
 }

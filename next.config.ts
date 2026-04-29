@@ -118,6 +118,9 @@ const nextConfig: NextConfig = {
   generateEtags: true,
   poweredByHeader: false,
 
+  // Packages that must run in Node.js (not bundled by webpack)
+  serverExternalPackages: ["@prisma/client", "bcryptjs"],
+
   // Next.js 16 — explicit cache directive + automatic memoization
   cacheComponents: true,
   reactCompiler: true,
@@ -131,6 +134,7 @@ const nextConfig: NextConfig = {
     deviceSizes: [360, 414, 640, 768, 1024, 1280, 1440, 1536, 1920],
     imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
+    qualities: [75, 80],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "**" },
@@ -163,15 +167,6 @@ const nextConfig: NextConfig = {
       {
         source:
           "/(.*\\.(?:jpg|jpeg|png|webp|avif|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm))",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
-          },
-        ],
-      },
-      {
-        source: "/_next/image(.*)",
         headers: [
           {
             key: "Cache-Control",

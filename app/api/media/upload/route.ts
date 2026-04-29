@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     // Mock successful upload URL
     const mockUrl = `/images/uploads/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
-    let mediaType = MediaType.OTHER;
+    let mediaType: MediaType = MediaType.OTHER;
     if (file.type.startsWith("image/")) mediaType = MediaType.IMAGE;
     else if (file.type === "application/pdf") mediaType = MediaType.PDF;
 

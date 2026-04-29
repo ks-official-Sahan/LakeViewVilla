@@ -305,7 +305,11 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-svh bg-background text-foreground antialiased">
+      <body className="min-h-svh bg-background text-foreground antialiased grain-overlay">
+        {/* Skip-to-content link for keyboard users (WCAG 2.2 AAA) */}
+        <a href="#content" className="skip-link">
+          Skip to content
+        </a>
         <GTM />
         {process.env.NEXT_PUBLIC_GTM_ID ? (
           <noscript>

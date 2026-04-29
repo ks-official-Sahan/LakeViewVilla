@@ -5,13 +5,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useGSAP } from "@/lib/gsap";
 import { gsap, EASE, DURATION } from "@/lib/gsap";
-import { X, ChevronLeft, ChevronRight, ArrowRight, Expand } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, ArrowRight, Maximize2 } from "lucide-react";
 import { BOOKING_FACTS } from "@/data/content";
 
 export function GalleryTeaser() {
   const sectionRef = useRef<HTMLElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
   const [lightbox, setLightbox] = useState<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -19,36 +20,73 @@ export function GalleryTeaser() {
   const images = BOOKING_FACTS.images ?? [];
   const preview = images.slice(0, 6);
 
-  // Section entrance
   useGSAP(
     () => {
       const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (prefersReduced) return;
 
-      gsap.fromTo(headingRef.current, { opacity: 0, y: 36 }, {
-        opacity: 1, y: 0, duration: DURATION.reveal, ease: EASE.premium,
-        scrollTrigger: { trigger: headingRef.current, start: "top 85%", once: true },
-      });
+      // Heading reveal
+      gsap.fromTo(
+        headingRef.current,
+        { opacity: 0, y: 40, filter: "blur(8px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: DURATION.reveal,
+          ease: EASE.premium,
+          scrollTrigger: { trigger: headingRef.current, start: "top 85%", once: true },
+        }
+      );
 
+      // Staggered parallax grid reveal
       const cells = gridRef.current?.querySelectorAll<HTMLElement>("[data-cell]");
       if (cells) {
-        gsap.fromTo(cells, { opacity: 0, scale: 0.96, y: 24 }, {
-          opacity: 1, scale: 1, y: 0,
-          duration: 0.65, ease: EASE.out,
-          stagger: { each: 0.07, from: "start" },
-          scrollTrigger: { trigger: gridRef.current, start: "top 82%", once: true },
+        gsap.fromTo(
+          cells,
+          { opacity: 0, y: 60, scale: 0.94, filter: "blur(4px)" },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            filter: "blur(0px)",
+            duration: 0.9,
+            ease: EASE.premium,
+            stagger: { each: 0.1, from: "start" },
+            scrollTrigger: { trigger: gridRef.current, start: "top 80%", once: true },
+          }
+        );
+
+        // Add subtle parallax to grid on scroll
+        gsap.to(cells, {
+          yPercent: -15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: gridRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.5,
+          },
         });
       }
+
+      // CTA reveal
+      gsap.fromTo(
+        ctaRef.current,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: EASE.out,
+          scrollTrigger: { trigger: ctaRef.current, start: "top 90%", once: true },
+        }
+      );
     },
     { scope: sectionRef }
   );
 
-  // Lightbox focus management
-  useEffect(() => {
-    if (lightbox !== null) closeRef.current?.focus();
-  }, [lightbox]);
-
-  // Keyboard navigation
+  // Lightbox keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (lightbox === null) return;
@@ -75,125 +113,182 @@ export function GalleryTeaser() {
       ref={sectionRef}
       id="gallery"
       aria-labelledby="gallery-heading"
-      className="relative overflow-hidden py-24 md:py-32"
+      className="relative overflow-hidden py-24 md:py-36 bg-[var(--color-background)]"
     >
-      {/* Ambient */}
-      <div aria-hidden className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(55% 40% at 30% 60%, rgba(34,211,238,.06), transparent 65%)" }} />
+      {/* Cinematic gradient ambient overlay */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: "radial-gradient(ellipse at center, rgba(var(--color-gold-rgb, 212,168,83), 0.04) 0%, transparent 70%)",
+        }}
+      />
 
-      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+      <div className="relative mx-auto max-w-[1400px] px-4 md:px-8">
         {/* Heading */}
-        <div ref={headingRef} className="mb-12 flex flex-col items-center text-center md:mb-16">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">Visual Story</p>
-          <h2 id="gallery-heading"
-            className="font-[var(--font-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold tracking-tight text-[var(--color-foreground)]">
+        <div ref={headingRef} className="mb-16 flex flex-col items-center text-center md:mb-24">
+          <p className="mb-4 text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[var(--color-gold)]">
+            Visual Story
+          </p>
+          <h2
+            id="gallery-heading"
+            className="font-[var(--font-display)] text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter text-[var(--color-foreground)] leading-[1.1]"
+          >
             A glimpse of{" "}
-            <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">paradise</span>
+            <span className="bg-[var(--grad-gold)] bg-clip-text text-transparent italic pr-2">
+              paradise
+            </span>
           </h2>
-          <p className="mt-4 max-w-xl text-[var(--color-muted)]">
-            Immerse yourself in the serene beauty of Lake View Villa through our curated gallery.
+          <p className="mt-6 max-w-2xl text-base md:text-lg text-[var(--color-muted)] font-medium">
+            Step into the serene elegance of Lake View Villa. Curated spaces designed to harmonize with the raw beauty of Tangalle's lagoon.
           </p>
         </div>
 
-        {/* Bento-style grid */}
+        {/* Premium Bento Grid */}
         <div
           ref={gridRef}
-          className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4"
+          className="grid grid-cols-2 gap-2 md:grid-cols-4 md:grid-rows-2 md:gap-4 lg:gap-6 perspective-container"
         >
-          {preview.map((img, i) => (
-            <div
-              key={i}
-              data-cell
-              className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-[var(--color-surface)] ${
-                i === 0 ? "col-span-2 row-span-2 md:col-span-1 md:row-span-2" : ""
-              }`}
-              style={{ aspectRatio: i === 0 ? "4/5" : "4/3" }}
-              onClick={() => openLightbox(i)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openLightbox(i); } }}
-              tabIndex={0}
-              role="button"
-              aria-label={`Open ${img.alt} in full view`}
-            >
-              <Image
-                src={img.src}
-                alt={img.alt}
-                fill
-                className="object-cover transition-transform duration-700 will-change-transform group-hover:scale-105"
-                sizes={i === 0 ? "(max-width: 768px) 100vw, 33vw" : "(max-width: 768px) 50vw, 33vw"}
-              />
-              {/* Hover overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/25 group-hover:opacity-100">
-                <Expand className="h-7 w-7 text-white drop-shadow-lg" />
+          {preview.map((img, i) => {
+            // Bento sizing logic
+            let colSpan = "col-span-1";
+            let rowSpan = "row-span-1";
+            let aspect = "aspect-[4/5]";
+
+            if (i === 0) {
+              colSpan = "col-span-2 md:col-span-2";
+              rowSpan = "row-span-2";
+              aspect = "aspect-[4/3] md:aspect-auto h-full";
+            } else if (i === 3) {
+              colSpan = "col-span-2 md:col-span-2";
+              rowSpan = "row-span-1";
+              aspect = "aspect-[21/9]";
+            }
+
+            return (
+              <div
+                key={i}
+                data-cell
+                className={`group relative overflow-hidden rounded-xl md:rounded-3xl bg-[var(--color-surface)] shadow-lg ${colSpan} ${rowSpan} card-tilt cursor-pointer border border-[var(--color-border)]`}
+                style={{ transformStyle: "preserve-3d" }}
+                onClick={() => openLightbox(i)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openLightbox(i);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`View full image: ${img.alt}`}
+              >
+                <div className={`relative w-full overflow-hidden ${aspect}`}>
+                  <Image
+                    src={img.src}
+                    alt={img.alt}
+                    fill
+                    className="object-cover transition-all duration-[1.2s] cubic-bezier(0.23, 1, 0.32, 1) group-hover:scale-110 group-hover:brightness-[0.85]"
+                    sizes={i === 0 ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
+                  />
+                  
+                  {/* Cinematic grain overlay on images */}
+                  <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+
+                  {/* Dark vignette gradient for contrast */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-60 transition-opacity duration-500 group-hover:opacity-80" />
+
+                  {/* Image info overlay */}
+                  <div className="absolute bottom-0 left-0 p-4 md:p-6 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    <p className="text-white text-sm font-semibold tracking-wide drop-shadow-md">
+                      {img.alt || "Villa details"}
+                    </p>
+                  </div>
+
+                  {/* Expand Icon */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100 scale-75 group-hover:scale-100">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+                      <Maximize2 className="h-6 w-6 text-white drop-shadow-md" />
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* CTA */}
-        <div className="mt-8 flex justify-center">
+        <div ref={ctaRef} className="mt-16 flex justify-center">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-6 py-3 text-sm font-semibold text-[var(--color-foreground)] shadow-sm transition-all hover:border-[var(--color-primary)]/40 hover:shadow-md"
+            className="group inline-flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-4 text-sm font-bold text-[var(--color-foreground)] shadow-sm transition-all duration-300 hover:border-[var(--color-gold)] hover:shadow-[0_8px_30px_rgba(212,168,83,0.15)] btn-ripple"
           >
-            View Full Gallery
-            <ArrowRight className="h-4 w-4 text-[var(--color-primary)]" />
+            Explore Full Gallery
+            <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-background)] transition-transform duration-300 group-hover:translate-x-1">
+              <ArrowRight className="h-4 w-4 text-[var(--color-gold)]" />
+            </span>
           </Link>
         </div>
       </div>
 
-      {/* ── Lightbox ─────────────────────────────────────────────── */}
+      {/* ── Cinematic Lightbox ──────────────────────────────────────── */}
       {lightbox !== null && (
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Image lightbox"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/92 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8 backdrop-blur-xl"
           onClick={closeLightbox}
         >
           <div
-            className="relative flex max-h-full max-w-5xl w-full flex-col"
+            className="relative flex h-full w-full max-w-[90vw] md:max-w-[80vw] flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
-            <div className="relative max-h-[80vh] overflow-hidden rounded-2xl">
+            <div className="relative flex h-[80vh] w-full items-center justify-center">
               <Image
                 src={images[lightbox].src}
                 alt={images[lightbox].alt}
                 width={images[lightbox].w}
                 height={images[lightbox].h}
-                className="max-h-[80vh] w-full object-contain"
+                className="max-h-full max-w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                quality={90}
+                priority
               />
             </div>
 
             {/* Caption */}
-            <p className="mt-3 text-center text-sm text-white/60">
-              {lightbox + 1} / {images.length} — {images[lightbox].alt}
-            </p>
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-full bg-white/10 px-6 py-2 backdrop-blur-md border border-white/10">
+              <span className="text-sm font-medium text-white">
+                {lightbox + 1} <span className="text-white/40">/</span> {images.length}
+              </span>
+              <div className="h-1 w-1 rounded-full bg-white/30" />
+              <span className="text-sm text-white/80">{images[lightbox].alt}</span>
+            </div>
 
             {/* Controls */}
             <button
               ref={closeRef}
               onClick={closeLightbox}
               aria-label="Close lightbox"
-              className="absolute -right-2 -top-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition-colors hover:bg-white/25 focus-visible:ring-2 focus-visible:ring-white"
+              className="absolute right-0 top-0 md:-right-8 md:-top-8 flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:scale-105 border border-white/10"
             >
-              <X className="h-4.5 w-4.5" />
+              <X className="h-5 w-5" />
             </button>
 
             <button
               onClick={() => setLightbox((i) => ((i ?? 0) - 1 + images.length) % images.length)}
               aria-label="Previous image"
-              className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition-colors hover:bg-white/25 md:-left-5"
+              className="absolute left-0 top-1/2 flex h-14 w-14 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/5 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:-translate-x-1 md:-left-12 border border-white/10"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-7 w-7" />
             </button>
 
             <button
               onClick={() => setLightbox((i) => ((i ?? 0) + 1) % images.length)}
               aria-label="Next image"
-              className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition-colors hover:bg-white/25 md:-right-5"
+              className="absolute right-0 top-1/2 flex h-14 w-14 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/5 text-white backdrop-blur-md transition-all hover:bg-white/20 hover:translate-x-1 md:-right-12 border border-white/10"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-7 w-7" />
             </button>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useGSAP } from "@/lib/gsap";
 import { gsap, EASE, DURATION } from "@/lib/gsap";
-import { ChevronLeft, ChevronRight, Phone } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Compass } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { SITE_CONFIG } from "@/data/site";
 
@@ -44,6 +44,7 @@ export function ExperiencesReel() {
 
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [isChanging, setIsChanging] = useState(false);
   const autoRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const prefersReduced = useMemo(
@@ -54,38 +55,54 @@ export function ExperiencesReel() {
   // Auto-advance
   useEffect(() => {
     if (paused || prefersReduced) return;
-    autoRef.current = setInterval(() => setIndex((i) => wrap(i + 1)), 5500);
+    autoRef.current = setInterval(() => setIndex((i) => wrap(i + 1)), 6000);
     return () => clearInterval(autoRef.current);
   }, [paused, prefersReduced]);
 
   const go = useCallback((dir: 1 | -1) => {
+    if (isChanging) return;
+    setIsChanging(true);
     setIndex((i) => wrap(i + dir));
     clearInterval(autoRef.current);
     setPaused(false);
-  }, []);
+    setTimeout(() => setIsChanging(false), 800);
+  }, [isChanging]);
 
   // Section entrance
   useGSAP(
     () => {
       if (prefersReduced) return;
-      gsap.fromTo(headingRef.current, { opacity: 0, y: 36 }, {
-        opacity: 1, y: 0, duration: DURATION.reveal, ease: EASE.premium,
+      gsap.fromTo(headingRef.current, { opacity: 0, y: 40, filter: "blur(8px)" }, {
+        opacity: 1, y: 0, filter: "blur(0px)", duration: DURATION.reveal, ease: EASE.premium,
         scrollTrigger: { trigger: headingRef.current, start: "top 85%", once: true },
       });
-      gsap.fromTo(reelRef.current, { opacity: 0, y: 40 }, {
-        opacity: 1, y: 0, duration: DURATION.reveal, ease: EASE.premium, delay: 0.15,
-        scrollTrigger: { trigger: reelRef.current, start: "top 88%", once: true },
+      gsap.fromTo(reelRef.current, { opacity: 0, scale: 0.98, filter: "blur(4px)" }, {
+        opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.2, ease: EASE.premium, delay: 0.1,
+        scrollTrigger: { trigger: reelRef.current, start: "top 80%", once: true },
       });
     },
     { scope: sectionRef }
   );
 
-  // Slide transition
+  // Cinematic slide transition
   useEffect(() => {
     if (!slideRef.current || !infoRef.current || prefersReduced) return;
     const tl = gsap.timeline();
-    tl.fromTo(slideRef.current, { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.65, ease: EASE.out });
-    tl.fromTo(infoRef.current.children, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: EASE.out, stagger: 0.1 }, "-=0.35");
+    
+    // Animate the image container
+    tl.fromTo(
+      slideRef.current, 
+      { filter: "brightness(0.5) contrast(1.2)", scale: 1.08 }, 
+      { filter: "brightness(1) contrast(1)", scale: 1, duration: 1.2, ease: "power3.out" }
+    );
+    
+    // Staggered text reveal
+    tl.fromTo(
+      infoRef.current.children, 
+      { opacity: 0, y: 30, filter: "blur(4px)" }, 
+      { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: EASE.out, stagger: 0.1 }, 
+      "-=0.9"
+    );
   }, [index, prefersReduced]);
 
   const prev = wrap(index - 1);
@@ -102,30 +119,34 @@ export function ExperiencesReel() {
       ref={sectionRef}
       id="experiences"
       aria-labelledby="experiences-heading"
-      className="relative overflow-hidden py-24 md:py-32"
+      className="relative overflow-hidden py-24 md:py-36 bg-[var(--color-surface)] section-connector"
     >
-      {/* Ambient */}
+      {/* Ambient glow map pattern */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 opacity-40 mix-blend-overlay"
+        style={{ backgroundImage: "url('/noise.svg')" }} />
       <div aria-hidden className="pointer-events-none absolute inset-0"
-        style={{ background: "radial-gradient(65% 45% at 50% 0%, rgba(14,165,233,.09), transparent 65%)" }} />
+        style={{ background: "radial-gradient(ellipse at 80% 20%, rgba(var(--color-gold-rgb, 212,168,83), 0.05), transparent 50%)" }} />
 
-      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+      <div className="relative mx-auto max-w-[1400px] px-4 md:px-8">
         {/* Heading */}
-        <div ref={headingRef} className="mb-12 text-center md:mb-16">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">Around the Villa</p>
+        <div ref={headingRef} className="mb-12 flex flex-col items-center md:items-start text-center md:text-left md:mb-20">
+          <p className="mb-4 flex items-center gap-2 text-[10px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[var(--color-gold)]">
+            <Compass className="h-4 w-4" /> Around the Villa
+          </p>
           <h2 id="experiences-heading"
-            className="font-[var(--font-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold tracking-tight text-[var(--color-foreground)]">
+            className="font-[var(--font-display)] text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter text-[var(--color-foreground)] leading-[1.1] max-w-3xl">
             Discover Tangalle&apos;s{" "}
-            <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">wonders</span>
+            <span className="bg-[var(--grad-gold)] bg-clip-text text-transparent italic pr-2">wonders</span>
           </h2>
-          <p className="mt-4 text-[var(--color-muted)]">
-            Ancient temples, ocean dramas, wildlife corridors — all within easy reach.
+          <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--color-muted)] font-medium">
+            Ancient temples, ocean dramas, wildlife corridors — curated excursions all within easy reach of your sanctuary.
           </p>
         </div>
 
-        {/* Reel */}
+        {/* Cinematic Reel Container */}
         <div
           ref={reelRef}
-          className="relative mx-auto max-w-5xl select-none"
+          className="relative mx-auto w-full select-none"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onKeyDown={handleKeyDown}
@@ -138,18 +159,19 @@ export function ExperiencesReel() {
           <button
             type="button"
             onClick={() => go(-1)}
+            disabled={isChanging}
             aria-label={`Previous: ${EXPERIENCES[prev].name}`}
-            className="group absolute left-0 top-0 bottom-0 z-10 w-[18%] overflow-hidden rounded-l-3xl"
+            className="group absolute left-0 top-0 bottom-0 z-10 hidden md:block w-[12%] overflow-hidden rounded-l-[2rem] transition-all hover:w-[15%]"
           >
             <div className="absolute inset-0">
-              <Image src={EXPERIENCES[prev].image} alt="" aria-hidden fill className="object-cover saturate-50" sizes="20vw" />
+              <Image src={EXPERIENCES[prev].image} alt="" aria-hidden fill className="object-cover transition-transform duration-[1.5s] group-hover:scale-110 saturate-50 brightness-50" sizes="15vw" />
               <div className="absolute inset-0" style={{
-                background: "linear-gradient(90deg, rgba(4,12,18,.65), rgba(4,12,18,.30) 50%, transparent)",
-                maskImage: "linear-gradient(to right, black 50%, transparent)"
+                background: "linear-gradient(90deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4) 70%, transparent)",
+                maskImage: "linear-gradient(to right, black 80%, transparent)"
               }} />
             </div>
-            <div className="absolute inset-y-0 right-2 flex items-center text-white/50 group-hover:text-white transition-colors">
-              <ChevronLeft className="h-6 w-6" />
+            <div className="absolute inset-y-0 right-4 flex items-center text-white/50 group-hover:text-white transition-all group-hover:-translate-x-2">
+              <ChevronLeft className="h-8 w-8" />
             </div>
           </button>
 
@@ -157,75 +179,96 @@ export function ExperiencesReel() {
           <button
             type="button"
             onClick={() => go(1)}
+            disabled={isChanging}
             aria-label={`Next: ${EXPERIENCES[next].name}`}
-            className="group absolute right-0 top-0 bottom-0 z-10 w-[18%] overflow-hidden rounded-r-3xl"
+            className="group absolute right-0 top-0 bottom-0 z-10 hidden md:block w-[12%] overflow-hidden rounded-r-[2rem] transition-all hover:w-[15%]"
           >
             <div className="absolute inset-0">
-              <Image src={EXPERIENCES[next].image} alt="" aria-hidden fill className="object-cover saturate-50" sizes="20vw" />
+              <Image src={EXPERIENCES[next].image} alt="" aria-hidden fill className="object-cover transition-transform duration-[1.5s] group-hover:scale-110 saturate-50 brightness-50" sizes="15vw" />
               <div className="absolute inset-0" style={{
-                background: "linear-gradient(270deg, rgba(4,12,18,.65), rgba(4,12,18,.30) 50%, transparent)",
-                maskImage: "linear-gradient(to left, black 50%, transparent)"
+                background: "linear-gradient(270deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4) 70%, transparent)",
+                maskImage: "linear-gradient(to left, black 80%, transparent)"
               }} />
             </div>
-            <div className="absolute inset-y-0 left-2 flex items-center text-white/50 group-hover:text-white transition-colors">
-              <ChevronRight className="h-6 w-6" />
+            <div className="absolute inset-y-0 left-4 flex items-center text-white/50 group-hover:text-white transition-all group-hover:translate-x-2">
+              <ChevronRight className="h-8 w-8" />
             </div>
           </button>
 
           {/* Active slide */}
           <div
-            ref={slideRef}
             aria-label={cur.name}
             aria-roledescription="slide"
-            className="relative mx-[18%] overflow-hidden rounded-3xl bg-slate-900 shadow-2xl"
-            style={{ height: "clamp(22rem, 42vw, 36rem)" }}
+            className="relative mx-0 md:mx-[12%] overflow-hidden rounded-[2rem] bg-[#0a0f10] shadow-[0_20px_50px_rgba(0,0,0,0.25)] border border-white/5"
+            style={{ height: "clamp(30rem, 60vw, 42rem)" }}
           >
-            <Image
-              key={index}
-              src={cur.image}
-              alt={cur.name}
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 70vw, 800px"
-              priority={index === 0}
-            />
-            {/* Gradient scrim */}
-            <div className="absolute inset-0"
-              style={{ background: "linear-gradient(to top, rgba(4,12,18,.88) 0%, rgba(4,12,18,.35) 45%, transparent 70%)" }} />
+            <div ref={slideRef} className="absolute inset-0">
+              <Image
+                key={index}
+                src={cur.image}
+                alt={cur.name}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 80vw"
+                priority={index === 0}
+              />
+              {/* Noise grain overlay for cinematic feel */}
+              <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+            </div>
 
-            {/* Content */}
-            <div ref={infoRef} className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
-              <h3 className="mb-2 text-2xl font-bold tracking-tight md:text-3xl" style={{ textShadow: "0 2px 16px rgba(0,0,0,.7)" }}>
+            {/* Premium Gradient Scrims */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f10] via-[#0a0f10]/40 to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0f10]/80 via-transparent to-transparent opacity-60" />
+
+            {/* Mobile Controls */}
+            <div className="absolute top-1/2 left-4 right-4 flex justify-between -translate-y-1/2 md:hidden z-20">
+              <button onClick={() => go(-1)} className="flex h-12 w-12 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/10">
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button onClick={() => go(1)} className="flex h-12 w-12 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-md border border-white/10">
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </div>
+
+            {/* Content overlay */}
+            <div ref={infoRef} className="absolute inset-x-0 bottom-0 p-6 md:p-12 text-white z-10 max-w-3xl">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white/90 backdrop-blur-md">
+                <MapPin className="h-3.5 w-3.5 text-[var(--color-gold)]" />
+                South Coast
+              </div>
+              <h3 className="mb-4 text-3xl font-black tracking-tight md:text-5xl lg:text-6xl text-shadow-deep">
                 {cur.name}
               </h3>
-              <p className="mb-5 max-w-lg text-sm leading-relaxed text-white/80 md:text-base">
+              <p className="mb-8 max-w-xl text-base leading-relaxed text-white/80 md:text-lg">
                 {cur.description}
               </p>
               <a
                 href={cur.ctaHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/12 px-5 py-2.5 text-sm font-semibold backdrop-blur-md transition-all hover:bg-white/22 hover:border-white/40"
+                className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-black shadow-lg transition-all hover:bg-[var(--color-gold)] hover:text-white"
               >
-                <Phone className="h-4 w-4" />
-                Book Day Trip
+                Plan this excursion
+                <span className="relative flex h-8 w-8 items-center justify-center rounded-full bg-black text-white transition-transform duration-300 group-hover:bg-white group-hover:text-[var(--color-gold)] group-hover:translate-x-1">
+                  <ChevronRight className="h-4 w-4" />
+                </span>
               </a>
             </div>
 
-            {/* Progress bar */}
-            <div className="absolute inset-x-0 bottom-0 h-0.5 bg-white/10">
+            {/* Animated Progress Tracker Line */}
+            <div className="absolute inset-x-0 top-0 flex h-1.5 w-full bg-black/40">
               {!paused && !prefersReduced && (
                 <div
                   key={`${index}-bar`}
-                  className="h-full bg-[var(--color-primary)]"
-                  style={{ animation: "progressBar 5.5s linear forwards" }}
+                  className="h-full bg-[var(--color-gold)]"
+                  style={{ animation: "progressBar 6s linear forwards" }}
                 />
               )}
             </div>
           </div>
 
-          {/* Dot navigation */}
-          <div className="mt-6 flex items-center justify-center gap-2" role="tablist" aria-label="Slide navigation">
+          {/* Minimalist Dot Navigation */}
+          <div className="mt-8 flex items-center justify-center gap-3" role="tablist" aria-label="Slide navigation">
             {EXPERIENCES.map((exp, i) => (
               <button
                 key={i}
@@ -233,22 +276,27 @@ export function ExperiencesReel() {
                 aria-selected={i === index}
                 aria-label={`Go to ${exp.name}`}
                 onClick={() => { setIndex(i); clearInterval(autoRef.current); }}
-                className={`rounded-full transition-all duration-300 ${i === index
-                  ? "w-8 h-2 bg-[var(--color-primary)]"
-                  : "w-2 h-2 bg-[var(--color-border)] hover:bg-[var(--color-muted)]"
-                  }`}
-              />
+                className={`relative h-1.5 rounded-full transition-all duration-500 overflow-hidden ${
+                  i === index
+                    ? "w-12 bg-transparent"
+                    : "w-3 bg-[var(--color-border)] hover:bg-[var(--color-muted)]"
+                }`}
+              >
+                {i === index && (
+                  <>
+                    <div className="absolute inset-0 bg-[var(--color-border)]" />
+                    <div 
+                      key={`progress-${index}`}
+                      className="absolute inset-y-0 left-0 bg-[var(--color-gold)]" 
+                      style={!paused && !prefersReduced ? { animation: "progressBar 6s linear forwards" } : { width: '100%' }}
+                    />
+                  </>
+                )}
+              </button>
             ))}
           </div>
         </div>
       </div>
-
-      <style>{`
-        @keyframes progressBar {
-          from { width: 0% }
-          to   { width: 100% }
-        }
-      `}</style>
     </section>
   );
 }

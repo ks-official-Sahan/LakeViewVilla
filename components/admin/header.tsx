@@ -9,7 +9,7 @@ interface AdminHeaderProps {
     name: string | null;
     email: string;
     role: Role;
-    avatar: string | null;
+    image?: string | null;
   };
 }
 

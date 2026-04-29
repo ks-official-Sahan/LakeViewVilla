@@ -36,5 +36,8 @@ performance-fixes.md
 schema.json
 
 .gemini/
+.claude/
 gemini.md
 gha-creds-*.json
+
+docs/

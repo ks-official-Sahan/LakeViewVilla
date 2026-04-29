@@ -192,7 +192,7 @@ export function PinnedHero({ nextSectionId }: Props) {
                 duration: 0.45,
                 ease: "power2.out",
                 scrollTo: { y: endEl, offsetY: 0, autoKill: false },
-                onComplete: () => (autoScrollRef.current = false),
+                onComplete: () => { autoScrollRef.current = false; },
               });
             } else if (self.direction < 0 && p < 0.002) {
               autoScrollRef.current = true;
@@ -200,7 +200,7 @@ export function PinnedHero({ nextSectionId }: Props) {
                 duration: 0.35,
                 ease: "power2.out",
                 scrollTo: { y: root, offsetY: 0, autoKill: false },
-                onComplete: () => (autoScrollRef.current = false),
+                onComplete: () => { autoScrollRef.current = false; },
               });
             }
           }
