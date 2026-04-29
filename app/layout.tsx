@@ -11,6 +11,7 @@ import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
+import { LenisProvider } from "@/components/motion/lenis-provider";
 
 // ✅ New: unified, typed SEO helpers (replaces "@/lib/seo/structured-data")
 import { siteGraph } from "@/lib/seo";
@@ -324,24 +325,26 @@ export default function RootLayout({
         >
           <MantineProvider defaultColorScheme="light" theme={theme}>
             <AudioProvider>
-              <ClientLoadingScreen
-                logoSrc="/logo.png"
-                logoAlt="Lake View Villa Tangalle"
-                enableTapSkip
-              />
-              <ScrollProgress />
-              <Suspense fallback={null}>
-                <ClientEffects />
-              </Suspense>
-              <Navigation />
-              <main id="content" className="relative isolate">
-                <Suspense fallback={null}>{children}</Suspense>
-              </main>
-              <ExpandableCTA />
-              {/* Analytics & tracking components (client-side) */}
-              <Analytics />
-              <WebVitals />
-              <MarketingPixels />
+              <LenisProvider>
+                <ClientLoadingScreen
+                  logoSrc="/logo.png"
+                  logoAlt="Lake View Villa Tangalle"
+                  enableTapSkip
+                />
+                <ScrollProgress />
+                <Suspense fallback={null}>
+                  <ClientEffects />
+                </Suspense>
+                <Navigation />
+                <main id="content" className="relative isolate">
+                  <Suspense fallback={null}>{children}</Suspense>
+                </main>
+                <ExpandableCTA />
+                {/* Analytics & tracking components (client-side) */}
+                <Analytics />
+                <WebVitals />
+                <MarketingPixels />
+              </LenisProvider>
             </AudioProvider>
           </MantineProvider>
         </ThemeProvider>

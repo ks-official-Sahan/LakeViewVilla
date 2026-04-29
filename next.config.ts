@@ -1,5 +1,5 @@
+import type { NextConfig } from "next";
 import bundleAnalyzer from "@next/bundle-analyzer";
-/** @type {import('next').NextConfig} */
 
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
@@ -7,9 +7,7 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const isProd = process.env.NODE_ENV === "production";
 
-// ───────────────────────────────
-// Security headers (no CSP duplication here)
-// ───────────────────────────────
+// ─── Security Headers ────────────────────────────────────────────────────────
 const securityHeaders = [
   {
     key: "Strict-Transport-Security",
@@ -25,23 +23,13 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   { key: "X-Download-Options", value: "noopen" },
   { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
-  // { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-  // { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
   {
     key: "Cross-Origin-Opener-Policy",
     value: isProd ? "same-origin" : "same-origin-allow-popups",
   },
-  // { key: "Cross-Origin-Embedder-Policy", value: "require-corp"},
-  // { key: "X-XSS-Protection", value: "1; mode=block" },
-  // { key: "Content-Security-Policy", value: "upgrade-insecure-requests" },
 ];
 
-// ───────────────────────────────
-// Content Security Policy (CSP)
-// Allows: Next runtime, GTM/GA, Meta pixel, Vercel Analytics,
-// Google Maps, Google Fonts, YouTube/IG/FB embeds, icons/fonts.
-// No 'unsafe-eval' in prod (only dev for HMR).
-// ───────────────────────────────
+// ─── Content Security Policy ─────────────────────────────────────────────────
 const SCRIPT_SRC = [
   "script-src",
   "'self'",
@@ -81,6 +69,9 @@ const CONNECT_SRC = [
   "https://*.g.doubleclick.net",
   "https://*.googleapis.com",
   "https://*.gstatic.com",
+  // Cloudinary for media management
+  "https://res.cloudinary.com",
+  "https://api.cloudinary.com",
 ].join(" ");
 
 const FRAME_SRC = [
@@ -103,63 +94,37 @@ const CSP = [
   "object-src 'none'",
   "frame-ancestors 'self'",
   "upgrade-insecure-requests",
-
-  // Images (self + data/blob + HTTPS + Maps photos)
-  "img-src 'self' data: blob: https: https://*.ggpht.com",
-
-  // Styles (Next injects inline styles; allow https for Google Fonts CSS)
+  "img-src 'self' data: blob: https: https://*.ggpht.com https://res.cloudinary.com",
   "style-src 'self' 'unsafe-inline' https:",
-
-  // Fonts (self-hosted/next/font + Google Fonts + data:)
   "font-src 'self' https: data: https://fonts.gstatic.com",
-
-  // Scripts
   SCRIPT_SRC,
-
-  // XHR/WebSocket targets
   CONNECT_SRC,
-
-  // Frames/embeds (GTM, Google, YouTube, Instagram, Facebook, Maps)
   FRAME_SRC,
-
-  // Media (video/audio)
   "media-src 'self' data: blob: https:",
-
-  // Workers/Manifest
   "worker-src 'self' blob:",
-  // "manifest-src 'self'", //Remove manifest-src (Chrome occasionally misfires even when it’s self). It will inherit from default-src 'self' anyway.
 ].join("; ");
 
-// ───────────────────────────────
-// HTTP Link-based preconnects
-// ───────────────────────────────
+// ─── Preconnect links ────────────────────────────────────────────────────────
 const preconnectLinks = [
   "<https://fonts.gstatic.com>; rel=preconnect; crossorigin",
   "<https://www.googletagmanager.com>; rel=preconnect; crossorigin",
   "<https://vitals.vercel-analytics.com>; rel=preconnect; crossorigin",
-  // "<https://www.google-analytics.com>; rel=preconnect; crossorigin",
-  // "<https://region1.google-analytics.com>; rel=preconnect; crossorigin",
-  // "<https://connect.facebook.net>; rel=preconnect; crossorigin",
-  // "<https://va.vercel-scripts.com>; rel=preconnect; crossorigin",
-  // "<https://maps.googleapis.com>; rel=preconnect; crossorigin",
-  // "<https://maps.gstatic.com>; rel=preconnect; crossorigin",
-  // "<https://fonts.googleapis.com>; rel=preconnect",
 ];
 
-const nextConfig = {
+// ─── Next.js 16 Configuration ────────────────────────────────────────────────
+const nextConfig: NextConfig = {
   reactStrictMode: true,
   compress: true,
   generateEtags: true,
   poweredByHeader: false,
 
-  // Next.js 16 performance features
+  // Next.js 16 — explicit cache directive + automatic memoization
   cacheComponents: true,
   reactCompiler: true,
 
-  // eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-
   skipTrailingSlashRedirect: true,
+
   images: {
     unoptimized: false,
     formats: ["image/avif", "image/webp"],
@@ -167,12 +132,7 @@ const nextConfig = {
     imageSizes: [16, 24, 32, 48, 64, 96, 128, 256],
     minimumCacheTTL: 31536000,
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-        // port: "",
-        // pathname: "/dbme0nn1m/**",
-      },
+      { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "**" },
       { protocol: "https", hostname: "*.booking.com" },
       { protocol: "https", hostname: "lakeviewvillatangalle.com" },
@@ -201,7 +161,6 @@ const nextConfig = {
         ],
       },
       {
-        // Cache common static assets (incl. fonts/icons/videos)
         source:
           "/(.*\\.(?:jpg|jpeg|png|webp|avif|gif|svg|ico|woff|woff2|ttf|eot|mp4|webm))",
         headers: [
@@ -212,7 +171,6 @@ const nextConfig = {
         ],
       },
       {
-        // Next image optimizer responses
         source: "/_next/image(.*)",
         headers: [
           {
@@ -226,21 +184,18 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // secondary → primary (apex)
       {
         source: "/:path*",
         has: [{ type: "host", value: "lakeviewtangalle.com" }],
         destination: "https://lakeviewvillatangalle.com/:path*",
         permanent: true,
       },
-      // www → apex (primary)
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.lakeviewvillatangalle.com" }],
         destination: "https://lakeviewvillatangalle.com/:path*",
         permanent: true,
       },
-      // www.secondary → apex (primary)
       {
         source: "/:path*",
         has: [{ type: "host", value: "www.lakeviewtangalle.com" }],
@@ -257,11 +212,8 @@ const nextConfig = {
     },
   },
 
-  // Dev performance tuning
   onDemandEntries: {
-    // Keep pages in memory for longer (1 minute)
     maxInactiveAge: 60 * 1000,
-    // Keep more pages in the buffer
     pagesBufferLength: 5,
   },
 
@@ -269,35 +221,26 @@ const nextConfig = {
     optimizePackageImports: [
       "framer-motion",
       "gsap",
+      "@gsap/react",
       "@vercel/analytics",
       "lenis",
       "three",
       "@mantine/core",
-      // "@mantine/hooks",
-      // "@mantine/notifications",
-      // "@mantine/dates",
-      // "@mantine/modals",
       "@tabler/icons-react",
-      // "lucide-react",
       "clsx",
       "tailwind-merge",
       "date-fns",
+      "@tanstack/react-query",
+      "next-auth",
     ],
-
-    // Use Lightning CSS for faster minification
     useLightningcss: true,
-
-    // Client-side router cache tuning (Next.js 15+)
     staleTimes: {
       dynamic: 30,
       static: 180,
     },
-
-    // Turbopack file system cache (dev + build)
     turbopackFileSystemCacheForDev: true,
     turbopackFileSystemCacheForBuild: true,
   },
 };
 
-// export default nextConfig;
 export default withBundleAnalyzer(nextConfig);

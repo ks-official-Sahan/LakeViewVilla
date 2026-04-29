@@ -1,0 +1,218 @@
+// prisma/schema.prisma
+// LakeViewVilla — Database Schema
+// Provider: Neon PostgreSQL (primary), SQLite (backup/fallback)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth Models (NextAuth v5) ───────────────────────────────────────────────
+
+enum Role {
+  DEVELOPER
+  MANAGER
+  EDITOR
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  role          Role      @default(EDITOR)
+  avatar        String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  sessions   Session[]
+  accounts   Account[]
+  media      MediaAsset[]
+  blogPosts  BlogPost[]
+  auditLogs  AuditLog[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Media Management ────────────────────────────────────────────────────────
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  PDF
+  OTHER
+}
+
+model MediaAsset {
+  id          String    @id @default(cuid())
+  url         String
+  publicId    String?   // Cloudinary public ID
+  type        MediaType @default(IMAGE)
+  category    String    @default("all") // indoor, outdoor, kitchen, bedroom-1, etc.
+  tags        String[]  @default([])
+  title       String?
+  alt         String?   // Alt text for accessibility
+  description String?
+  width       Int?
+  height      Int?
+  sizeBytes   Int?
+  mimeType    String?
+  order       Int       @default(0)
+  featured    Boolean   @default(false)
+
+  // Page/section assignment
+  pageSlug    String?
+  sectionSlug String?
+
+  // SEO metadata
+  seoTitle    String?
+  seoAlt      String?
+
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  blogPosts BlogPost[] @relation("FeaturedImage")
+
+  @@index([category])
+  @@index([pageSlug, sectionSlug])
+  @@index([order])
+  @@map("media_assets")
+}
+
+// ─── Content Management ──────────────────────────────────────────────────────
+
+model ContentBlock {
+  id          String   @id @default(cuid())
+  pageSlug    String
+  sectionSlug String
+  order       Int      @default(0)
+  data        Json     // Flexible content structure
+  version     Int      @default(1)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([pageSlug, sectionSlug, version])
+  @@index([pageSlug])
+  @@map("content_blocks")
+}
+
+// ─── Blog System ─────────────────────────────────────────────────────────────
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model BlogPost {
+  id             String     @id @default(cuid())
+  title          String
+  slug           String     @unique
+  content        String     @db.Text
+  excerpt        String?
+  status         BlogStatus @default(DRAFT)
+  generatedByAI  Boolean    @default(false)
+
+  // SEO metadata
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String[]   @default([])
+  ogImage        String?
+  schema         Json?      // Structured data override
+
+  tags           String[]   @default([])
+
+  // Relations
+  featuredImageId String?
+  featuredImage   MediaAsset? @relation("FeaturedImage", fields: [featuredImageId], references: [id])
+  authorId        String
+  author          User        @relation(fields: [authorId], references: [id])
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([status])
+  @@index([slug])
+  @@index([publishedAt])
+  @@map("blog_posts")
+}
+
+// ─── Audit Logging ───────────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
+  entityType String   // MediaAsset, ContentBlock, BlogPost, User, Setting
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  timestamp  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entityType])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+// ─── Site Settings ───────────────────────────────────────────────────────────
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
