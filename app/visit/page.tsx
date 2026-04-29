@@ -4,11 +4,11 @@ import VisitPage from "./client";
 
 export const metadata: Metadata = {
   title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-  description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+  description: "Discover things to do in Tangalle. Lake View Villa Tangalle is a central base that helps you explore Sri Lanka's south coast, find easy directions, and contact us directly to plan your stay.",
   alternates: { canonical: "/visit" },
   openGraph: {
     title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+    description: "Lake View Villa Tangalle is your base for coastal exploration. Discover things to do in Tangalle, find directions, and contact us.",
     url: "https://lakeviewvillatangalle.com/visit",
     type: "website",
     images: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+    description: "Lake View Villa Tangalle is your base for coastal exploration. Discover things to do in Tangalle, find directions, and contact us.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
