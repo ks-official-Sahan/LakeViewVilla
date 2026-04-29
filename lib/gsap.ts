@@ -1,12 +1,13 @@
 /**
- * Centralized GSAP + ScrollTrigger registration.
+ * Centralized GSAP + ScrollTrigger + useGSAP registration.
  * Import from this file ONLY — never import gsap/ScrollTrigger directly
  * in components. This prevents re-registration on HMR and route transitions.
  */
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // Premium easing presets
 gsap.config({
@@ -33,4 +34,4 @@ export const DURATION = {
   reveal: 1.2,
 } as const;
 
-export { gsap, ScrollTrigger };
+export { gsap, ScrollTrigger, useGSAP };

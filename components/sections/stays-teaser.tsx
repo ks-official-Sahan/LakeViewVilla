@@ -1,251 +1,178 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, Users, Star } from "lucide-react";
-import { RATES, STAYS_INTRO, BOOKING_FACTS, SITE_CONFIG } from "@/data/content";
+import { useRef } from "react";
+import { useGSAP } from "@/lib/gsap";
+import { gsap, EASE, DURATION } from "@/lib/gsap";
+import { Star, Users, Phone, ArrowRight } from "lucide-react";
+import { BOOKING_FACTS, STAYS_INTRO, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
-import { SectionReveal } from "@/components/motion/section-reveal";
 import { trackContact } from "@/lib/analytics";
 import {
   IconBrandAirbnb,
   IconBrandBooking,
-  IconBrandFacebook,
-  IconBrandInstagram,
-  IconBrandWhatsapp,
 } from "@tabler/icons-react";
 
 export function StaysTeaser() {
-  const [selectedRoom, setSelectedRoom] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
 
-  const handleWhatsAppEnquiry = () => {
-    const message = `Hi! I'd like to enquire about availability and rates for Lake View Villa Tangalle. 
-    Could you please share the best available rate and confirm availability?`;
-
-    const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
-    trackContact("whatsapp", url, "Chat on WhatsApp");
+  const handleWhatsApp = () => {
+    const msg = `Hi! I'd like to enquire about availability and rates for Lake View Villa Tangalle. Could you please share the best available rate and confirm availability?`;
+    const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, msg);
+    trackContact("whatsapp", url, "Stays Teaser CTA");
     setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
 
+  useGSAP(
+    () => {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
+
+      gsap.fromTo(headingRef.current, { opacity: 0, y: 36 }, {
+        opacity: 1, y: 0, duration: DURATION.reveal, ease: EASE.premium,
+        scrollTrigger: { trigger: headingRef.current, start: "top 85%", once: true },
+      });
+
+      const cards = cardsRef.current?.querySelectorAll<HTMLElement>("[data-room]");
+      if (cards) {
+        gsap.fromTo(cards, { opacity: 0, y: 32 }, {
+          opacity: 1, y: 0,
+          duration: 0.65, ease: EASE.out,
+          stagger: 0.12,
+          scrollTrigger: { trigger: cardsRef.current, start: "top 82%", once: true },
+        });
+      }
+
+      gsap.fromTo(ctaRef.current, { opacity: 0, y: 24 }, {
+        opacity: 1, y: 0, duration: 0.65, ease: EASE.out, delay: 0.1,
+        scrollTrigger: { trigger: ctaRef.current, start: "top 88%", once: true },
+      });
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <SectionReveal>
-      <section
-        id="stays"
-        className="py-20 bg-gradient-to-b from-gray-50 to-white"
-      >
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+    <section
+      ref={sectionRef}
+      id="stays"
+      aria-labelledby="stays-heading"
+      className="relative overflow-hidden py-24 md:py-32"
+    >
+      {/* Ambient */}
+      <div aria-hidden className="pointer-events-none absolute inset-0"
+        style={{ background: "radial-gradient(60% 45% at 80% 40%, rgba(14,165,233,.07), transparent 65%), radial-gradient(50% 35% at 10% 70%, rgba(34,211,238,.05), transparent 65%)" }} />
+
+      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+        {/* Heading */}
+        <div ref={headingRef} className="mb-12 text-center md:mb-16">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">Accommodation</p>
+          <h2
+            id="stays-heading"
+            className="font-[var(--font-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold tracking-tight text-[var(--color-foreground)]"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
-              Your perfect stay awaits
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-pretty mb-8">
-              {STAYS_INTRO}
-            </p>
+            Your perfect{" "}
+            <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">
+              stay awaits
+            </span>
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-[var(--color-muted)]">{STAYS_INTRO}</p>
 
-            <div className="flex items-center justify-center gap-2 text-lg">
-              <div className="flex items-center">
-                <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                <span className="ml-1 font-semibold">
-                  {BOOKING_FACTS?.reviewMetrics?.average}
-                </span>
-              </div>
-              <span className="text-gray-400">•</span>
-              <span className="text-gray-600">
-                {BOOKING_FACTS?.reviewMetrics?.count} reviews
-              </span>
-            </div>
-          </motion.div>
-
-          <div className="max-w-4xl mx-auto">
-            {/* Room Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              {BOOKING_FACTS?.rooms?.map((room, index) => (
-                <motion.div
-                  key={room.name}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.2 }}
-                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 ${
-                    selectedRoom === index
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 bg-white hover:border-gray-300"
-                  }`}
-                  onClick={() => setSelectedRoom(index)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedRoom(index);
-                    }
-                  }}
-                  aria-label={`Select ${room.name}`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <h3 className="text-xl font-semibold">{room.name}</h3>
-                    <div className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-1" />
-                      <span>{room.sleeps}</span>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2">
-                    {room.features.map((feature, featureIndex) => (
-                      <li
-                        key={featureIndex}
-                        className="flex items-center text-gray-600"
-                      >
-                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
+          {/* Rating pill */}
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 shadow-sm">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`h-3.5 w-3.5 fill-amber-400 text-amber-400`} />
               ))}
             </div>
-
-            {/* Rates Table Preview */}
-            {/* <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8"
-            >
-              <div className="p-6 bg-gradient-to-r from-blue-600 to-teal-600 text-white">
-                <h3 className="text-2xl font-semibold mb-2">Rates & Availability</h3>
-                <p className="text-blue-100">Contact us for the best available rates</p>
-              </div>
-
-              <div className="p-6">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold">Season</th>
-                        <th className="text-left py-3 px-4 font-semibold">Period</th>
-                        <th className="text-left py-3 px-4 font-semibold">Rate</th>
-                        <th className="text-left py-3 px-4 font-semibold">Min Nights</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {RATES.map((rate, index) => (
-                        <tr key={index} className="border-b border-gray-100 last:border-b-0">
-                          <td className="py-3 px-4 font-medium">{rate.season}</td>
-                          <td className="py-3 px-4 text-gray-600">{rate.period}</td>
-                          <td className="py-3 px-4 text-gray-600">{rate.nightly}</td>
-                          <td className="py-3 px-4 text-gray-600">{rate.minNights}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">{RATES[0].notes}</p>
-                </div>
-              </div>
-            </motion.div> */}
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-center flex flex-col gap-2"
-            >
-              <Button
-                size="lg"
-                onClick={handleWhatsAppEnquiry}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 text-lg font-semibold"
-                data-magnetic
-              >
-                <IconBrandWhatsapp className="w-6 h-6 mr-2" />
-                Get Best Rate on WhatsApp
-              </Button>
-
-              <div className="flex sm:flex-col md:flex-row lg:flex-row justify-evenly gap-3">
-                <Button
-                  size="lg"
-                  onClick={() =>
-                    window.open(
-                      "https://www.airbnb.com/l/CfK96vPd",
-                      "_blank",
-                      "noopener"
-                    )
-                  }
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold"
-                  data-magnetic
-                >
-                  <IconBrandAirbnb size={8} className="w-8 h-8 mr-2" />
-                  AirBNB
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() =>
-                    window.open(
-                      "https://www.booking.com/Pulse-81UlHU",
-                      "_blank",
-                      "noopener"
-                    )
-                  }
-                  className="flex-1 bg-sky-600 hover:bg-sky-700 text-white px-8 py-4 text-lg font-semibold"
-                  data-magnetic
-                >
-                  <IconBrandBooking size={8} className="w-8 h-8 mr-2" />
-                  Booking.com
-                </Button>
-              </div>
-
-              <div className="flex sm:flex-col md:flex-row lg:flex-row justify-evenly gap-3">
-                <Button
-                  size="lg"
-                  onClick={() =>
-                    window.open(
-                      "https://www.instagram.com/lakeviewvillatangalle",
-                      "_blank",
-                      "noopener"
-                    )
-                  }
-                  className="flex-1 bg-pink-600 hover:bg-pink-700 text-white px-8 py-4 text-lg font-semibold"
-                  data-magnetic
-                >
-                  <IconBrandInstagram size={8} className="w-8 h-8 mr-2" />
-                  Instagram
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() =>
-                    window.open(
-                      "https://www.facebook.com/share/17M3VXHKbZ/?mibextid=wwXIfr",
-                      "_blank",
-                      "noopener"
-                    )
-                  }
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold"
-                  data-magnetic
-                >
-                  <IconBrandFacebook size={8} className="w-8 h-8 mr-2" />
-                  Facebook
-                </Button>
-              </div>
-
-              <p className="text-sm text-gray-600 mt-4 max-w-md mx-auto">
-                Message us directly for personalized rates, instant
-                confirmation, and flexible booking terms.
-              </p>
-            </motion.div>
+            <span className="text-sm font-bold text-[var(--color-foreground)]">
+              {BOOKING_FACTS.reviewMetrics?.average}
+            </span>
+            <span className="text-sm text-[var(--color-muted)]">
+              · {BOOKING_FACTS.reviewMetrics?.count} reviews
+            </span>
           </div>
         </div>
-      </section>
-    </SectionReveal>
+
+        {/* Room cards */}
+        <div ref={cardsRef} className="mb-10 grid gap-5 md:grid-cols-2">
+          {BOOKING_FACTS.rooms?.map((room, i) => (
+            <article
+              key={room.name}
+              data-room
+              className="group overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm transition-all duration-300 hover:border-[var(--color-primary)]/30 hover:shadow-[0_8px_32px_rgba(14,165,233,.10)] md:p-7"
+            >
+              {/* Header */}
+              <div className="mb-4 flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--color-foreground)]">{room.name}</h3>
+                  <div className="mt-1 flex items-center gap-1.5 text-sm text-[var(--color-muted)]">
+                    <Users className="h-3.5 w-3.5" />
+                    <span>Sleeps {room.sleeps}</span>
+                  </div>
+                </div>
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] text-xs font-bold text-white shadow-md">
+                  0{i + 1}
+                </span>
+              </div>
+
+              {/* Features */}
+              <ul className="space-y-2">
+                {room.features.slice(0, 5).map((f, fi) => (
+                  <li key={fi} className="flex items-center gap-2.5 text-sm text-[var(--color-muted)]">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Bottom gradient line */}
+              <span aria-hidden
+                className="mt-5 block h-0.5 origin-left scale-x-0 rounded-full bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] transition-transform duration-500 group-hover:scale-x-100"
+              />
+            </article>
+          ))}
+        </div>
+
+        {/* CTA block */}
+        <div ref={ctaRef} className="mx-auto max-w-lg">
+          {/* Primary — WhatsApp */}
+          <button
+            onClick={handleWhatsApp}
+            aria-label="Get the best rate on WhatsApp"
+            className="group flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:shadow-emerald-500/40 hover:brightness-110"
+          >
+            <Phone className="h-5 w-5" />
+            Get Best Rate on WhatsApp
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </button>
+
+          {/* Secondary — OTA buttons */}
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <button
+              onClick={() => window.open("https://www.airbnb.com/l/CfK96vPd", "_blank", "noopener")}
+              aria-label="Book on Airbnb"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm font-semibold text-[var(--color-foreground)] shadow-sm transition-all hover:border-[#FF5A5F]/40 hover:text-[#FF5A5F] hover:shadow-md"
+            >
+              <IconBrandAirbnb className="h-5 w-5" />
+              Airbnb
+            </button>
+            <button
+              onClick={() => window.open("https://www.booking.com/Pulse-81UlHU", "_blank", "noopener")}
+              aria-label="Book on Booking.com"
+              className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm font-semibold text-[var(--color-foreground)] shadow-sm transition-all hover:border-[#003580]/40 hover:text-[#003580] hover:shadow-md dark:hover:text-[#38bdf8]"
+            >
+              <IconBrandBooking className="h-5 w-5" />
+              Booking.com
+            </button>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-[var(--color-muted)]">
+            Message us for personalized rates, instant confirmation &amp; flexible booking.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

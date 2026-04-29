@@ -1,96 +1,142 @@
-// components/layout/footer.tsx
 "use client";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRef } from "react";
+import { useGSAP } from "@/lib/gsap";
+import { gsap, EASE } from "@/lib/gsap";
 import { PROPERTY, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
-import { MapPin, Phone, Mail, ArrowUpRight } from "lucide-react";
+import { MapPin, Phone, Mail, ArrowUpRight, ExternalLink } from "lucide-react";
+
+const NAV_COLS = [
+  {
+    heading: "Explore",
+    links: [
+      { href: "/", label: "Home" },
+      { href: "/gallery", label: "Gallery" },
+      { href: "/stays", label: "Stays" },
+      { href: "/blog", label: "Blog" },
+    ],
+  },
+  {
+    heading: "Discover",
+    links: [
+      { href: "/visit", label: "Visit Us" },
+      { href: "/faq", label: "FAQ" },
+      { href: "/developer", label: "Developer" },
+    ],
+  },
+];
 
 export function Footer() {
+  const footerRef = useRef<HTMLElement>(null);
   const year = new Date().getFullYear();
+
   const whatsappUrl = buildWhatsAppUrl(
     SITE_CONFIG.whatsappNumber,
     "Hi! I'd like to check availability and rates at Lake View Villa Tangalle."
   );
 
+  useGSAP(
+    () => {
+      const cols = footerRef.current?.querySelectorAll<HTMLElement>("[data-footer-col]");
+      if (!cols) return;
+      gsap.fromTo(
+        cols,
+        { opacity: 0, y: 32 },
+        {
+          opacity: 1, y: 0,
+          duration: 0.7, ease: EASE.out,
+          stagger: 0.1,
+          scrollTrigger: { trigger: footerRef.current, start: "top 90%", once: true },
+        }
+      );
+    },
+    { scope: footerRef }
+  );
+
   return (
     <footer
+      ref={footerRef}
       role="contentinfo"
       aria-labelledby="footer-heading"
-      className="relative isolate bg-slate-950 text-slate-200"
+      className="relative isolate overflow-hidden bg-slate-950 text-slate-300"
     >
-      {/* subtle aurora + top divider */}
+      {/* ── Aurora gradient ─────────────────────────────────────── */}
       <div
-        aria-hidden="true"
+        aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(60% 40% at 20% 0%, rgba(14,165,233,0.10), transparent 60%), radial-gradient(50% 35% at 85% 15%, rgba(45,212,191,0.10), transparent 60%)",
+            "radial-gradient(55% 45% at 15% 5%, rgba(14,165,233,.10) 0%, transparent 65%), radial-gradient(45% 35% at 88% 20%, rgba(45,212,191,.09) 0%, transparent 60%)",
         }}
       />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-      <div className="container mx-auto px-4">
-        <div className="py-14 md:py-18 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12">
+      {/* Top separator */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+        {/* ── Main grid ───────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-12 md:gap-8 md:py-20">
           {/* Brand */}
-          <div className="md:col-span-5 lg:col-span-4">
-            <div className="flex items-center gap-3">
+          <div data-footer-col className="md:col-span-5 lg:col-span-4">
+            <Link href="/" className="inline-flex items-center gap-3 group" aria-label="Lake View Villa home">
               <Image
                 src="/icon.png"
                 alt="Lake View Villa Tangalle logo"
-                width={48}
-                height={48}
-                className="rounded-xl ring-1 ring-white/10"
-                priority
+                width={44}
+                height={44}
+                className="rounded-xl ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105"
               />
-              <h3 id="footer-heading" className="text-xl font-semibold">
-                Lake View Villa Tangalle
-              </h3>
-            </div>
-            <p className="mt-4 text-slate-400 leading-relaxed">
-              A private villa on a serene lagoon in Tangalle. Sunrise over still
-              water; nights under infinite stars.
+              <h2 id="footer-heading" className="text-lg font-semibold text-white">
+                Lake View Villa
+              </h2>
+            </Link>
+
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
+              A private villa on a serene lagoon in Tangalle, Sri Lanka. Sunrise
+              over still water; nights under infinite stars.
             </p>
 
-            {/* Primary CTA row */}
+            {/* CTAs */}
             <div className="mt-6 flex flex-wrap gap-3">
-              <Link
+              <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 hover:text-white border border-emerald-400/30 px-4 py-2 text-sm font-medium transition-colors"
-                aria-label="Chat on WhatsApp to book your stay"
+                aria-label="Book via WhatsApp"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/12 px-4 py-2 text-xs font-semibold text-emerald-300 transition-colors hover:bg-emerald-500/22 hover:text-white"
               >
-                <Phone className="h-4 w-4" />
+                <Phone className="h-3.5 w-3.5" />
                 Book via WhatsApp
-                <ArrowUpRight className="h-4 w-4 opacity-70" />
-              </Link>
+                <ArrowUpRight className="h-3.5 w-3.5 opacity-70" />
+              </a>
 
               {SITE_CONFIG.googleMapsUrl && (
                 <a
                   href={SITE_CONFIG.googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-white/5 text-slate-200 hover:bg-white/10 border border-white/10 px-4 py-2 text-sm font-medium transition-colors"
-                  aria-label="Open the villa location on Google Maps"
+                  aria-label="Open in Google Maps"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-3.5 w-3.5" />
                   Open in Maps
-                  <ArrowUpRight className="h-4 w-4 opacity-70" />
+                  <ExternalLink className="h-3 w-3 opacity-60" />
                 </a>
               )}
             </div>
           </div>
 
-          {/* Contact (with microdata) */}
-          <div className="md:col-span-4 lg:col-span-4">
-            <h4 className="text-sm font-semibold tracking-wide text-slate-300">
+          {/* Contact */}
+          <div data-footer-col className="md:col-span-4 lg:col-span-4">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
               Contact
-            </h4>
-            <address className="not-italic mt-4 space-y-3 text-slate-400">
+            </h3>
+            <address className="not-italic space-y-3 text-sm text-slate-400">
               <p className="flex items-start gap-3">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                 <span>
                   <span itemProp="streetAddress">19/6 Julgahawalagoda</span>,{" "}
                   <span itemProp="addressLocality">Kadurupokuna South</span>,{" "}
@@ -98,22 +144,19 @@ export function Footer() {
                 </span>
               </p>
               <p className="flex items-center gap-3">
-                <Phone className="h-4 w-4 shrink-0 text-slate-300" />
+                <Phone className="h-4 w-4 shrink-0 text-slate-400" />
                 <a
-                  href={`tel:${
-                    SITE_CONFIG.whatsappNumber?.replace(/\s+/g, "") ||
-                    "+94701164056"
-                  }`}
-                  className="hover:text-white transition-colors"
+                  href={`tel:${SITE_CONFIG.whatsappNumber?.replace(/\s+/g, "") ?? "+94701164056"}`}
+                  className="transition-colors hover:text-white"
                 >
-                  {SITE_CONFIG.whatsappNumberText || "+94 70 116 4056"}
+                  {SITE_CONFIG.whatsappNumberText ?? "+94 70 116 4056"}
                 </a>
               </p>
               <p className="flex items-center gap-3">
-                <Mail className="h-4 w-4 shrink-0 text-slate-300" />
+                <Mail className="h-4 w-4 shrink-0 text-slate-400" />
                 <a
                   href={`mailto:${PROPERTY.email}`}
-                  className="hover:text-white transition-colors"
+                  className="transition-colors hover:text-white"
                 >
                   {PROPERTY.email}
                 </a>
@@ -121,88 +164,43 @@ export function Footer() {
             </address>
           </div>
 
-          {/* Quick links */}
-          <nav
-            className="md:col-span-3 lg:col-span-4"
-            aria-label="Footer navigation"
-          >
-            <h4 className="text-sm font-semibold tracking-wide text-slate-300">
-              Quick Links
-            </h4>
-            <ul className="mt-4 grid grid-cols-2 gap-2 text-slate-400">
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Villa
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#amenities"
-                  className="hover:text-white transition-colors"
-                >
-                  Amenities
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#experiences"
-                  className="hover:text-white transition-colors"
-                >
-                  Experiences
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#location"
-                  className="hover:text-white transition-colors"
-                >
-                  Location
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#gallery"
-                  className="hover:text-white transition-colors"
-                >
-                  Gallery
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="hover:text-white transition-colors"
-                >
-                  Contact
-                </a>
-              </li>
-            </ul>
-
-            {/* Back to top */}
-            <div className="mt-6">
-              <Link
-                href="#home"
-                className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white transition-colors"
-                aria-label="Back to top"
-              >
-                ↑ Back to top
-              </Link>
-            </div>
-          </nav>
+          {/* Nav columns */}
+          {NAV_COLS.map((col) => (
+            <nav
+              key={col.heading}
+              data-footer-col
+              aria-label={`${col.heading} navigation`}
+              className="md:col-span-2 lg:col-span-2"
+            >
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                {col.heading}
+              </h3>
+              <ul className="space-y-2.5">
+                {col.links.map(({ href, label }) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className="text-sm text-slate-400 transition-colors hover:text-white"
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-t border-white/10 py-6 text-sm text-slate-400">
+        {/* ── Bottom bar ───────────────────────────────────────────── */}
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-white/8 py-6 text-xs text-slate-500 md:flex-row">
           <p>
-            <Link
-              href={"/developer"}
-              className="hover:text-white transition-colors capitalize"
-            >
+            <Link href="/developer" className="transition-colors hover:text-slate-300">
               Sahan Sachintha
             </Link>{" "}
             &copy; {year} Lake View Villa Tangalle. All rights reserved.
           </p>
-          <p className="opacity-80">
-            Built with performance, accessibility, and calm delight.
+          <p className="opacity-75">
+            Built with performance, accessibility &amp; calm delight.
           </p>
         </div>
       </div>

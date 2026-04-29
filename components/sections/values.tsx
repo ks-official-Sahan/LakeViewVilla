@@ -1,23 +1,13 @@
 "use client";
 
+import { useRef } from "react";
+import Image from "next/image";
+import { useGSAP } from "@/lib/gsap";
+import { gsap, EASE, DURATION } from "@/lib/gsap";
 import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-import {
-  Car,
-  Waves,
-  Utensils,
-  Wind,
-  Trees,
-  ShowerHead,
-  ChevronDown,
+  Car, Waves, Utensils, Wind, Trees, ShowerHead, CheckCircle2,
 } from "lucide-react";
 import { VALUES_ITEMS } from "@/data/content";
-import { ArchedMedia } from "../ui2/arched-media";
-import { SectionReveal } from "../motion/section-reveal";
 
 const iconMap = {
   car: Car,
@@ -28,72 +18,173 @@ const iconMap = {
   shower: ShowerHead,
 } as const;
 
+const NEARBY = [
+  "Goyambokka Beach — less than 1 km",
+  "Hummanaya Blow Hole — 10 km",
+  "Free WiFi · Air Conditioning · Free Parking",
+];
+
 export function ValuesSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useGSAP(
+    () => {
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (prefersReduced) return;
+
+      // Image slides in from left
+      gsap.fromTo(
+        imageRef.current,
+        { opacity: 0, x: -60 },
+        {
+          opacity: 1, x: 0, duration: DURATION.reveal, ease: EASE.premium,
+          scrollTrigger: { trigger: sectionRef.current, start: "top 78%", once: true },
+        }
+      );
+
+      // Copy fades up
+      gsap.fromTo(
+        copyRef.current,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1, y: 0, duration: DURATION.reveal, ease: EASE.premium, delay: 0.15,
+          scrollTrigger: { trigger: sectionRef.current, start: "top 78%", once: true },
+        }
+      );
+
+      // Accordion items stagger in
+      const items = listRef.current?.querySelectorAll<HTMLElement>("[data-value-item]");
+      if (items) {
+        gsap.fromTo(
+          items,
+          { opacity: 0, x: 24 },
+          {
+            opacity: 1, x: 0,
+            duration: 0.55, ease: EASE.out,
+            stagger: 0.09,
+            scrollTrigger: { trigger: listRef.current, start: "top 84%", once: true },
+          }
+        );
+      }
+    },
+    { scope: sectionRef }
+  );
+
   return (
-    <SectionReveal>
-      <section className="py-12 sm:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center justify-center">
-            {/* Left: arch image */}
-            <div className="order-1 lg:order-1">
-              <SectionReveal>
-                <ArchedMedia
+    <section
+      ref={sectionRef}
+      aria-labelledby="values-heading"
+      className="relative overflow-hidden py-24 md:py-32"
+    >
+      {/* Ambient */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(55% 40% at 0% 60%, rgba(14,165,233,.07), transparent 70%)",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          {/* Left — hero image with floating badge */}
+          <div ref={imageRef} className="relative">
+            <div className="relative overflow-hidden rounded-[2rem] shadow-2xl">
+              {/* Arch-style image */}
+              <div className="relative aspect-[4/5] w-full">
+                <Image
                   src="/villa/optimized/with_guests_02.webp"
-                  alt="Garden & lake view"
-                  priority
-                  className="lg:sticky lg:top-24"
+                  alt="Guests relaxing in the garden with lake view"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
-              </SectionReveal>
+                {/* Gradient overlay at bottom */}
+                <div
+                  className="absolute inset-x-0 bottom-0 h-1/3"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(4,12,18,.65), transparent)",
+                  }}
+                />
+              </div>
             </div>
 
-            {/* Right: copy + list */}
-            <div className="order-2 lg:order-2">
-              <p className="text-sm font-semibold text-sky-600/90 mb-2">
-                Our Values
-              </p>
-              <h2 className="text-[clamp(28px,3.6vw,44px)] leading-tight font-extrabold text-slate-800 tracking-tight">
-                The Value We Provide to You
-                <span className="align-middle inline-block ml-1.5 h-2 w-2 rounded-full bg-amber-400" />
-              </h2>
+            {/* Floating stat badge */}
+            <div className="absolute -right-4 -top-4 flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-[var(--color-surface)] bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] text-white shadow-xl md:-right-6 md:-top-6 md:h-24 md:w-24">
+              <span className="text-lg font-black leading-none md:text-xl">4.9</span>
+              <span className="text-[9px] font-semibold uppercase tracking-wide opacity-90">
+                Rating
+              </span>
+            </div>
 
-              <div className="mt-4 space-y-1.5 text-slate-500">
-                <p>Closest Beach: Goyambokka Beach (less than 1 km)</p>
-                <p>Notable Landmarks: Hummanaya Blow Hole (10 km)</p>
-                <p>Facilities: Free WiFi, Air Conditioning, Free Parking</p>
+            {/* Floating badge bottom */}
+            <div className="absolute -bottom-4 left-6 flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 shadow-lg md:-bottom-5 md:left-8">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#34d399] to-[#22d3ee]">
+                <CheckCircle2 className="h-4.5 w-4.5 text-white" />
               </div>
-
-              <Accordion type="single" collapsible className="mt-6 space-y-4">
-                {VALUES_ITEMS.map((item) => {
-                  const Icon =
-                    iconMap[item.icon as keyof typeof iconMap] ?? Car;
-                  return (
-                    <AccordionItem
-                      key={item.id}
-                      value={item.id}
-                      className="rounded-2xl border border-slate-200 bg-white shadow-[0_6px_24px_rgba(2,6,23,0.06)] data-[state=open]:shadow-[0_10px_32px_rgba(2,6,23,0.08)]"
-                    >
-                      <AccordionTrigger className="group px-4 sm:px-6 py-4 sm:py-5 hover:no-underline">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                          <span className="grid h-9 w-9 place-items-center rounded-xl bg-sky-100 text-sky-600 ring-1 ring-sky-200">
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <span className="text-base sm:text-[17px] font-semibold text-slate-700">
-                            {item.title}
-                          </span>
-                        </div>
-                      </AccordionTrigger>
-
-                      <AccordionContent className="px-6 pb-5 pt-0 text-slate-600">
-                        {item.body}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
+              <div className="text-xs">
+                <p className="font-bold text-[var(--color-foreground)]">Verified Host</p>
+                <p className="text-[var(--color-muted)]">Airbnb &amp; Booking.com</p>
+              </div>
             </div>
           </div>
+
+          {/* Right — copy */}
+          <div ref={copyRef}>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+              Our Values
+            </p>
+            <h2
+              id="values-heading"
+              className="font-[var(--font-display)] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-tight tracking-tight text-[var(--color-foreground)]"
+            >
+              The value we{" "}
+              <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">
+                provide to you
+              </span>
+            </h2>
+
+            {/* Highlights */}
+            <ul className="mt-5 space-y-2">
+              {NEARBY.map((item, i) => (
+                <li key={i} className="flex items-center gap-2.5 text-sm text-[var(--color-muted)]">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-primary)]" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            {/* Value list */}
+            <ul ref={listRef} className="mt-8 space-y-3">
+              {VALUES_ITEMS.map((item) => {
+                const Icon = iconMap[item.icon as keyof typeof iconMap] ?? Car;
+                return (
+                  <li
+                    key={item.id}
+                    data-value-item
+                    className="group flex items-start gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 transition-all duration-200 hover:border-[var(--color-primary)]/30 hover:shadow-[0_4px_20px_rgba(14,165,233,.08)]"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-cyan-100 text-[var(--color-primary)] ring-1 ring-sky-200 dark:from-sky-900/30 dark:to-cyan-900/30 dark:ring-sky-800/50">
+                      <Icon className="h-4.5 w-4.5" />
+                    </span>
+                    <div>
+                      <h3 className="text-[15px] font-semibold text-[var(--color-foreground)]">
+                        {item.title}
+                      </h3>
+                      <p className="mt-0.5 text-sm text-[var(--color-muted)]">{item.body}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
-      </section>
-    </SectionReveal>
+      </div>
+    </section>
   );
 }

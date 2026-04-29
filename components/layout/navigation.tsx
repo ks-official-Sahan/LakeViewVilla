@@ -1,168 +1,216 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Menu,
-  X,
-  Home,
-  Image as ImageIcon,
-  Bed,
-  MapPin,
-  HelpCircle,
-  Code,
-} from "lucide-react";
-import ThemeSwitch from "../theme/theme-switch";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { gsap } from "@/lib/gsap";
+import { Menu, X, Phone } from "lucide-react";
+import ThemeSwitch from "../theme/theme-switch";
+import { SITE_CONFIG } from "@/data/content";
+import { buildWhatsAppUrl } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/gallery", label: "Gallery", icon: ImageIcon },
-  { href: "/stays", label: "Stays", icon: Bed },
-  { href: "/visit", label: "Visit", icon: MapPin },
-  { href: "/faq", label: "FAQ", icon: HelpCircle },
-  // { href: "/developer", label: "Developer", icon: Code },
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/stays", label: "Stays" },
+  { href: "/blog", label: "Blog" },
+  { href: "/visit", label: "Visit" },
+  { href: "/faq", label: "FAQ" },
 ];
 
 export function Navigation() {
+  const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const pathname = usePathname();
+  const drawerRef = useRef<HTMLDivElement>(null);
 
+  // GSAP entrance on mount
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    if (!headerRef.current) return;
+    gsap.fromTo(
+      headerRef.current,
+      { y: -80, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, ease: "power3.out", delay: 0.1 }
+    );
+  }, []);
+
+  // Scroll state
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 32);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Close mobile drawer on route change
   useEffect(() => setIsOpen(false), [pathname]);
 
-  const invert = !scrolled && !isOpen; // on top, transparent, content blends dynamically
+  // Animate drawer open/close
+  useEffect(() => {
+    if (!drawerRef.current) return;
+    if (isOpen) {
+      gsap.fromTo(
+        drawerRef.current,
+        { opacity: 0, y: -16 },
+        { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" }
+      );
+    }
+  }, [isOpen]);
+
+  const isHero = !scrolled && !isOpen;
+  const whatsappUrl = buildWhatsAppUrl(
+    SITE_CONFIG.whatsappNumber,
+    "Hi! I'd like to book Lake View Villa Tangalle."
+  );
 
   return (
     <>
-      <motion.header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled || isOpen
-            ? "bg-background/50 glass-strong backdrop-blur-3xl dark:glass-dark border-b border-border"
-            : "bg-transparent glass"
-        }`}
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.45 }}
+      <header
+        ref={headerRef}
         role="banner"
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+          scrolled || isOpen
+            ? "border-b border-white/10 bg-white/10 backdrop-blur-2xl dark:bg-black/20"
+            : "bg-transparent"
+        }`}
       >
-        <nav
-          className="container mx-auto px-4 py-2 md:px-4 md:py-3"
-          aria-label="Primary"
-        >
-          <div
-            className={`flex items-center justify-between ${
-              invert ? "nav-content-invert" : ""
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6 lg:px-8">
+          {/* Logo */}
+          <Link
+            href="/"
+            className="group flex items-center gap-2.5"
+            aria-label="Lake View Villa — Home"
+          >
+            <Image
+              src="/logo.png"
+              alt="Lake View Villa"
+              width={36}
+              height={36}
+              className="h-9 w-9 rounded-lg transition-transform duration-300 group-hover:scale-105"
+              priority
+            />
+            <span
+              className={`hidden text-base font-semibold tracking-tight sm:block transition-colors duration-300 ${
+                isHero ? "text-white drop-shadow-md" : "text-[var(--color-foreground)]"
+              }`}
+            >
+              Lake View Villa
+            </span>
+          </Link>
+
+          {/* Desktop nav */}
+          <nav
+            aria-label="Primary navigation"
+            className="hidden items-center gap-1 md:flex"
+          >
+            {NAV_LINKS.map(({ href, label }) => {
+              const active =
+                href === "/" ? pathname === "/" : pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60 ${
+                    isHero
+                      ? "text-white/90 hover:text-white hover:bg-white/10"
+                      : "text-[var(--color-foreground)] hover:bg-[var(--color-primary)]/8 hover:text-[var(--color-primary)]"
+                  }`}
+                >
+                  {label}
+                  {/* Active underline */}
+                  {active && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-[var(--color-primary)]"
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Desktop right actions */}
+          <div className="hidden items-center gap-2 md:flex">
+            {process.env.NODE_ENV !== "production" && (
+              <div className="rounded-lg p-1">
+                <ThemeSwitch />
+              </div>
+            )}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Book via WhatsApp"
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                isHero
+                  ? "bg-white/15 text-white backdrop-blur-sm hover:bg-white/25 border border-white/30"
+                  : "bg-[var(--color-primary)] text-white hover:opacity-90"
+              }`}
+            >
+              <Phone className="h-3.5 w-3.5" />
+              Book Now
+            </a>
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setIsOpen((v) => !v)}
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl md:hidden transition-colors ${
+              isHero ? "text-white hover:bg-white/10" : "text-[var(--color-foreground)] hover:bg-[var(--color-primary)]/10"
             }`}
           >
-            {/* Logo */}
-            <Link
-              href="/"
-              className="flex items-center gap-3 font-bold"
-              aria-label="Lake View Villa – Home"
-            >
-              <Image
-                src="/logo.png"
-                alt="Lake_View"
-                width={150}
-                height={150}
-                className="h-10 w-10"
-                priority
-              />
-              <span className="text-lg md:text-xl title-shadow">
-                Lake View Villa
-              </span>
-            </Link>
+            {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </div>
+      </header>
 
-            {/* Desktop */}
-            <div className="hidden md:flex items-center gap-2">
-              {NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                const active = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2 rounded-lg px-3 py-2 transition-colors title-shadow focus-visible:outline-none focus-visible:ring-2 border-b-2 focus-visible:ring-primary/60 ${
-                      active
-                        ? "bg-foreground border-b-cyan-500"
-                        : "hover:bg-foreground/10"
-                    }`}
-                  >
-                    <Icon size={18} />
-                    <span className="text-sm title-shadow">{item.label}</span>
-                  </Link>
-                );
-              })}
-              {process.env.NODE_ENV !== "production" && (
-                <div className="ml-1 rounded-lg px-1.5 py-1">
-                  <ThemeSwitch />
-                </div>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setIsOpen((v) => !v)}
-              className="md:hidden rounded-md p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60"
-              aria-label="Toggle menu"
-              aria-expanded={isOpen}
-            >
-              {isOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </div>
-        </nav>
-      </motion.header>
-
-      {/* Mobile nav */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="fixed top-[64px] left-0 right-0 z-40 md:hidden border-b border-border bg-background/95 backdrop-blur-md"
+      {/* Mobile drawer */}
+      {isOpen && (
+        <div
+          ref={drawerRef}
+          className="fixed inset-x-0 top-16 z-40 border-b border-white/10 bg-white/80 backdrop-blur-2xl dark:bg-[#0a0f10]/90 md:hidden"
+        >
+          <nav
+            aria-label="Mobile navigation"
+            className="mx-auto max-w-7xl space-y-1 px-4 py-4"
           >
-            <div className="container mx-auto px-4 py-4">
-              <div className="space-y-2">
-                {NAV_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const active = pathname === item.href;
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-colors ${
-                        active ? "bg-foreground/10" : "hover:bg-foreground/10"
-                      }`}
-                    >
-                      <Icon size={18} />
-                      <span>{item.label}</span>
-                    </Link>
-                  );
-                })}
-                {process.env.NODE_ENV !== "production" && (
-                  <div className="rounded-lg px-4 py-3">
-                    <ThemeSwitch />
-                  </div>
-                )}
-              </div>
+            {NAV_LINKS.map(({ href, label }) => {
+              const active =
+                href === "/" ? pathname === "/" : pathname.startsWith(href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                      : "text-[var(--color-foreground)] hover:bg-[var(--color-primary)]/8"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+            <div className="pt-2">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                <Phone className="h-4 w-4" />
+                Book via WhatsApp
+              </a>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </nav>
+        </div>
+      )}
     </>
   );
 }

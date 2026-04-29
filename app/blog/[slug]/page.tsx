@@ -4,6 +4,7 @@ import { ScrollReveal } from "@/components/motion/scroll-reveal";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { generateBlogArticleSchema } from "@/lib/seo/structured-data";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -132,6 +133,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </ScrollReveal>
+
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            generateBlogArticleSchema(post, post.author.name || "Lake View Villa")
+          ),
+        }}
+      />
     </article>
   );
 }

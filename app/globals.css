@@ -508,3 +508,80 @@ a:hover .hover-underline-lux::after,
     height: 2px;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Phase 4 — Premium additions
+   ───────────────────────────────────────────────────────────────── */
+
+/* Section rhythm */
+.section-premium {
+  padding-block: clamp(5rem, 8vw, 9rem);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Deep text shadow for hero readability */
+.text-shadow-deep {
+  text-shadow: 0 4px 32px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.9);
+}
+
+/* Reveal clip-path (used by GSAP entrance) */
+.clip-reveal {
+  clip-path: inset(0 0 100% 0);
+}
+
+/* Premium gradient dividers */
+.divider-fade {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border) 30%, var(--color-border) 70%, transparent);
+}
+
+/* Gradient border on focus */
+.focus-ring-premium:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14,165,233,.45);
+}
+
+/* Glassmorphism — enhanced */
+.glass-premium {
+  background: rgba(255,255,255,.10);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,.22);
+}
+.dark .glass-premium {
+  background: rgba(10,15,20,.35);
+  border-color: rgba(255,255,255,.10);
+}
+
+/* Ambient pulse keyframe for indicators */
+@keyframes pulseGlow {
+  0%, 100% { opacity: .6; transform: scale(1); }
+  50%       { opacity: 1;  transform: scale(1.15); }
+}
+.pulse-glow {
+  animation: pulseGlow 2.2s ease-in-out infinite;
+}
+
+/* Shimmer sweep */
+@keyframes shimmerSweep {
+  0%   { transform: translateX(-100%) skewX(-18deg); }
+  100% { transform: translateX(200%)  skewX(-18deg); }
+}
+.shimmer-sweep::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+  transform: translateX(-100%) skewX(-18deg);
+}
+.shimmer-sweep:hover::after {
+  animation: shimmerSweep .65s ease forwards;
+}
+
+/* Prose dark-mode normalization */
+@media (prefers-color-scheme: dark) {
+  .prose { --tw-prose-invert: 1; }
+}
+.dark .prose { --tw-prose-invert: 1; }

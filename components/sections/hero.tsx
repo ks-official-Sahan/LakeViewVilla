@@ -1,155 +1,306 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import Image from "next/image";
-import { motion, useReducedMotion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { gsap, ScrollTrigger, useGSAP, EASE } from "@/lib/gsap";
+import { Phone, ChevronDown } from "lucide-react";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { trackContact } from "@/lib/analytics";
 
-type Props = { nextSectionId: string };
-
-// small blur placeholder (keep your BLUR or a very small base64)
 const BLUR =
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQFBhESIRMxQWH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABkRAAIDAQAAAAAAAAAAAAAAAAECAAMRIf/aAAwDAQACEQMRAD8Atu0NQZjIyW8sMUkUbAAqBsR+1nGoLlri/lkJ9NVSlKpuSxi5DYz/2Q==";
 
-export function PinnedHero({ nextSectionId }: Props) {
-  const rootRef = useRef<HTMLElement | null>(null);
-  const prefersReducedMotion = useReducedMotion();
-  const allowMotion = !prefersReducedMotion;
+type Props = { nextSectionId: string };
 
-  const handleGallery = () => {
-    const el = document.getElementById("gallery");
-    if (!el) return;
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+export function PinnedHero({ nextSectionId }: Props) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const bgRef = useRef<HTMLDivElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const subRef = useRef<HTMLParagraphElement>(null);
+  const ctasRef = useRef<HTMLDivElement>(null);
+  const scrollHintRef = useRef<HTMLButtonElement>(null);
+  const line1Ref = useRef<HTMLSpanElement>(null);
+  const line2Ref = useRef<HTMLSpanElement>(null);
+
+  const whatsappUrl = buildWhatsAppUrl(
+    SITE_CONFIG.whatsappNumber,
+    "Hi! I'm interested in booking Lake View Villa Tangalle. Could you please share availability and rates?"
+  );
 
   const handleWhatsApp = () => {
-    const url = buildWhatsAppUrl(
-      SITE_CONFIG.whatsappNumber,
-      "Hi! I'm interested in booking Lake View Villa Tangalle. Could you please share availability and rates?"
-    );
-    trackContact("whatsapp", url, "Chat on WhatsApp");
-    setTimeout(() => window.open(url, "_blank", "noopener,noreferrer"), 80);
+    trackContact("whatsapp", whatsappUrl, "Chat on WhatsApp");
+    setTimeout(() => window.open(whatsappUrl, "_blank", "noopener,noreferrer"), 80);
   };
+
+  const handleGallery = () => {
+    window.location.href = "/gallery";
+  };
+
+  const handleScrollDown = () => {
+    const el = document.getElementById(nextSectionId);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  // ── Cinematic entrance on mount ────────────────────────────────
+  useGSAP(() => {
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    const tl = gsap.timeline({ defaults: { ease: EASE.premium } });
+
+    // Parallax background enters slightly zoomed, de-zooms
+    tl.fromTo(
+      bgRef.current,
+      { scale: 1.12, opacity: 0 },
+      { scale: 1.04, opacity: 1, duration: 1.6 },
+      0
+    );
+
+    // Scrim fades in
+    tl.fromTo(scrimRef.current, { opacity: 0 }, { opacity: 1, duration: 1 }, 0.2);
+
+    // Line 1 — slides up + reveals via clip-path
+    tl.fromTo(
+      line1Ref.current,
+      { y: 80, opacity: 0, clipPath: "inset(0 0 100% 0)" },
+      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 1.0 },
+      0.4
+    );
+
+    // Line 2 — same, slightly delayed
+    tl.fromTo(
+      line2Ref.current,
+      { y: 80, opacity: 0, clipPath: "inset(0 0 100% 0)" },
+      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 1.0 },
+      0.6
+    );
+
+    // Subtitle fades up
+    tl.fromTo(
+      subRef.current,
+      { y: 24, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7 },
+      0.85
+    );
+
+    // CTAs fade up staggered
+    const btns = ctasRef.current?.children;
+    tl.fromTo(
+      btns ?? [],
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.55, stagger: 0.12 },
+      1.0
+    );
+
+    // Scroll hint fades in last
+    tl.fromTo(
+      scrollHintRef.current,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4 },
+      1.4
+    );
+
+    // ── Floating scroll hint bob animation ────────────────────────
+    gsap.to(scrollHintRef.current, {
+      y: 8,
+      duration: 1.4,
+      ease: "sine.inOut",
+      yoyo: true,
+      repeat: -1,
+      delay: 1.8,
+    });
+  }, { scope: sectionRef });
+
+  // ── Scroll-driven parallax ─────────────────────────────────────
+  useGSAP(() => {
+    if (!sectionRef.current || !bgRef.current) return;
+
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) return;
+
+    // Background parallax — moves slower than scroll (Ken Burns feel)
+    ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top top",
+      end: "bottom top",
+      scrub: 1.5,
+      onUpdate: (self) => {
+        const p = self.progress;
+        if (bgRef.current) {
+          gsap.set(bgRef.current, {
+            y: `${p * 18}%`,
+            scale: 1.04 + p * 0.04,
+          });
+        }
+        // Fade text as user scrolls away
+        if (headingRef.current) {
+          gsap.set(headingRef.current, { opacity: 1 - p * 2.2 });
+        }
+        if (subRef.current) {
+          gsap.set(subRef.current, { opacity: 1 - p * 2.5 });
+        }
+      },
+    });
+
+    return () => ScrollTrigger.getAll().forEach((st) => st.kill());
+  }, { scope: sectionRef });
 
   return (
     <section
-      ref={(el) => (rootRef.current = el)}
+      ref={sectionRef}
       id="home"
-      className="relative h-[100svh] overflow-hidden touch-pan-y"
-      aria-label="Lake View Villa hero section"
+      aria-label="Lake View Villa — hero section"
+      className="relative h-[100svh] overflow-hidden"
     >
-      {/* Background image (LCP) + scrim */}
-      <div className="absolute inset-0 -z-10">
+      {/* ── Background image with parallax ─────────────────────── */}
+      <div
+        ref={bgRef}
+        className="absolute inset-0 -z-10 origin-center will-change-transform"
+      >
         <Image
           src="/villa/optimized/villa_img_02.webp"
-          alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
-          role="img"
+          alt="Lake View Villa Tangalle — aerial panorama over Rekawa lake"
           fill
           sizes="100vw"
           priority
           placeholder="blur"
           blurDataURL={BLUR}
-          quality={75}
-          className="object-cover contrast-125 blur-sm transform-gpu will-change-transform"
+          quality={80}
+          className="object-cover"
           draggable={false}
         />
-        {/* Scrim */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.68)_0%,rgba(0,0,0,.35)_40%,rgba(0,0,0,.15)_70%,rgba(0,0,0,0)_100%)] dark:bg-[linear-gradient(180deg,rgba(0,0,0,.78)_0%,rgba(0,0,0,.42)_45%,rgba(0,0,0,.18)_75%,rgba(0,0,0,0)_100%)]" />
       </div>
 
-      {/* Noscript fallback for crawlers / non-JS LCP (good for SEO) */}
+      {/* ── Multi-layer cinematic scrim ─────────────────────────── */}
+      <div
+        ref={scrimRef}
+        aria-hidden
+        className="absolute inset-0 -z-10"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(4,12,18,.75) 0%, rgba(4,12,18,.40) 30%, rgba(4,12,18,.18) 60%, rgba(4,12,18,.55) 100%)",
+        }}
+      />
+      {/* Colour-grade: teal cast at bottom */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(0,178,180,.14), transparent)",
+        }}
+      />
+
+      {/* ── SEO noscript fallback ───────────────────────────────── */}
       <noscript>
         <img
           src="/villa/optimized/villa_img_02.webp"
-          alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
-          style={{
-            width: "100%",
-            height: "auto",
-            display: "block",
-            objectFit: "cover",
-          }}
-          className="contrast-125 blur-sm"
+          alt="Lake View Villa Tangalle — aerial view over the lagoon"
+          style={{ width: "100%", height: "auto", display: "block", objectFit: "cover" }}
         />
       </noscript>
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-4">
-        <div className="w-full max-w-5xl mx-auto py-12">
-          <motion.h1
-            className="font-bold text-shadow-deep mb-4 font-display leading-tight"
-            initial={{ y: allowMotion ? 80 : 0, opacity: allowMotion ? 0 : 1 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            // style={{
-            //   textShadow: "0 0 30px rgba(0,0,0,.45), 0 2px 18px rgba(0,0,0,.6)",
-            // }}
-          >
-            <span className="block text-shadow-deep text-[clamp(1.6rem,7vw,4.75rem)]">
-              <span className="block">{HERO_CONTENT.titleParts[0]}</span>
-              <span className="block">{HERO_CONTENT.titleParts[1]}</span>
-            </span>
-          </motion.h1>
+      {/* ── Content ─────────────────────────────────────────────── */}
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white">
+        <div className="w-full max-w-5xl">
+          {/* Eyebrow label */}
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#22d3ee] animate-pulse" />
+            Tangalle · Sri Lanka
+          </p>
 
-          <motion.p
-            className="mx-auto font-medium text-shadow-deep text-white/95 text-[clamp(0.95rem,3.6vw,1.375rem)] max-w-[68ch] mb-7"
-            initial={{ y: allowMotion ? 40 : 0, opacity: allowMotion ? 0 : 1 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.7, delay: 0.15, ease: "easeOut" }}
-            style={{ textShadow: "0 2px 18px rgba(0,0,0,.55)" }}
-          >
-            <span>{HERO_CONTENT.tagline}</span>
-          </motion.p>
+          {/* Main heading — two lines with clip-path reveal */}
+          <div ref={headingRef}>
+            <h1 className="font-[var(--font-display)] font-black leading-[1.02] tracking-tight">
+              <span
+                ref={line1Ref}
+                className="block text-[clamp(2.4rem,7.5vw,5.5rem)] text-white"
+                style={{
+                  textShadow: "0 4px 32px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.8)",
+                }}
+              >
+                {HERO_CONTENT.titleParts[0]}
+              </span>
+              <span
+                ref={line2Ref}
+                className="block bg-gradient-to-r from-[#7ee8fa] via-[#22d3ee] to-[#34d399] bg-clip-text text-[clamp(2.4rem,7.5vw,5.5rem)] text-transparent"
+              >
+                {HERO_CONTENT.titleParts[1]}
+              </span>
+            </h1>
+          </div>
 
-          <motion.div
-            className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center"
-            initial={{ y: allowMotion ? 24 : 0, opacity: allowMotion ? 0 : 1 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
+          {/* Subtitle */}
+          <p
+            ref={subRef}
+            className="mx-auto mt-6 max-w-[62ch] text-[clamp(0.95rem,2.4vw,1.25rem)] font-medium leading-relaxed text-white/80"
+            style={{ textShadow: "0 2px 14px rgba(0,0,0,.5)" }}
           >
-            <Button
-              size="lg"
-              className="glass-strong text-shadow-deep text-white border-white/40 hover:border-white/60 px-5 py-3 md:px-8 md:py-5 md:text-lg font-semibold"
+            {HERO_CONTENT.tagline}
+          </p>
+
+          {/* CTAs */}
+          <div
+            ref={ctasRef}
+            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
+          >
+            <button
               onClick={handleGallery}
-              aria-label="View photo gallery of Lake View Villa"
+              aria-label="View the photo gallery"
+              className="group relative inline-flex min-w-44 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-white/30 bg-white/12 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
+              {/* Shimmer */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -inset-x-full top-0 h-full w-full skew-x-[-18deg] bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+                style={{ animation: "none" }}
+              />
               View Gallery
-            </Button>
+            </button>
 
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 text-shadow-deep hover:border-cyan-400/70 hover:text-cyan-100 bg-cyan-500/30 backdrop-blur-2xl text-white border-cyan-300/80 px-5 py-3 md:px-8 md:py-5 md:text-lg hover:glass font-semibold"
+            <button
               onClick={handleWhatsApp}
-              aria-label="Contact us via WhatsApp to book your stay"
+              aria-label="Contact us via WhatsApp to book"
+              className="group inline-flex min-w-44 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#0ea5e9]/30 transition-all duration-300 hover:shadow-[#0ea5e9]/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22d3ee]/60"
             >
+              <Phone className="h-4 w-4" />
               {HERO_CONTENT.ctas[1]}
-            </Button>
-          </motion.div>
+            </button>
+          </div>
         </div>
 
-        {/* Scroll hint (user-initiated only) */}
+        {/* Scroll hint */}
         <button
+          ref={scrollHintRef}
           type="button"
-          onClick={() => {
-            const endEl = document.getElementById(nextSectionId);
-            if (endEl)
-              endEl.scrollIntoView({ behavior: "smooth", block: "start" });
-          }}
-          className="pointer-events-auto absolute bottom-[max(env(safe-area-inset-bottom),1rem)] left-1/2 -translate-x-1/2 text-white/90"
-          aria-label="Scroll to next section"
+          onClick={handleScrollDown}
+          aria-label="Scroll down to explore"
+          className="absolute bottom-[max(env(safe-area-inset-bottom,1rem),1.5rem)] left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-1.5 text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
-          <div className="flex flex-col items-center px-3 py-1.5">
-            <span className="text-xs sm:text-sm mb-1 font-medium">
-              Scroll to explore
-            </span>
-            <ChevronDown className="w-5 h-5" aria-hidden="true" />
-          </div>
+          <span className="text-[11px] font-medium uppercase tracking-widest">
+            Scroll to explore
+          </span>
+          {/* Animated line */}
+          <span className="relative h-8 w-px overflow-hidden rounded-full bg-white/20">
+            <span
+              aria-hidden
+              className="absolute top-0 h-1/2 w-full rounded-full bg-white/80"
+              style={{ animation: "scrollLine 1.6s ease-in-out infinite" }}
+            />
+          </span>
+          <ChevronDown className="h-4 w-4 opacity-60" />
         </button>
       </div>
+
+      <style>{`
+        @keyframes scrollLine {
+          0%   { transform: translateY(-100%); opacity: 1; }
+          80%  { transform: translateY(200%); opacity: 0; }
+          100% { transform: translateY(-100%); opacity: 0; }
+        }
+      `}</style>
     </section>
   );
 }

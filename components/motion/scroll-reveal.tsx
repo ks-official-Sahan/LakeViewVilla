@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, createElement, type ReactNode, type CSSProperties, type ElementType } from "react";
-import { useGSAP } from "@gsap/react";
+import { useGSAP } from "@/lib/gsap";
 import { gsap, ScrollTrigger, EASE, DURATION } from "@/lib/gsap";
 
 type RevealVariant =
