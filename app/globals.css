@@ -2,6 +2,7 @@
 
 /* Tailwind v4 core */
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* ----------------------- Root defaults & motion guard ----------------------- */
 :root {

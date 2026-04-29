@@ -341,7 +341,9 @@ export default function RootLayout({
                 <Suspense fallback={null}>
                   <ClientEffects />
                 </Suspense>
-                <Navigation />
+                <Suspense fallback={null}>
+                  <Navigation />
+                </Suspense>
                 <main id="content" className="relative isolate">
                   <Suspense fallback={null}>{children}</Suspense>
                 </main>

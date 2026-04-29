@@ -17,7 +17,9 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <div className="flex min-h-svh bg-[var(--color-background)]">
-      <AdminSidebar role={session.user.role} />
+      <Suspense fallback={null}>
+        <AdminSidebar role={session.user.role} />
+      </Suspense>
       <div className="flex flex-1 flex-col">
         <AdminHeader user={session.user} />
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/config";
 import { MediaGrid } from "@/components/admin/media-grid";
 
 export const metadata = {
@@ -6,6 +7,7 @@ export const metadata = {
 };
 
 export default async function AdminMediaPage() {
+  await auth();
   let assets: {
     id: string;
     url: string;

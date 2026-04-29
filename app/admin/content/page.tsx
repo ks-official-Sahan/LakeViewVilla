@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/lib/auth/config";
 import { FileText, Edit } from "lucide-react";
 
 export const metadata = {
@@ -14,6 +15,7 @@ const PAGES = [
 ];
 
 export default async function AdminContentPage() {
+  await auth();
   let contentCounts: Record<string, number> = {};
 
   try {
