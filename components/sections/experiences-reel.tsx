@@ -136,7 +136,7 @@ export function ExperiencesReel() {
           <h2 id="experiences-heading"
             className="font-[var(--font-display)] text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter text-[var(--color-foreground)] leading-[1.1] max-w-3xl">
             Discover Tangalle&apos;s{" "}
-            <span className="bg-[var(--grad-gold)] bg-clip-text text-transparent italic pr-2">wonders</span>
+            <span className="text-gradient-gold inline-block italic pr-2">wonders</span>
           </h2>
           <p className="mt-6 max-w-xl text-base md:text-lg text-[var(--color-muted)] font-medium">
             Ancient temples, ocean dramas, wildlife corridors — curated excursions all within easy reach of your sanctuary.

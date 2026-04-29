@@ -3,7 +3,8 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { Upload, Trash2, Search, Filter, Grid3X3, List } from "lucide-react";
+import { Upload, Trash2, Search, Filter, Grid3X3, List, Edit2, X, Check, Copy } from "lucide-react";
+import { updateMediaAsset } from "@/lib/admin/media-actions";
 
 interface MediaAsset {
   id: string;
@@ -43,6 +44,9 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [uploading, setUploading] = useState(false);
+  const [editingAsset, setEditingAsset] = useState<MediaAsset | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [copiedUrl, setCopiedUrl] = useState(false);
 
   const filtered = assets.filter((a) => {
     const matchesSearch =
@@ -90,8 +94,36 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
     const res = await fetch(`/api/admin/media/${id}`, { method: "DELETE" });
     if (res.ok) {
       setAssets((prev) => prev.filter((a) => a.id !== id));
+      if (editingAsset?.id === id) setEditingAsset(null);
     }
   }
+
+  async function handleSaveEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingAsset) return;
+
+    setSaving(true);
+    const formData = new FormData(e.currentTarget);
+    const title = formData.get("title") as string;
+    const alt = formData.get("alt") as string;
+    const cat = formData.get("category") as string;
+
+    const result = await updateMediaAsset(editingAsset.id, { title, alt, category: cat });
+    
+    if (result.success && result.data) {
+      setAssets(prev => prev.map(a => a.id === result.data?.id ? { ...a, ...result.data, createdAt: result.data.createdAt.toISOString() } as unknown as MediaAsset : a));
+      setEditingAsset(null);
+    } else {
+      alert("Failed to update media asset");
+    }
+    setSaving(false);
+  }
+
+  const copyToClipboard = (url: string) => {
+    navigator.clipboard.writeText(url);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
 
   return (
     <div className="space-y-6">
@@ -190,14 +222,20 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
               key={asset.id}
               className="group relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]"
             >
-              <div className="relative aspect-square">
+              <div 
+                className="relative aspect-square cursor-pointer"
+                onClick={() => setEditingAsset(asset)}
+              >
                 <Image
                   src={asset.url}
                   alt={asset.alt ?? asset.title ?? "Media"}
                   fill
-                  className="object-cover"
+                  className="object-cover transition-transform group-hover:scale-105"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                 />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/30 group-hover:opacity-100">
+                  <Edit2 className="h-6 w-6 text-white drop-shadow-md" />
+                </div>
               </div>
               <div className="p-2">
                 <p className="truncate text-xs font-medium text-[var(--color-foreground)]">
@@ -209,8 +247,8 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
               </div>
               {/* Delete overlay */}
               <button
-                onClick={() => handleDelete(asset.id)}
-                className="absolute right-2 top-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={(e) => { e.stopPropagation(); handleDelete(asset.id); }}
+                className="absolute right-2 top-2 z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white opacity-0 transition-opacity group-hover:opacity-100"
                 aria-label={`Delete ${asset.title ?? "asset"}`}
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -223,7 +261,8 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
           {filtered.map((asset) => (
             <div
               key={asset.id}
-              className="flex items-center gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+              className="group flex items-center gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 cursor-pointer hover:border-[var(--color-primary)]/50 transition-colors"
+              onClick={() => setEditingAsset(asset)}
             >
               <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg">
                 <Image
@@ -242,15 +281,146 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                   {asset.category} • {asset.type}
                 </p>
               </div>
-              <button
-                onClick={() => handleDelete(asset.id)}
-                className="cursor-pointer rounded-lg p-2 text-[var(--color-muted)] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
-                aria-label={`Delete ${asset.title ?? "asset"}`}
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
+              <div className="flex items-center">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setEditingAsset(asset); }}
+                  className="cursor-pointer rounded-lg p-2 text-[var(--color-muted)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Edit asset"
+                >
+                  <Edit2 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(asset.id); }}
+                  className="cursor-pointer rounded-lg p-2 text-[var(--color-muted)] hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label={`Delete ${asset.title ?? "asset"}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingAsset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] bg-[var(--color-background)] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
+            
+            {/* Image Preview Side */}
+            <div className="w-full md:w-1/2 bg-[var(--color-surface)] p-6 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-[var(--color-border)]">
+              <div className="relative w-full aspect-square max-h-[50vh] rounded-xl overflow-hidden border border-[var(--color-border)] shadow-inner">
+                <Image
+                  src={editingAsset.url}
+                  alt={editingAsset.alt ?? "Preview"}
+                  fill
+                  className="object-contain bg-black/5"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
+              <div className="mt-4 w-full">
+                <div className="flex items-center justify-between bg-[var(--color-background)] p-3 rounded-lg border border-[var(--color-border)]">
+                  <p className="text-xs text-[var(--color-muted)] truncate max-w-[80%]">{editingAsset.url}</p>
+                  <button 
+                    onClick={() => copyToClipboard(editingAsset.url)}
+                    className="p-1.5 text-[var(--color-muted)] hover:text-[var(--color-primary)] bg-[var(--color-surface)] rounded-md transition-colors"
+                    title="Copy URL"
+                  >
+                    {copiedUrl ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                </div>
+                <div className="mt-2 text-xs text-[var(--color-muted)] flex justify-between">
+                  <span>Type: {editingAsset.type}</span>
+                  <span>{editingAsset.width}x{editingAsset.height}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Side */}
+            <div className="w-full md:w-1/2 p-6 overflow-y-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-[var(--color-foreground)]">Edit Asset</h3>
+                <button 
+                  onClick={() => setEditingAsset(null)}
+                  className="p-2 rounded-full hover:bg-[var(--color-surface)] text-[var(--color-muted)] transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEdit} className="space-y-5">
+                <div>
+                  <label htmlFor="title" className="block text-sm font-medium text-[var(--color-foreground)] mb-1">
+                    Internal Title
+                  </label>
+                  <input
+                    id="title"
+                    name="title"
+                    defaultValue={editingAsset.title || ""}
+                    placeholder="e.g., Master Bedroom Angle 1"
+                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="alt" className="block text-sm font-medium text-[var(--color-foreground)] mb-1">
+                    Alt Text (SEO & Accessibility)
+                  </label>
+                  <textarea
+                    id="alt"
+                    name="alt"
+                    defaultValue={editingAsset.alt || ""}
+                    placeholder="e.g., View of the master bedroom featuring a king size bed and lagoon views"
+                    rows={3}
+                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="category" className="block text-sm font-medium text-[var(--color-foreground)] mb-1">
+                    Category
+                  </label>
+                  <select
+                    id="category"
+                    name="category"
+                    defaultValue={editingAsset.category}
+                    className="w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2.5 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] appearance-none"
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat.charAt(0).toUpperCase() + cat.slice(1).replace("-", " ")}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pt-4 flex items-center justify-end gap-3 border-t border-[var(--color-border)]">
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(editingAsset.id)}
+                    className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-colors"
+                  >
+                    Delete Asset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingAsset(null)}
+                    className="px-4 py-2 text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-surface)] rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    className="px-5 py-2 text-sm font-medium text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 rounded-xl transition-colors disabled:opacity-70 flex items-center gap-2"
+                  >
+                    {saving && <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                    {saving ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>

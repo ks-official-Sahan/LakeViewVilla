@@ -219,6 +219,8 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className={`${montserrat.variable} ${inter.variable}`}
+      data-scroll-behavior="smooth"
+      style={{ scrollBehavior: "smooth" }}
     >
       <head>
         <link rel="canonical" href={SITE_CONFIG.primaryDomain} />

@@ -349,6 +349,13 @@ textarea {
   -webkit-text-fill-color: transparent;
 }
 
+.text-gradient-gold {
+  background: var(--grad-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -151,7 +151,7 @@ export default function GalleryClient({ images }: { images: Img[] }) {
                   alt={images[selected].alt}
                   width={images[selected].w}
                   height={images[selected].h}
-                  className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                  className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg"
                   priority
                 />
               </motion.div>

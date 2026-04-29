@@ -135,7 +135,7 @@ export function GalleryTeaser() {
             className="font-[var(--font-display)] text-[clamp(2.5rem,5vw,4.5rem)] font-black tracking-tighter text-[var(--color-foreground)] leading-[1.1]"
           >
             A glimpse of{" "}
-            <span className="bg-[var(--grad-gold)] bg-clip-text text-transparent italic pr-2">
+            <span className="text-gradient-gold inline-block italic pr-2">
               paradise
             </span>
           </h2>
@@ -250,7 +250,7 @@ export function GalleryTeaser() {
                 alt={images[lightbox].alt}
                 width={images[lightbox].w}
                 height={images[lightbox].h}
-                className="max-h-full max-w-full object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
                 quality={90}
                 priority
               />
