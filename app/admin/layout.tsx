@@ -1,6 +1,5 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { auth } from "@/lib/auth/config";
-import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { AdminHeader } from "@/components/admin/header";
 
@@ -11,8 +10,11 @@ interface AdminLayoutProps {
 export default async function AdminLayout({ children }: AdminLayoutProps) {
   const session = await auth();
 
+  // Unauthenticated: render children without admin shell.
+  // The proxy already redirects non-login admin paths to /admin/login,
+  // so only the login page reaches here without a session.
   if (!session?.user) {
-    redirect("/admin/login");
+    return <>{children}</>;
   }
 
   return (

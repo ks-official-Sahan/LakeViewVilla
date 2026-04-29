@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -13,7 +14,10 @@ interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
 
+
+
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+  await connection();
   const { slug } = await params;
 
   try {
@@ -59,6 +63,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
+  await connection();
   const { slug } = await params;
 
   let post: Awaited<ReturnType<typeof fetchPost>> | null = null;

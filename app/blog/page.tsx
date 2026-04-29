@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { connection } from "next/server";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -33,7 +34,10 @@ type Post = {
   author: { name: string | null };
 };
 
+
+
 export default async function BlogPage() {
+  await connection();
   let posts: Post[] = [];
 
   try {

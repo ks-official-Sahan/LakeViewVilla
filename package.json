@@ -16,7 +16,7 @@
     "@gsap/react": "^2.1.2",
     "@hookform/resolvers": "5.2.2",
     "@mantine/core": "^8.3.2",
-    "@mantine/hooks": "^9.1.1",
+    "@mantine/hooks": "^8.3.18",
     "@neondatabase/serverless": "^1.1.0",
     "@next/bundle-analyzer": "16.2.4",
     "@prisma/adapter-neon": "^7.8.0",

@@ -101,7 +101,7 @@ export default async function AdminBlogPage() {
                         {post.title}
                       </span>
                       {post.generatedByAI && (
-                        <span className="rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
+                        <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
                           AI
                         </span>
                       )}

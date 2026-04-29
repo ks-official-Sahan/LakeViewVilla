@@ -41,7 +41,7 @@ export default async function AdminAuditPage() {
     CREATE: "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-300",
     UPDATE: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-300",
     DELETE: "text-red-600 bg-red-50 dark:bg-red-900/20 dark:text-red-300",
-    LOGIN: "text-violet-600 bg-violet-50 dark:bg-violet-900/20 dark:text-violet-300",
+    LOGIN: "text-sky-600 bg-sky-50 dark:bg-sky-900/20 dark:text-sky-300",
     LOGOUT: "text-gray-600 bg-gray-50 dark:bg-gray-800/30 dark:text-gray-400",
   };
 

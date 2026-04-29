@@ -7,12 +7,14 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(ScrollTrigger, useGSAP);
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-// Premium easing presets
-gsap.config({
-  nullTargetWarn: false,
-});
+  // Premium easing presets
+  gsap.config({
+    nullTargetWarn: false,
+  });
+}
 
 export const EASE = {
   /** Smooth deceleration — elements settling into place */

@@ -6,8 +6,20 @@ import { createBlogPost, updateBlogPost, publishBlogPost } from "@/lib/admin/act
 import { Sparkles, Save, Send, Image as ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+interface InitialPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  status: string;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  generatedByAI: boolean;
+}
+
 interface BlogEditorProps {
-  initialPost: any;
+  initialPost: InitialPost | null;
   isNew: boolean;
   userId: string;
 }
@@ -85,7 +97,7 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
     
     setSaving(true);
     try {
-      let postId = initialPost?.id;
+      let postId: string | undefined = initialPost?.id;
       
       if (isNew && !postId) {
         const post = await createBlogPost({
@@ -93,11 +105,11 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
           generatedByAI: !!aiPrompt,
         });
         postId = post.id;
-      } else {
+      } else if (postId) {
         await updateBlogPost(postId, formData);
       }
       
-      if (publish && formData.status !== "PUBLISHED") {
+      if (publish && formData.status !== "PUBLISHED" && postId) {
         await publishBlogPost(postId);
       }
       
@@ -169,9 +181,9 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
         </div>
 
         {/* AI Generation Tool */}
-        <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 p-6 shadow-sm space-y-4">
+        <div className="rounded-2xl border border-[var(--color-gold)]/20 bg-gradient-to-br from-[var(--color-gold)]/5 to-amber-500/5 p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-violet-500" />
+            <Sparkles className="h-5 w-5 text-[var(--color-gold)]" />
             <h3 className="font-semibold text-[var(--color-foreground)]">AI Assistant</h3>
           </div>
           <p className="text-sm text-[var(--color-muted)]">
@@ -182,12 +194,12 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
               placeholder="E.g., Write a 500-word post about the top 5 beaches near Tangalle..."
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
-              className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 resize-none h-20"
+              className="flex-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm outline-none focus:border-[var(--color-gold)] focus:ring-1 focus:ring-[var(--color-gold)] resize-none h-20"
             />
             <Button 
               onClick={handleGenerateAI}
               disabled={generating}
-              className="bg-violet-600 hover:bg-violet-700 text-white h-20 px-6 rounded-xl shrink-0"
+              className="bg-[var(--color-gold)] hover:bg-[var(--color-gold)]/90 text-white h-20 px-6 rounded-xl shrink-0"
             >
               {generating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
             </Button>
