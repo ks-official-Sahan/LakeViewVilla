@@ -50,6 +50,7 @@ export default async function AdminBlogEditorPage(props: { params: Promise<{ id:
           publishAt: post.publishedAt ? toDatetimeLocalValue(post.publishedAt) : "",
           featuredImageId: post.featuredImageId,
           featuredImageUrl: post.featuredImage?.url ?? null,
+          updatedAt: post.updatedAt.toISOString(),
         }
       : null;
 

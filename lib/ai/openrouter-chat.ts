@@ -2,7 +2,7 @@
  * OpenRouter chat completions with model fallbacks when free tiers hit upstream 429s.
  */
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+export const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 /** Instruct/chat models suitable for blog copy — avoid code-only models here. */
 const DEFAULT_FALLBACK_MODELS = [
@@ -21,13 +21,13 @@ export interface OpenRouterChatOptions {
   response_format?: { type: "json_object" };
 }
 
-function modelChain(): string[] {
+export function modelChain(): string[] {
   const env = process.env.OPENROUTER_MODEL?.trim();
   const chain = [env, ...DEFAULT_FALLBACK_MODELS].filter((m): m is string => Boolean(m));
   return [...new Set(chain)];
 }
 
-function parseOpenRouterError(text: string): {
+export function parseOpenRouterError(text: string): {
   code?: number;
   message?: string;
   raw?: string;
@@ -46,7 +46,7 @@ function parseOpenRouterError(text: string): {
   }
 }
 
-function isRetryable(status: number, errorCode?: number): boolean {
+export function isRetryableOpenRouterError(status: number, errorCode?: number): boolean {
   if (status === 429 || status === 503) return true;
   if (errorCode === 429) return true;
   return false;
@@ -117,7 +117,7 @@ export async function openRouterChatCompletion(
     }
 
     const canTryNext =
-      isRetryable(res.status, lastParsed.code) && i < models.length - 1;
+      isRetryableOpenRouterError(res.status, lastParsed.code) && i < models.length - 1;
     if (canTryNext) {
       console.warn(
         `[OpenRouter] model ${model} failed (${res.status}, code ${lastParsed.code ?? "n/a"}), trying next model…`,

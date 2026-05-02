@@ -1,40 +1,24 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/rbac";
 import { openRouterChatCompletion } from "@/lib/ai/openrouter-chat";
-
-type GeneratedBlogPayload = {
-  title: string;
-  excerpt: string;
-  content: string;
-};
-
-function parseGeneratedBlog(raw: string): GeneratedBlogPayload | null {
-  const trimmed = raw.trim();
-  if (!trimmed.startsWith("{")) return null;
-  try {
-    const j = JSON.parse(trimmed) as Record<string, unknown>;
-    const title = typeof j.title === "string" ? j.title.trim() : "";
-    const excerpt = typeof j.excerpt === "string" ? j.excerpt.trim() : "";
-    const content =
-      typeof j.content === "string"
-        ? j.content.trim()
-        : typeof j.markdown === "string"
-          ? j.markdown.trim()
-          : typeof j.body === "string"
-            ? j.body.trim()
-            : "";
-    if (!title || !content) return null;
-    return { title, excerpt, content };
-  } catch {
-    return null;
-  }
-}
+import {
+  blogGenerationSystemPrompt,
+  buildBlogGenerationUserMessage,
+  parseGeneratedBlog,
+} from "@/lib/ai/blog-generate-shared";
 
 export async function POST(req: Request) {
   try {
     await requireRole("EDITOR");
 
-    const { prompt, tone = "professional", length = "medium" } = await req.json();
+    const json = await req.json();
+    const prompt = typeof json.prompt === "string" ? json.prompt : "";
+    const tone = typeof json.tone === "string" ? json.tone : "professional";
+    const length = typeof json.length === "string" ? json.length : "medium";
+    const imageDescription =
+      typeof json.imageDescription === "string" ? json.imageDescription : "";
+    const featuredImageUrl =
+      typeof json.featuredImageUrl === "string" ? json.featuredImageUrl : "";
 
     if (!prompt) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
@@ -45,19 +29,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "OpenRouter API key not configured" }, { status: 500 });
     }
 
-    const systemPrompt = `You are a professional copywriter for LakeViewVilla, a luxury private villa in Tangalle, Sri Lanka.
-Write an engaging, SEO-optimized blog post from the user's prompt.
-Tone: ${tone}. Length: ${length}.
-
-Return ONLY valid JSON (no markdown code fences, no prose) with exactly these keys:
-- "title": string, concise headline
-- "excerpt": string, 2 sentences max for listings
-- "content": string, full post body in Markdown only (use ## and ### headings, lists where appropriate). No YAML frontmatter inside this string.`;
+    const systemPrompt = blogGenerationSystemPrompt(tone, length);
+    const userMessage = buildBlogGenerationUserMessage({
+      prompt,
+      imageDescription,
+      featuredImageUrl,
+    });
 
     const result = await openRouterChatCompletion(apiKey, {
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: prompt },
+        { role: "user", content: userMessage },
       ],
       temperature: 0.75,
       max_tokens: 4096,

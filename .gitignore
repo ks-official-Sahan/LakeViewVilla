@@ -53,3 +53,7 @@ docs/implementation_plan.md
 docs/implementation_plan3.md
 
 .lighthouseci/
+
+/playwright-report/
+/test-results/
+/blob-report/

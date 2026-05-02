@@ -350,6 +350,28 @@ export async function enrichBlogPostSeo(id: string) {
   }
 }
 
+/** Suggest SEO fields from current title/body without persisting (editor “Suggest SEO” button). */
+export async function suggestSeoFromDraft(input: { title: string; content: string }) {
+  await requireAuth();
+  const title = String(input.title ?? "").trim();
+  const content = String(input.content ?? "");
+  if (!title || !content.trim()) {
+    throw new Error("Title and content are required to suggest SEO.");
+  }
+
+  const seo = await generateSEOMeta({
+    title,
+    content: content.slice(0, 8000),
+  });
+
+  return {
+    seoTitle: seo.title,
+    seoDescription: seo.description,
+    seoKeywords: seo.keywords ?? [],
+    excerptHint: seo.description.slice(0, 280),
+  };
+}
+
 export async function publishBlogPost(id: string, publishAt?: string) {
   const session = await requireRole("MANAGER");
 

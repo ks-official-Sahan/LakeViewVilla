@@ -12,7 +12,9 @@
     "lighthouse:ci": "lhci autorun --config=./lighthouserc.json",
     "db:seed": "npx prisma db seed",
     "opt:images": "node scripts/optimize-images.mjs",
-    "gen:icons": "node scripts/gen-icons.mjs"
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
@@ -88,6 +90,7 @@
   },
   "devDependencies": {
     "@lhci/cli": "0.14.0",
+    "@playwright/test": "1.52.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",

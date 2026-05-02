@@ -2,7 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createBlogPost, updateBlogPost, publishBlogPost, enrichBlogPostSeo } from "@/lib/admin/actions";
+import {
+  createBlogPost,
+  updateBlogPost,
+  publishBlogPost,
+  enrichBlogPostSeo,
+  suggestSeoFromDraft,
+} from "@/lib/admin/actions";
 import { normalizeBlogSlug } from "@/lib/utils/blog-slug";
 import { toast } from "sonner";
 import {
@@ -30,6 +36,8 @@ interface InitialPost {
   publishAt?: string | null;
   featuredImageId?: string | null;
   featuredImageUrl?: string | null;
+  /** ISO timestamp — local draft recovery compares against `savedAt`. */
+  updatedAt?: string | null;
 }
 
 interface BlogEditorProps {
@@ -37,7 +45,40 @@ interface BlogEditorProps {
   isNew: boolean;
 }
 
+type BlogEditorFormData = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  status: string;
+  seoTitle: string;
+  seoDescription: string;
+  publishAt: string;
+  featuredImageId: string;
+  featuredImageUrl: string;
+};
+
 const MAX_HISTORY = 50;
+
+function draftStorageKey(isNew: boolean, postId?: string | null) {
+  const id = isNew ? "new" : (postId ?? "new");
+  return `lvv-blog-draft-v1:${id}`;
+}
+
+function snapshotFromPost(initialPost: InitialPost | null) {
+  return JSON.stringify({
+    title: initialPost?.title || "",
+    slug: initialPost?.slug || "",
+    excerpt: initialPost?.excerpt || "",
+    content: initialPost?.content || "",
+    status: initialPost?.status || "DRAFT",
+    seoTitle: initialPost?.seoTitle || "",
+    seoDescription: initialPost?.seoDescription || "",
+    publishAt: initialPost?.publishAt || "",
+    featuredImageId: initialPost?.featuredImageId ?? "",
+    featuredImageUrl: initialPost?.featuredImageUrl ?? "",
+  });
+}
 
 /** Parses legacy AI responses that wrapped YAML frontmatter inside `content`. */
 function parseLegacyAiMarkdownBody(raw: string): {
@@ -74,40 +115,87 @@ function parseLegacyAiMarkdownBody(raw: string): {
   return { title, excerpt, body };
 }
 
+async function consumeBlogGenerateSse(res: Response): Promise<{
+  title: string;
+  excerpt: string;
+  content: string;
+  model?: string;
+}> {
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error("No response body");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let sep: number;
+    while ((sep = buffer.indexOf("\n\n")) !== -1) {
+      const block = buffer.slice(0, sep);
+      buffer = buffer.slice(sep + 2);
+
+      for (const line of block.split("\n")) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data:")) continue;
+        const raw = trimmed.slice(5).trim();
+        if (raw === "[DONE]") continue;
+
+        try {
+          const j = JSON.parse(raw) as Record<string, unknown>;
+          if (j.type === "error") {
+            throw new Error(String(j.message ?? "Generation failed"));
+          }
+          if (j.type === "done") {
+            const title = typeof j.title === "string" ? j.title.trim() : "";
+            const excerpt = typeof j.excerpt === "string" ? j.excerpt.trim() : "";
+            const content = typeof j.content === "string" ? j.content.trim() : "";
+            if (!title || !content) throw new Error("Incomplete AI payload");
+            return {
+              title,
+              excerpt,
+              content,
+              ...(typeof j.model === "string" ? { model: j.model } : {}),
+            };
+          }
+        } catch (e) {
+          if (e instanceof SyntaxError) continue;
+          throw e;
+        }
+      }
+    }
+  }
+
+  throw new Error("Stream ended without a complete draft");
+}
+
 export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
   const router = useRouter();
   const slugTouchedRef = useRef(false);
+  const storageKey = draftStorageKey(isNew, initialPost?.id);
+  const serverSnapRef = useRef(snapshotFromPost(initialPost));
+  const autoSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [suggestSeoBusy, setSuggestSeoBusy] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [aiImageNotes, setAiImageNotes] = useState("");
   const [aiTone, setAiTone] = useState("professional");
   const [aiLength, setAiLength] = useState<"short" | "medium" | "long">("medium");
   const [bodyTab, setBodyTab] = useState<"visual" | "markdown">("visual");
-  const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [recoverDraft, setRecoverDraft] = useState<BlogEditorFormData | null>(null);
 
-  // History for undo/redo
-  const [history, setHistory] = useState<string[]>(
-    initialPost
-      ? [
-          JSON.stringify({
-            title: initialPost.title,
-            slug: initialPost.slug,
-            excerpt: initialPost.excerpt || "",
-            content: initialPost.content,
-            seoTitle: initialPost.seoTitle || "",
-            seoDescription: initialPost.seoDescription || "",
-            publishAt: initialPost.publishAt || "",
-            featuredImageId: initialPost.featuredImageId ?? "",
-            featuredImageUrl: initialPost.featuredImageUrl ?? "",
-          }),
-        ]
-      : [],
-  );
-  const [historyIndex, setHistoryIndex] = useState(0);
+  const [hist, setHist] = useState(() => ({
+    snapshots: [snapshotFromPost(initialPost)],
+    index: 0,
+  }));
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BlogEditorFormData>({
     title: initialPost?.title || "",
     slug: initialPost?.slug || "",
     excerpt: initialPost?.excerpt || "",
@@ -120,18 +208,16 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
     featuredImageUrl: initialPost?.featuredImageUrl ?? "",
   });
 
-  const pushHistory = (newData: typeof formData) => {
-    setHistory((prev) => {
-      const newHistory = prev.slice(0, historyIndex + 1);
-      newHistory.push(JSON.stringify(newData));
-      if (newHistory.length > MAX_HISTORY) newHistory.shift();
-      return newHistory;
-    });
-    setHistoryIndex((prev) => Math.min(prev + 1, MAX_HISTORY - 1));
-  };
+  const clearLocalDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+      /* ignore */
+    }
+  }, [storageKey]);
 
-  const parseHistorySnapshot = (raw: string) => {
-    const data = JSON.parse(raw) as Partial<typeof formData>;
+  const parseHistorySnapshot = (raw: string): BlogEditorFormData => {
+    const data = JSON.parse(raw) as Partial<BlogEditorFormData>;
     return {
       title: data.title ?? "",
       slug: data.slug ?? "",
@@ -146,19 +232,57 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
     };
   };
 
+  const pushHistory = useCallback((newData: BlogEditorFormData) => {
+    const snap = JSON.stringify(newData);
+    setHist((h) => {
+      const cut = h.snapshots.slice(0, h.index + 1);
+      let snapshots = [...cut, snap];
+      let index = snapshots.length - 1;
+      if (snapshots.length > MAX_HISTORY) {
+        const overflow = snapshots.length - MAX_HISTORY;
+        snapshots = snapshots.slice(overflow);
+        index = snapshots.length - 1;
+      }
+      return { snapshots, index };
+    });
+  }, []);
+
   const undo = () => {
-    if (historyIndex <= 0) return;
-    const newIndex = historyIndex - 1;
-    setHistoryIndex(newIndex);
-    setFormData(parseHistorySnapshot(history[newIndex]));
+    setHist((h) => {
+      if (h.index <= 0) return h;
+      const idx = h.index - 1;
+      const nextForm = parseHistorySnapshot(h.snapshots[idx]);
+      setFormData(nextForm);
+      return { ...h, index: idx };
+    });
   };
 
   const redo = () => {
-    if (historyIndex >= history.length - 1) return;
-    const newIndex = historyIndex + 1;
-    setHistoryIndex(newIndex);
-    setFormData(parseHistorySnapshot(history[newIndex]));
+    setHist((h) => {
+      if (h.index >= h.snapshots.length - 1) return h;
+      const idx = h.index + 1;
+      const nextForm = parseHistorySnapshot(h.snapshots[idx]);
+      setFormData(nextForm);
+      return { ...h, index: idx };
+    });
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as {
+        payload?: BlogEditorFormData;
+      };
+      if (!parsed.payload) return;
+      const candidate = JSON.stringify(parsed.payload);
+      if (candidate === serverSnapRef.current) return;
+      setRecoverDraft(parsed.payload);
+    } catch {
+      /* ignore corrupt draft */
+    }
+  }, [storageKey]);
 
   const handleSaveRef = useRef<(publish?: boolean, isAutoSave?: boolean) => Promise<void>>(
     async () => {},
@@ -223,6 +347,8 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
         toast.success(publish ? "Post published." : "Post saved.");
       }
       setLastSaved(new Date());
+      clearLocalDraft();
+      setRecoverDraft(null);
 
       if (isNew && postId) {
         router.push(`/admin/blog/${postId}`);
@@ -244,20 +370,79 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
 
   // Auto-save (debounced 30s)
   const debouncedSave = useCallback(() => {
-    if (autoSaveTimer) clearTimeout(autoSaveTimer);
-    const timer = setTimeout(() => {
+    if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(() => {
       if (formData.title && formData.slug && formData.content) {
         void handleSaveRef.current(false, true);
       }
     }, 30000);
-    setAutoSaveTimer(timer);
-  }, [formData.title, formData.slug, formData.content, autoSaveTimer]);
+  }, [formData.title, formData.slug, formData.content]);
 
   useEffect(() => {
     return () => {
-      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     };
-  }, [autoSaveTimer]);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const t = window.setTimeout(() => {
+      const meaningful =
+        formData.title.trim().length > 0 || formData.content.trim().length > 40;
+      if (!meaningful) return;
+      try {
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({
+            savedAt: new Date().toISOString(),
+            serverBaseline: initialPost?.updatedAt ?? null,
+            payload: formData,
+          }),
+        );
+      } catch {
+        /* quota */
+      }
+    }, 2000);
+    return () => window.clearTimeout(t);
+  }, [formData, storageKey, initialPost?.updatedAt]);
+
+  const mergeAiPayload = (
+    data: { title?: string; excerpt?: string; content?: string },
+  ): BlogEditorFormData => {
+    let newContent = "";
+    let newTitle = formData.title;
+    let newExcerpt = formData.excerpt;
+
+    if (
+      typeof data.title === "string" &&
+      typeof data.content === "string" &&
+      data.content.trim()
+    ) {
+      newTitle = data.title.trim() || newTitle;
+      newExcerpt =
+        typeof data.excerpt === "string" && data.excerpt.trim()
+          ? data.excerpt.trim()
+          : newExcerpt;
+      newContent = data.content.trim();
+    } else if (typeof data.content === "string" && data.content.trim()) {
+      const legacy = parseLegacyAiMarkdownBody(data.content);
+      newContent = legacy.body;
+      if (legacy.title) newTitle = legacy.title;
+      if (legacy.excerpt) newExcerpt = legacy.excerpt;
+    } else {
+      throw new Error("Unexpected AI response shape");
+    }
+
+    const slugFromTitle = newTitle ? normalizeBlogSlug(newTitle) : "";
+
+    return {
+      ...formData,
+      content: newContent,
+      title: newTitle || formData.title,
+      excerpt: newExcerpt || formData.excerpt,
+      slug: formData.slug.trim() ? formData.slug : slugFromTitle || formData.slug,
+    };
+  };
 
   const handleGenerateAI = async () => {
     if (!aiPrompt) {
@@ -265,64 +450,92 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
       return;
     }
     setGenerating(true);
-    const toastId = toast.loading("Generating draft…");
+    const toastId = toast.loading("Streaming draft from OpenRouter…");
+    const genBody = JSON.stringify({
+      prompt: aiPrompt,
+      tone: aiTone,
+      length: aiLength,
+      imageDescription: aiImageNotes,
+      featuredImageUrl: formData.featuredImageUrl,
+    });
+
     try {
-      const res = await fetch("/api/admin/blog/generate", {
+      let merged: BlogEditorFormData;
+
+      const streamRes = await fetch("/api/admin/blog/generate/stream", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: aiPrompt,
-          tone: aiTone,
-          length: aiLength,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
+        },
+        credentials: "same-origin",
+        body: genBody,
       });
 
-      const data = await res.json();
+      const ct = streamRes.headers.get("content-type") ?? "";
 
-      if (!res.ok) throw new Error(data.error || "Failed to generate");
-
-      let newContent = "";
-      let newTitle = formData.title;
-      let newExcerpt = formData.excerpt;
-
-      if (
-        typeof data.title === "string" &&
-        typeof data.content === "string" &&
-        data.content.trim()
-      ) {
-        newTitle = data.title.trim() || newTitle;
-        newExcerpt =
-          typeof data.excerpt === "string" && data.excerpt.trim()
-            ? data.excerpt.trim()
-            : newExcerpt;
-        newContent = data.content.trim();
-      } else if (typeof data.content === "string" && data.content.trim()) {
-        const legacy = parseLegacyAiMarkdownBody(data.content);
-        newContent = legacy.body;
-        if (legacy.title) newTitle = legacy.title;
-        if (legacy.excerpt) newExcerpt = legacy.excerpt;
+      if (streamRes.ok && ct.includes("text/event-stream")) {
+        const payload = await consumeBlogGenerateSse(streamRes);
+        merged = mergeAiPayload(payload);
       } else {
-        throw new Error("Unexpected AI response shape");
+        if (!streamRes.ok && ct.includes("application/json")) {
+          const errJson = (await streamRes.json().catch(() => ({}))) as {
+            error?: string;
+          };
+          throw new Error(errJson.error || `Generation failed (${streamRes.status})`);
+        }
+
+        const res = await fetch("/api/admin/blog/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: genBody,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to generate");
+        merged = mergeAiPayload(data);
       }
 
-      const slugFromTitle = newTitle ? normalizeBlogSlug(newTitle) : "";
-
-      const newData = {
-        ...formData,
-        content: newContent,
-        title: newTitle || formData.title,
-        excerpt: newExcerpt || formData.excerpt,
-        slug: formData.slug.trim() ? formData.slug : slugFromTitle || formData.slug,
-      };
-      setFormData(newData);
-      pushHistory(newData);
-      if (newData.slug.trim()) slugTouchedRef.current = true;
+      setFormData(merged);
+      pushHistory(merged);
+      if (merged.slug.trim()) slugTouchedRef.current = true;
       setBodyTab("visual");
-      toast.success("Draft generated — save to persist, or refine in the editor.", { id: toastId });
+      toast.success("Draft generated — save to persist, or refine in the editor.", {
+        id: toastId,
+      });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Generation failed", { id: toastId });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleSuggestSeo = async () => {
+    if (!formData.title.trim() || !formData.content.trim()) {
+      toast.error("Add a title and body before suggesting SEO.");
+      return;
+    }
+    setSuggestSeoBusy(true);
+    try {
+      const seo = await suggestSeoFromDraft({
+        title: formData.title,
+        content: formData.content,
+      });
+      const merged: BlogEditorFormData = {
+        ...formData,
+        seoTitle: seo.seoTitle,
+        seoDescription: seo.seoDescription,
+        excerpt: formData.excerpt?.trim()
+          ? formData.excerpt
+          : seo.excerptHint.slice(0, 500),
+      };
+      setFormData(merged);
+      pushHistory(merged);
+      toast.success("SEO fields updated — review before publishing.");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Could not suggest SEO");
+    } finally {
+      setSuggestSeoBusy(false);
     }
   };
 
@@ -354,6 +567,46 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
 
   return (
     <>
+      {recoverDraft && (
+        <div
+          role="status"
+          className="rounded-xl border border-amber-300/80 bg-amber-500/10 px-4 py-3 text-sm text-[var(--color-foreground)]"
+        >
+          <p className="font-medium">Local draft found</p>
+          <p className="mt-1 text-[var(--color-muted)]">
+            A recovered autosave differs from the last server version. Restore it or discard to continue.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                const restored = recoverDraft;
+                setFormData(restored);
+                setHist({
+                  snapshots: [JSON.stringify(restored)],
+                  index: 0,
+                });
+                setRecoverDraft(null);
+                toast.success("Local draft restored — undo is available if needed.");
+              }}
+            >
+              Restore draft
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                clearLocalDraft();
+                setRecoverDraft(null);
+              }}
+            >
+              Discard
+            </Button>
+          </div>
+        </div>
+      )}
       <MediaPickerModal
         open={mediaPickerOpen}
         onOpenChange={setMediaPickerOpen}
@@ -376,6 +629,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
           <div className="flex items-center justify-between">
             <input
               type="text"
+              data-testid="blog-editor-title"
               placeholder="Post Title..."
               value={formData.title}
               onChange={(e) => handleChange("title", e.target.value)}
@@ -384,16 +638,21 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
             />
             <div className="flex gap-2 ml-4">
               <button
+                type="button"
                 onClick={undo}
-                disabled={historyIndex <= 0}
+                disabled={hist.snapshots.length === 0 || hist.index <= 0}
                 className="p-2 rounded-lg hover:bg-[var(--color-background)] text-[var(--color-muted)] disabled:opacity-30"
                 aria-label="Undo"
               >
                 <Undo2 className="h-4 w-4" />
               </button>
               <button
+                type="button"
                 onClick={redo}
-                disabled={historyIndex >= history.length - 1}
+                disabled={
+                  hist.snapshots.length === 0 ||
+                  hist.index >= hist.snapshots.length - 1
+                }
                 className="p-2 rounded-lg hover:bg-[var(--color-background)] text-[var(--color-muted)] disabled:opacity-30"
                 aria-label="Redo"
               >
@@ -406,6 +665,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
             <span className="text-[var(--color-muted)]">lakeviewvillatangalle.com/blog/</span>
             <input
               type="text"
+              data-testid="blog-editor-slug"
               placeholder="post-slug"
               value={formData.slug}
               onChange={(e) => handleChange("slug", e.target.value)}
@@ -450,6 +710,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
                 />
               ) : (
                 <textarea
+                  data-testid="blog-editor-markdown"
                   placeholder="Write or paste Markdown…"
                   value={formData.content}
                   onChange={(e) => handleChange("content", e.target.value)}
@@ -482,7 +743,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
             <h3 className="font-semibold text-[var(--color-foreground)]">AI Assistant</h3>
           </div>
           <p className="text-sm text-[var(--color-muted)]">
-            Describe what you want to write about. OpenRouter returns structured JSON; the draft loads into the Visual editor (Markdown-compatible).
+            Describe what you want to write about. The assistant streams from OpenRouter (SSE), then parses JSON into the Visual editor. Optional notes below fold in your featured image context.
           </p>
           <div className="flex flex-wrap gap-3">
             <label className="flex flex-col gap-1 text-xs font-medium text-[var(--color-muted)]">
@@ -511,6 +772,15 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
               </select>
             </label>
           </div>
+          <label className="flex flex-col gap-1 text-xs font-medium text-[var(--color-muted)]">
+            Featured image / hero scene (optional)
+            <textarea
+              placeholder="Short visual notes for the model (e.g. infinity pool at sunset, coconut palms)…"
+              value={aiImageNotes}
+              onChange={(e) => setAiImageNotes(e.target.value)}
+              className="min-h-[52px] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 text-sm text-[var(--color-foreground)] outline-none focus:border-[var(--color-gold)] focus:ring-1 focus:ring-[var(--color-gold)]"
+            />
+          </label>
           <div className="flex gap-3">
             <textarea
               placeholder="E.g., Write a 500-word post about the top 5 beaches near Tangalle..."
@@ -600,6 +870,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
 
           <div className="flex flex-col gap-3">
             <Button
+              data-testid="blog-editor-save"
               onClick={() => handleSave(false)}
               disabled={saving}
               variant="outline"
@@ -608,6 +879,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
               <Save className="h-4 w-4" /> Save Draft
             </Button>
             <Button
+              data-testid="blog-editor-publish"
               onClick={() => handleSave(true)}
               disabled={saving || formData.status === "PUBLISHED"}
               className="w-full flex items-center justify-center gap-2 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90"
@@ -619,7 +891,23 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
 
         {/* SEO & Metadata */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm space-y-4">
-          <h3 className="font-semibold text-[var(--color-foreground)]">SEO & Metadata</h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold text-[var(--color-foreground)]">SEO & Metadata</h3>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={suggestSeoBusy || !formData.title.trim() || !formData.content.trim()}
+              onClick={() => void handleSuggestSeo()}
+            >
+              {suggestSeoBusy ? (
+                <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Sparkles className="mr-1 h-3.5 w-3.5 text-[var(--color-gold)]" />
+              )}
+              Suggest from content
+            </Button>
+          </div>
 
           <div>
             <label className="block text-xs font-medium text-[var(--color-muted)] mb-1">Excerpt (Short Summary)</label>
