@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { MarkdownPreview } from "@/components/admin/markdown-preview";
 import { MediaPickerModal } from "@/components/admin/media-picker-modal";
+import { BlogTipTapEditor } from "@/components/admin/BlogTipTapEditor";
+import { SEOPreview } from "@/components/admin/SEOPreview";
 import Image from "next/image";
 
 interface InitialPost {
@@ -79,6 +81,9 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
   const [generating, setGenerating] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [aiTone, setAiTone] = useState("professional");
+  const [aiLength, setAiLength] = useState<"short" | "medium" | "long">("medium");
+  const [bodyTab, setBodyTab] = useState<"visual" | "markdown">("visual");
   const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
@@ -265,7 +270,11 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
       const res = await fetch("/api/admin/blog/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt }),
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          tone: aiTone,
+          length: aiLength,
+        }),
       });
 
       const data = await res.json();
@@ -308,6 +317,7 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
       setFormData(newData);
       pushHistory(newData);
       if (newData.slug.trim()) slugTouchedRef.current = true;
+      setBodyTab("visual");
       toast.success("Draft generated — save to persist, or refine in the editor.", { id: toastId });
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Generation failed", { id: toastId });
@@ -405,20 +415,52 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
 
           <div className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-[var(--color-border)] lg:grid lg:min-h-[560px] lg:grid-cols-2 lg:divide-x lg:divide-[var(--color-border)]">
             <div className="flex min-h-[260px] flex-1 flex-col border-b border-[var(--color-border)] lg:min-h-0 lg:border-b-0">
-              <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
-                <span className="px-1 text-xs font-medium text-[var(--color-muted)]">Markdown</span>
+              <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
+                <span className="text-xs font-medium text-[var(--color-muted)]">Body</span>
+                <div className="ml-auto flex rounded-lg border border-[var(--color-border)] p-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setBodyTab("visual")}
+                    className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                      bodyTab === "visual"
+                        ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                        : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+                    }`}
+                  >
+                    Visual
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBodyTab("markdown")}
+                    className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                      bodyTab === "markdown"
+                        ? "bg-[var(--color-primary)] text-[var(--color-primary-foreground)]"
+                        : "text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+                    }`}
+                  >
+                    Markdown
+                  </button>
+                </div>
               </div>
-              <textarea
-                placeholder="Write your post content here (Markdown supported)..."
-                value={formData.content}
-                onChange={(e) => handleChange("content", e.target.value)}
-                className="min-h-0 flex-1 w-full resize-none bg-[var(--color-surface)] p-4 font-mono text-sm leading-relaxed text-[var(--color-foreground)] outline-none"
-                spellCheck={false}
-              />
+              {bodyTab === "visual" ? (
+                <BlogTipTapEditor
+                  markdown={formData.content}
+                  onMarkdownChange={(md) => handleChange("content", md)}
+                  placeholder="Write your post — headings, lists, links, and images."
+                />
+              ) : (
+                <textarea
+                  placeholder="Write or paste Markdown…"
+                  value={formData.content}
+                  onChange={(e) => handleChange("content", e.target.value)}
+                  className="min-h-[420px] w-full flex-1 resize-none bg-[var(--color-surface)] p-4 font-mono text-sm leading-relaxed text-[var(--color-foreground)] outline-none"
+                  spellCheck={false}
+                />
+              )}
             </div>
             <div className="flex min-h-[260px] flex-1 flex-col bg-[var(--color-background)] lg:min-h-0">
               <div className="flex items-center gap-2 border-b border-[var(--color-border)] px-3 py-2">
-                <span className="px-1 text-xs font-medium text-[var(--color-muted)]">Preview</span>
+                <span className="px-1 text-xs font-medium text-[var(--color-muted)]">Live preview</span>
               </div>
               <div className="custom-scrollbar min-h-0 flex-1 overflow-auto p-4">
                 <MarkdownPreview markdown={formData.content} />
@@ -440,8 +482,35 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
             <h3 className="font-semibold text-[var(--color-foreground)]">AI Assistant</h3>
           </div>
           <p className="text-sm text-[var(--color-muted)]">
-            Describe what you want to write about, and the AI will generate a complete, SEO-optimized draft in Markdown format.
+            Describe what you want to write about. OpenRouter returns structured JSON; the draft loads into the Visual editor (Markdown-compatible).
           </p>
+          <div className="flex flex-wrap gap-3">
+            <label className="flex flex-col gap-1 text-xs font-medium text-[var(--color-muted)]">
+              Tone
+              <select
+                value={aiTone}
+                onChange={(e) => setAiTone(e.target.value)}
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
+              >
+                <option value="professional">Professional</option>
+                <option value="warm">Warm & inviting</option>
+                <option value="playful">Playful</option>
+                <option value="minimal">Minimal</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-xs font-medium text-[var(--color-muted)]">
+              Length
+              <select
+                value={aiLength}
+                onChange={(e) => setAiLength(e.target.value as "short" | "medium" | "long")}
+                className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-foreground)]"
+              >
+                <option value="short">Short</option>
+                <option value="medium">Medium</option>
+                <option value="long">Long</option>
+              </select>
+            </label>
+          </div>
           <div className="flex gap-3">
             <textarea
               placeholder="E.g., Write a 500-word post about the top 5 beaches near Tangalle..."
@@ -581,6 +650,26 @@ export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
               placeholder="Defaults to Excerpt"
               rows={2}
               className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] p-2.5 text-sm outline-none focus:border-[var(--color-primary)] resize-none"
+            />
+          </div>
+
+          <div className="border-t border-[var(--color-border)] pt-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
+              SERP & social preview
+            </p>
+            <SEOPreview
+              title={
+                formData.seoTitle?.trim() ||
+                formData.title?.trim() ||
+                "Untitled post"
+              }
+              description={
+                formData.seoDescription?.trim() ||
+                formData.excerpt?.trim() ||
+                ""
+              }
+              slug={formData.slug}
+              imageUrl={formData.featuredImageUrl || undefined}
             />
           </div>
         </div>
