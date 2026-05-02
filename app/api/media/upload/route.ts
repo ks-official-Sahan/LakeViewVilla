@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
 import { MediaType } from "@prisma/client";
+import {
+  defaultGalleryLocationCreate,
+  legacyGallerySlugFields,
+} from "@/lib/media/default-gallery-location";
 
 // Very basic in-memory rate limiter for uploads to prevent abuse
 // (In production, replace with Redis/Upstash)
@@ -81,6 +85,8 @@ export async function POST(req: NextRequest) {
         sizeBytes: file.size,
         mimeType: file.type,
         uploadedById: session.user.id,
+        ...legacyGallerySlugFields,
+        locations: defaultGalleryLocationCreate,
       },
     });
 

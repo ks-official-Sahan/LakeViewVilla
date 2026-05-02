@@ -6,6 +6,10 @@ import { revalidatePath } from "next/cache";
 import { bumpMediaAndGalleryCache } from "@/lib/cache/tags";
 import { uploadToCloudinary, validateFile, isCloudinaryConfigured } from "@/lib/admin/upload";
 import { audit } from "@/lib/admin/audit";
+import {
+  defaultGalleryLocationCreate,
+  legacyGallerySlugFields,
+} from "@/lib/media/default-gallery-location";
 
 const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT = 40;
@@ -101,6 +105,8 @@ export async function POST(req: NextRequest) {
           sizeBytes: uploaded.sizeBytes,
           mimeType: file.type || `application/${extFromName(file.name)}`,
           uploadedById: session.user.id,
+          ...legacyGallerySlugFields,
+          locations: defaultGalleryLocationCreate,
         },
       });
 
@@ -124,8 +130,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(created, { status: 201 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "";
-    if (message === "UNAUTHORIZED" || message === "FORBIDDEN") {
+    if (message === "UNAUTHORIZED") {
       return NextResponse.json({ error: message }, { status: 401 });
+    }
+    if (message === "FORBIDDEN") {
+      return NextResponse.json({ error: message }, { status: 403 });
     }
     console.error("Admin upload error:", error);
     return NextResponse.json(

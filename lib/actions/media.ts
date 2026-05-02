@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { bumpMediaAndGalleryCache } from "@/lib/cache/tags";
 import { prisma } from "@/lib/db/prisma";
 import { requireRole } from "@/lib/auth/rbac";
-import { MediaType } from "@prisma/client";
+import { MEDIA_LOCATIONS, locationKey } from "@/lib/admin/media-locations";
 
 const mediaUpdateSchema = z.object({
   id: z.string(),
@@ -153,6 +153,93 @@ export async function bulkUpdateMedia(params: {
     return { success: true as const };
   } catch (error) {
     console.error("Bulk media update failed:", error);
+    return { success: false as const, error: "Internal server error" };
+  }
+}
+
+const allowedLocationKeys = new Set(
+  MEDIA_LOCATIONS.map((l) => locationKey(l.pageSlug, l.sectionSlug)),
+);
+
+const mediaLocationsSchema = z
+  .array(
+    z.object({
+      pageSlug: z.string().min(1),
+      sectionSlug: z.string().min(1),
+      isPrimary: z.boolean().optional(),
+      order: z.number().int().optional(),
+    }),
+  )
+  .min(1);
+
+/** Replace all placements for an asset (validated against `MEDIA_LOCATIONS`). */
+export async function updateMediaAssetLocations(
+  mediaId: string,
+  rawLocations: z.infer<typeof mediaLocationsSchema>,
+) {
+  const session = await requireRole("EDITOR");
+
+  const parsed = mediaLocationsSchema.safeParse(rawLocations);
+  if (!parsed.success) {
+    return { success: false as const, errors: parsed.error.flatten().fieldErrors };
+  }
+
+  for (const row of parsed.data) {
+    if (!allowedLocationKeys.has(locationKey(row.pageSlug, row.sectionSlug))) {
+      return {
+        success: false as const,
+        error: `Invalid placement: ${row.pageSlug}/${row.sectionSlug}`,
+      };
+    }
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.mediaLocation.deleteMany({ where: { mediaId } });
+
+      let primaryIdx = parsed.data.findIndex((r) => r.isPrimary);
+      if (primaryIdx < 0) primaryIdx = 0;
+
+      for (let i = 0; i < parsed.data.length; i++) {
+        const row = parsed.data[i]!;
+        await tx.mediaLocation.create({
+          data: {
+            mediaId,
+            pageSlug: row.pageSlug,
+            sectionSlug: row.sectionSlug,
+            isPrimary: i === primaryIdx,
+            order: row.order ?? i,
+          },
+        });
+      }
+
+      const primary = parsed.data[primaryIdx]!;
+      await tx.mediaAsset.update({
+        where: { id: mediaId },
+        data: {
+          pageSlug: primary.pageSlug,
+          sectionSlug: primary.sectionSlug,
+        },
+      });
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        userId: session.user.id,
+        action: "UPDATE_LOCATIONS",
+        entityType: "MediaAsset",
+        entityId: mediaId,
+        newValue: { locations: parsed.data },
+      },
+    });
+
+    revalidatePath("/admin/media");
+    revalidatePath("/gallery");
+    bumpMediaAndGalleryCache();
+
+    return { success: true as const };
+  } catch (error) {
+    console.error("updateMediaAssetLocations:", error);
     return { success: false as const, error: "Internal server error" };
   }
 }

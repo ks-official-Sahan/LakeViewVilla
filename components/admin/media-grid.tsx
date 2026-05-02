@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useCallback, useRef, useLayoutEffect, useMemo } from "react";
+import { useState, useCallback, useRef, useLayoutEffect, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import {
   Upload, Trash2, Search, Filter, Grid3X3, List, Edit2, X, Check, Copy, CheckSquare, Square,
 } from "lucide-react";
-import { updateMediaAsset, bulkUpdateMedia } from "@/lib/actions/media";
+import { updateMediaAsset, bulkUpdateMedia, updateMediaAssetLocations } from "@/lib/actions/media";
+import { MEDIA_LOCATIONS, locationKey } from "@/lib/admin/media-locations";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { queryKeys } from "@/lib/cache/react-query";
+import { toast } from "sonner";
 
 interface MediaAsset {
   id: string;
@@ -23,6 +25,13 @@ interface MediaAsset {
   width: number | null;
   height: number | null;
   createdAt: string;
+  locations?: {
+    id: string;
+    pageSlug: string;
+    sectionSlug: string;
+    isPrimary: boolean;
+    order: number;
+  }[];
 }
 
 interface MediaGridProps {
@@ -89,14 +98,42 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<"delete" | "bulkDelete" | null>(null);
   const [bulkCategory, setBulkCategory] = useState("");
+  const [placementKeys, setPlacementKeys] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!editingAsset) return;
+    const next = new Set(
+      (editingAsset.locations ?? []).map((l) => locationKey(l.pageSlug, l.sectionSlug)),
+    );
+    if (next.size === 0) next.add(locationKey("gallery", "grid"));
+    setPlacementKeys(next);
+  }, [editingAsset?.id]);
+
+  const togglePlacement = (pageSlug: string, sectionSlug: string) => {
+    const key = locationKey(pageSlug, sectionSlug);
+    setPlacementKeys((prev) => {
+      const n = new Set(prev);
+      if (n.has(key)) {
+        if (n.size <= 1) return prev;
+        n.delete(key);
+      } else {
+        n.add(key);
+      }
+      return n;
+    });
+  };
 
   const filtered = assets.filter((a) => {
+    const q = search.toLowerCase();
     const tagList = a.tags ?? [];
+    const locations = a.locations ?? [];
+    const locHaystack = locations.map((l) => `${l.pageSlug}/${l.sectionSlug}`).join(" ");
     const matchesSearch =
       !search ||
-      a.title?.toLowerCase().includes(search.toLowerCase()) ||
-      a.alt?.toLowerCase().includes(search.toLowerCase()) ||
-      tagList.some((t) => t.toLowerCase().includes(search.toLowerCase()));
+      a.title?.toLowerCase().includes(q) ||
+      a.alt?.toLowerCase().includes(q) ||
+      tagList.some((t) => t.toLowerCase().includes(q)) ||
+      locHaystack.toLowerCase().includes(q);
     const matchesCategory = category === "all" || a.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -225,12 +262,51 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
       featured: editingAsset.featured,
     });
 
-    if (result.success && result.data) {
-      setEditingAsset(null);
-      await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
-    } else {
-      alert("Failed to update media asset");
+    if (!result.success || !result.data) {
+      let msg = "Failed to update media asset";
+      if (!result.success) {
+        if ("error" in result && typeof result.error === "string") msg = result.error;
+        else if ("errors" in result) msg = "Please fix validation errors and try again.";
+      }
+      toast.error(msg);
+      setSaving(false);
+      return;
     }
+
+    const orderedKeys = MEDIA_LOCATIONS.map((l) =>
+      locationKey(l.pageSlug, l.sectionSlug),
+    ).filter((k) => placementKeys.has(k));
+
+    if (orderedKeys.length === 0) {
+      toast.error("Select at least one placement.");
+      setSaving(false);
+      return;
+    }
+
+    const locPayload = orderedKeys.map((k, i) => {
+      const sep = k.indexOf(":");
+      return {
+        pageSlug: k.slice(0, sep),
+        sectionSlug: k.slice(sep + 1),
+        isPrimary: i === 0,
+        order: i,
+      };
+    });
+
+    const locResult = await updateMediaAssetLocations(editingAsset.id, locPayload);
+    if (!locResult.success) {
+      toast.error(
+        "error" in locResult && typeof locResult.error === "string"
+          ? locResult.error
+          : "Failed to update placements",
+      );
+      setSaving(false);
+      return;
+    }
+
+    setEditingAsset(null);
+    await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
+    toast.success("Asset updated.");
     setSaving(false);
   };
 
@@ -428,6 +504,13 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                 </p>
                 <p className="text-xs text-[var(--color-muted)]">
                   {asset.category}
+                  {asset.locations?.length ? (
+                    <span className="block truncate opacity-80">
+                      {(asset.locations ?? [])
+                        .map((l) => `${l.pageSlug}/${l.sectionSlug}`)
+                        .join(" · ")}
+                    </span>
+                  ) : null}
                 </p>
               </div>
               {/* Delete overlay */}
@@ -477,6 +560,13 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                 </p>
                 <p className="text-xs text-[var(--color-muted)]">
                   {asset.category} • {asset.type}
+                  {asset.locations?.length ? (
+                    <span className="block truncate opacity-80">
+                      {(asset.locations ?? [])
+                        .map((l) => `${l.pageSlug}/${l.sectionSlug}`)
+                        .join(" · ")}
+                    </span>
+                  ) : null}
                 </p>
               </div>
               <div className="flex items-center">
@@ -612,6 +702,44 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                     ))}
                   </select>
                 </div>
+
+                <fieldset className="space-y-2">
+                  <legend className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+                    Page placements
+                  </legend>
+                  <p className="text-xs text-[var(--color-muted)] mb-2">
+                    First checked slot (in list order) is treated as primary for legacy fields.
+                  </p>
+                  <div className="max-h-40 space-y-2 overflow-y-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3">
+                    {MEDIA_LOCATIONS.map((loc) => {
+                      const key = locationKey(loc.pageSlug, loc.sectionSlug);
+                      const checked = placementKeys.has(key);
+                      return (
+                        <label
+                          key={key}
+                          className="flex cursor-pointer items-start gap-2 text-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => togglePlacement(loc.pageSlug, loc.sectionSlug)}
+                            className="mt-0.5 rounded border-[var(--color-border)]"
+                          />
+                          <span>
+                            <span className="font-medium text-[var(--color-foreground)]">
+                              {loc.label}
+                            </span>
+                            {loc.hasLimit != null ? (
+                              <span className="block text-[10px] text-[var(--color-muted)]">
+                                Suggested max {loc.hasLimit}
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
 
                 <div className="pt-4 flex items-center justify-end gap-3 border-t border-[var(--color-border)]">
                   <button

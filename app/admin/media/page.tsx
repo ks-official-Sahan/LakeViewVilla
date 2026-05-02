@@ -20,6 +20,13 @@ export default async function AdminMediaPage() {
     width: number | null;
     height: number | null;
     createdAt: string;
+    locations: {
+      id: string;
+      pageSlug: string;
+      sectionSlug: string;
+      isPrimary: boolean;
+      order: number;
+    }[];
   }[] = [];
 
   try {
@@ -37,6 +44,16 @@ export default async function AdminMediaPage() {
         width: true,
         height: true,
         createdAt: true,
+        locations: {
+          orderBy: [{ order: "asc" }, { pageSlug: "asc" }],
+          select: {
+            id: true,
+            pageSlug: true,
+            sectionSlug: true,
+            isPrimary: true,
+            order: true,
+          },
+        },
       },
     });
 

@@ -1,18 +1,11 @@
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/config";
+import { ADMIN_CONTENT_PAGES } from "@/lib/admin/content-pages";
 import { FileText, Edit } from "lucide-react";
 
 export const metadata = {
   title: "Content Management — LakeViewVilla Admin",
 };
-
-const PAGES = [
-  { slug: "home", label: "Home Page", sections: ["hero", "highlights", "experiences", "stays-teaser", "gallery-teaser", "facilities", "values", "faq"] },
-  { slug: "stays", label: "Stays Page", sections: ["hero", "rooms", "pricing", "amenities"] },
-  { slug: "gallery", label: "Gallery Page", sections: ["hero", "grid"] },
-  { slug: "visit", label: "Visit Page", sections: ["hero", "map", "directions", "nearby"] },
-  { slug: "faq", label: "FAQ Page", sections: ["hero", "questions"] },
-];
 
 export default async function AdminContentPage() {
   await auth();
@@ -42,7 +35,7 @@ export default async function AdminContentPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {PAGES.map((page) => (
+        {ADMIN_CONTENT_PAGES.map((page) => (
           <a
             key={page.slug}
             href={`/admin/content/${page.slug}`}

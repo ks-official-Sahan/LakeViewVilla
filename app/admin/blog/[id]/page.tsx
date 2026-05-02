@@ -9,6 +9,12 @@ export const metadata = {
   title: "Blog Editor — LakeViewVilla Admin",
 };
 
+/** For `<input type="datetime-local" />` — uses runtime local timezone. */
+function toDatetimeLocalValue(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default async function AdminBlogEditorPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const session = await auth();
@@ -21,6 +27,7 @@ export default async function AdminBlogEditorPage(props: { params: Promise<{ id:
     try {
       post = await prisma.blogPost.findUnique({
         where: { id: params.id },
+        include: { featuredImage: { select: { id: true, url: true } } },
       });
       if (!post) notFound();
     } catch {
@@ -28,8 +35,26 @@ export default async function AdminBlogEditorPage(props: { params: Promise<{ id:
     }
   }
 
+  const editorInitial =
+    post && !isNew
+      ? {
+          id: post.id,
+          title: post.title,
+          slug: post.slug,
+          excerpt: post.excerpt,
+          content: post.content,
+          status: post.status,
+          seoTitle: post.seoTitle,
+          seoDescription: post.seoDescription,
+          generatedByAI: post.generatedByAI,
+          publishAt: post.publishedAt ? toDatetimeLocalValue(post.publishedAt) : "",
+          featuredImageId: post.featuredImageId,
+          featuredImageUrl: post.featuredImage?.url ?? null,
+        }
+      : null;
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div className="flex items-center gap-4">
         <Link
           href="/admin/blog"
@@ -47,7 +72,7 @@ export default async function AdminBlogEditorPage(props: { params: Promise<{ id:
         </div>
       </div>
 
-      <BlogEditor initialPost={post} isNew={isNew} userId={session.user.id} />
+      <BlogEditor initialPost={editorInitial} isNew={isNew} />
     </div>
   );
 }

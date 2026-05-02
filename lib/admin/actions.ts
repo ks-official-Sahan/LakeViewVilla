@@ -10,21 +10,18 @@ import {
   bumpMediaAndGalleryCache,
 } from "@/lib/cache/tags";
 import { uploadToCloudinary, deleteFromCloudinary, validateFile } from "@/lib/admin/upload";
+import {
+  defaultGalleryLocationCreate,
+  legacyGallerySlugFields,
+} from "@/lib/media/default-gallery-location";
 import type { MediaType, BlogStatus, Prisma } from "@prisma/client";
 import { generateSEOMeta } from "@/lib/ai/seo-generator";
+import { normalizeBlogSlug } from "@/lib/utils/blog-slug";
 
 function optionalStr(v: unknown): string | undefined {
   if (v === undefined || v === null) return undefined;
   const s = String(v).trim();
   return s === "" ? undefined : s;
-}
-
-function normalizeSlug(slug: string): string {
-  return slug
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 function stripMarkdownPreview(md: string, maxLen: number): string {
@@ -60,7 +57,10 @@ export async function getMediaAssets(options?: {
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       skip: (page - 1) * limit,
       take: limit,
-      include: { uploadedBy: { select: { name: true, email: true } } },
+      include: {
+        uploadedBy: { select: { name: true, email: true } },
+        locations: { orderBy: [{ order: "asc" }, { pageSlug: "asc" }] },
+      },
     }),
     prisma.mediaAsset.count({ where }),
   ]);
@@ -104,6 +104,8 @@ export async function uploadMedia(formData: FormData) {
       sizeBytes: result.sizeBytes,
       mimeType: file.type,
       uploadedById: session.user.id,
+      ...legacyGallerySlugFields,
+      locations: defaultGalleryLocationCreate,
     },
   });
 
@@ -220,7 +222,7 @@ export async function createBlogPost(raw: Record<string, unknown>) {
   const session = await requireAuth();
 
   const title = String(raw.title ?? "").trim();
-  const slug = normalizeSlug(String(raw.slug ?? ""));
+  const slug = normalizeBlogSlug(String(raw.slug ?? ""));
   const content = String(raw.content ?? "");
 
   if (!title || !slug || !content) {
@@ -268,7 +270,7 @@ export async function updateBlogPost(id: string, raw: Record<string, unknown>) {
   const data: Prisma.BlogPostUpdateInput = {};
 
   if (typeof raw.title === "string") data.title = raw.title.trim();
-  if (typeof raw.slug === "string") data.slug = normalizeSlug(raw.slug);
+  if (typeof raw.slug === "string") data.slug = normalizeBlogSlug(raw.slug);
   if (typeof raw.content === "string") data.content = raw.content;
   if (raw.excerpt !== undefined) {
     data.excerpt = optionalStr(raw.excerpt) ?? null;
@@ -397,13 +399,30 @@ export async function getAuditLogs(options?: {
   limit?: number;
   entityType?: string;
   userId?: string;
+  action?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }) {
-  const session = await requireRole("DEVELOPER");
-  const { page = 1, limit = 50, entityType, userId } = options ?? {};
+  await requireRole("DEVELOPER");
+  const { page = 1, limit = 25, entityType, userId, action, dateFrom, dateTo } =
+    options ?? {};
 
-  const where: Record<string, unknown> = {};
-  if (entityType) where.entityType = entityType;
-  if (userId) where.userId = userId;
+  const where: Prisma.AuditLogWhereInput = {};
+  if (entityType?.trim()) where.entityType = entityType.trim();
+  if (userId?.trim()) where.userId = userId.trim();
+  if (action?.trim()) where.action = action.trim();
+
+  if (dateFrom?.trim() || dateTo?.trim()) {
+    where.timestamp = {};
+    if (dateFrom?.trim()) {
+      const d = new Date(dateFrom);
+      if (!Number.isNaN(d.getTime())) where.timestamp.gte = d;
+    }
+    if (dateTo?.trim()) {
+      const d = new Date(dateTo);
+      if (!Number.isNaN(d.getTime())) where.timestamp.lte = d;
+    }
+  }
 
   const [items, total] = await Promise.all([
     prisma.auditLog.findMany({
@@ -416,7 +435,7 @@ export async function getAuditLogs(options?: {
     prisma.auditLog.count({ where }),
   ]);
 
-  return { items, total, page, totalPages: Math.ceil(total / limit) };
+  return { items, total, page, totalPages: Math.max(1, Math.ceil(total / limit)) };
 }
 
 // ─── Settings Actions ───────────────────────────────────────────────────────

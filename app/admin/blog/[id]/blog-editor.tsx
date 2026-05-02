@@ -3,11 +3,17 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createBlogPost, updateBlogPost, publishBlogPost, enrichBlogPostSeo } from "@/lib/admin/actions";
+import { normalizeBlogSlug } from "@/lib/utils/blog-slug";
 import { toast } from "sonner";
 import {
-  Sparkles, Save, Send, Image as ImageIcon, Loader2, Undo2, Redo2, Clock,
+  Sparkles, Save, Send, Loader2, Undo2, Redo2, Clock,
+  ImageIcon,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MarkdownPreview } from "@/components/admin/markdown-preview";
+import { MediaPickerModal } from "@/components/admin/media-picker-modal";
+import Image from "next/image";
 
 interface InitialPost {
   id: string;
@@ -20,35 +26,79 @@ interface InitialPost {
   seoDescription: string | null;
   generatedByAI: boolean;
   publishAt?: string | null;
+  featuredImageId?: string | null;
+  featuredImageUrl?: string | null;
 }
 
 interface BlogEditorProps {
   initialPost: InitialPost | null;
   isNew: boolean;
-  userId: string;
 }
 
 const MAX_HISTORY = 50;
 
-export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
+/** Parses legacy AI responses that wrapped YAML frontmatter inside `content`. */
+function parseLegacyAiMarkdownBody(raw: string): {
+  title?: string;
+  excerpt?: string;
+  body: string;
+} {
+  let body = raw.trim();
+  let title: string | undefined;
+  let excerpt: string | undefined;
+
+  if (body.startsWith("---")) {
+    const parts = body.split("---");
+    if (parts.length >= 3) {
+      const frontmatter = parts[1];
+      body = parts.slice(2).join("---").trim();
+      const quotedTitle = frontmatter.match(/title:\s*"([^"]+)"/);
+      const singleTitle = frontmatter.match(/title:\s*'([^']+)'/);
+      const bareTitle = frontmatter.match(/title:\s*([^\n]+)/);
+      const quotedExcerpt = frontmatter.match(/excerpt:\s*"([^"]+)"/);
+      const singleExcerpt = frontmatter.match(/excerpt:\s*'([^']+)'/);
+      const bareExcerpt = frontmatter.match(/excerpt:\s*([^\n]+)/);
+
+      if (quotedTitle) title = quotedTitle[1];
+      else if (singleTitle) title = singleTitle[1];
+      else if (bareTitle) title = bareTitle[1].trim();
+
+      if (quotedExcerpt) excerpt = quotedExcerpt[1];
+      else if (singleExcerpt) excerpt = singleExcerpt[1];
+      else if (bareExcerpt) excerpt = bareExcerpt[1].trim().replace(/^["']|["']$/g, "");
+    }
+  }
+
+  return { title, excerpt, body };
+}
+
+export function BlogEditor({ initialPost, isNew }: BlogEditorProps) {
   const router = useRouter();
+  const slugTouchedRef = useRef(false);
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [autoSaveTimer, setAutoSaveTimer] = useState<NodeJS.Timeout | null>(null);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // History for undo/redo
   const [history, setHistory] = useState<string[]>(
-    initialPost ? [JSON.stringify({
-      title: initialPost.title,
-      slug: initialPost.slug,
-      excerpt: initialPost.excerpt || "",
-      content: initialPost.content,
-      seoTitle: initialPost.seoTitle || "",
-      seoDescription: initialPost.seoDescription || "",
-      publishAt: initialPost.publishAt || "",
-    })] : []
+    initialPost
+      ? [
+          JSON.stringify({
+            title: initialPost.title,
+            slug: initialPost.slug,
+            excerpt: initialPost.excerpt || "",
+            content: initialPost.content,
+            seoTitle: initialPost.seoTitle || "",
+            seoDescription: initialPost.seoDescription || "",
+            publishAt: initialPost.publishAt || "",
+            featuredImageId: initialPost.featuredImageId ?? "",
+            featuredImageUrl: initialPost.featuredImageUrl ?? "",
+          }),
+        ]
+      : [],
   );
   const [historyIndex, setHistoryIndex] = useState(0);
 
@@ -61,6 +111,8 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
     seoTitle: initialPost?.seoTitle || "",
     seoDescription: initialPost?.seoDescription || "",
     publishAt: initialPost?.publishAt || "",
+    featuredImageId: initialPost?.featuredImageId ?? "",
+    featuredImageUrl: initialPost?.featuredImageUrl ?? "",
   });
 
   const pushHistory = (newData: typeof formData) => {
@@ -73,97 +125,39 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
     setHistoryIndex((prev) => Math.min(prev + 1, MAX_HISTORY - 1));
   };
 
+  const parseHistorySnapshot = (raw: string) => {
+    const data = JSON.parse(raw) as Partial<typeof formData>;
+    return {
+      title: data.title ?? "",
+      slug: data.slug ?? "",
+      excerpt: data.excerpt ?? "",
+      content: data.content ?? "",
+      status: data.status ?? "DRAFT",
+      seoTitle: data.seoTitle ?? "",
+      seoDescription: data.seoDescription ?? "",
+      publishAt: data.publishAt ?? "",
+      featuredImageId: data.featuredImageId ?? "",
+      featuredImageUrl: data.featuredImageUrl ?? "",
+    };
+  };
+
   const undo = () => {
     if (historyIndex <= 0) return;
     const newIndex = historyIndex - 1;
     setHistoryIndex(newIndex);
-    const data = JSON.parse(history[newIndex]);
-    setFormData(data);
+    setFormData(parseHistorySnapshot(history[newIndex]));
   };
 
   const redo = () => {
     if (historyIndex >= history.length - 1) return;
     const newIndex = historyIndex + 1;
     setHistoryIndex(newIndex);
-    const data = JSON.parse(history[newIndex]);
-    setFormData(data);
+    setFormData(parseHistorySnapshot(history[newIndex]));
   };
 
-  // Auto-save (debounced 30s)
-  const debouncedSave = useCallback(() => {
-    if (autoSaveTimer) clearTimeout(autoSaveTimer);
-    const timer = setTimeout(() => {
-      if (formData.title && formData.slug && formData.content) {
-        handleSave(false, true);
-      }
-    }, 30000);
-    setAutoSaveTimer(timer);
-  }, [formData, autoSaveTimer]);
-
-  useEffect(() => {
-    return () => {
-      if (autoSaveTimer) clearTimeout(autoSaveTimer);
-    };
-  }, [autoSaveTimer]);
-
-  const handleGenerateAI = async () => {
-    if (!aiPrompt) {
-      toast.error("Enter a prompt for the AI.");
-      return;
-    }
-    setGenerating(true);
-    try {
-      const res = await fetch("/api/admin/blog/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: aiPrompt }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Failed to generate");
-
-      let newContent = data.content;
-      let newTitle = formData.title;
-      let newExcerpt = formData.excerpt;
-
-      if (newContent.startsWith("---")) {
-        const parts = newContent.split("---");
-        if (parts.length >= 3) {
-          const frontmatter = parts[1];
-          newContent = parts.slice(2).join("---").trim();
-
-          const titleMatch = frontmatter.match(/title:\s*"([^"]+)"/);
-          const excerptMatch = frontmatter.match(/excerpt:\s*"([^"]+)"/);
-
-          if (titleMatch) newTitle = titleMatch[1];
-          if (excerptMatch) newExcerpt = excerptMatch[1];
-        }
-      }
-
-      const slugFromTitle = newTitle
-        ? newTitle
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/(^-|-$)+/g, "")
-        : "";
-
-      const newData = {
-        ...formData,
-        content: newContent,
-        title: newTitle || formData.title,
-        excerpt: newExcerpt || formData.excerpt,
-        slug: formData.slug || slugFromTitle,
-      };
-      setFormData(newData);
-      pushHistory(newData);
-      toast.success("Draft generated — save to persist, or refine in the editor.");
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Generation failed");
-    } finally {
-      setGenerating(false);
-    }
-  };
+  const handleSaveRef = useRef<(publish?: boolean, isAutoSave?: boolean) => Promise<void>>(
+    async () => {},
+  );
 
   const handleSave = async (publish = false, isAutoSave = false) => {
     if (!formData.title || !formData.slug || !formData.content) {
@@ -178,26 +172,42 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
       if (isNew && !postId) {
         const post = await createBlogPost({
           ...formData,
+          featuredImageId: formData.featuredImageId || undefined,
           generatedByAI: !!aiPrompt,
         });
         postId = post.id;
-
-        const needsSeo =
-          !formData.excerpt?.trim() ||
-          !formData.seoTitle?.trim() ||
-          !formData.seoDescription?.trim();
-        if (needsSeo) {
-          await enrichBlogPostSeo(post.id);
-        }
       } else if (postId) {
-        await updateBlogPost(postId, { ...formData });
-        const needsSeo =
-          !formData.excerpt?.trim() ||
-          !formData.seoTitle?.trim() ||
-          !formData.seoDescription?.trim();
-        if (needsSeo) {
-          await enrichBlogPostSeo(postId);
-        }
+        await updateBlogPost(postId, {
+          ...formData,
+          featuredImageId: formData.featuredImageId,
+        });
+      }
+
+      const needsSeo =
+        !formData.excerpt?.trim() ||
+        !formData.seoTitle?.trim() ||
+        !formData.seoDescription?.trim();
+
+      if (postId && needsSeo) {
+        void enrichBlogPostSeo(postId)
+          .then((updated) => {
+            setFormData((prev) => ({
+              ...prev,
+              excerpt:
+                updated.excerpt?.trim() ? (updated.excerpt ?? prev.excerpt) : prev.excerpt,
+              seoTitle:
+                updated.seoTitle?.trim() ? (updated.seoTitle ?? prev.seoTitle) : prev.seoTitle,
+              seoDescription:
+                updated.seoDescription?.trim()
+                  ? (updated.seoDescription ?? prev.seoDescription)
+                  : prev.seoDescription,
+            }));
+          })
+          .catch(() => {
+            if (!isAutoSave) {
+              toast.error("Could not auto-fill SEO fields. You can edit them manually.");
+            }
+          });
       }
 
       if (publish && formData.status !== "PUBLISHED" && postId) {
@@ -223,25 +233,134 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
     }
   };
 
+  useEffect(() => {
+    handleSaveRef.current = handleSave;
+  });
+
+  // Auto-save (debounced 30s)
+  const debouncedSave = useCallback(() => {
+    if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    const timer = setTimeout(() => {
+      if (formData.title && formData.slug && formData.content) {
+        void handleSaveRef.current(false, true);
+      }
+    }, 30000);
+    setAutoSaveTimer(timer);
+  }, [formData.title, formData.slug, formData.content, autoSaveTimer]);
+
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+    };
+  }, [autoSaveTimer]);
+
+  const handleGenerateAI = async () => {
+    if (!aiPrompt) {
+      toast.error("Enter a prompt for the AI.");
+      return;
+    }
+    setGenerating(true);
+    const toastId = toast.loading("Generating draft…");
+    try {
+      const res = await fetch("/api/admin/blog/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: aiPrompt }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to generate");
+
+      let newContent = "";
+      let newTitle = formData.title;
+      let newExcerpt = formData.excerpt;
+
+      if (
+        typeof data.title === "string" &&
+        typeof data.content === "string" &&
+        data.content.trim()
+      ) {
+        newTitle = data.title.trim() || newTitle;
+        newExcerpt =
+          typeof data.excerpt === "string" && data.excerpt.trim()
+            ? data.excerpt.trim()
+            : newExcerpt;
+        newContent = data.content.trim();
+      } else if (typeof data.content === "string" && data.content.trim()) {
+        const legacy = parseLegacyAiMarkdownBody(data.content);
+        newContent = legacy.body;
+        if (legacy.title) newTitle = legacy.title;
+        if (legacy.excerpt) newExcerpt = legacy.excerpt;
+      } else {
+        throw new Error("Unexpected AI response shape");
+      }
+
+      const slugFromTitle = newTitle ? normalizeBlogSlug(newTitle) : "";
+
+      const newData = {
+        ...formData,
+        content: newContent,
+        title: newTitle || formData.title,
+        excerpt: newExcerpt || formData.excerpt,
+        slug: formData.slug.trim() ? formData.slug : slugFromTitle || formData.slug,
+      };
+      setFormData(newData);
+      pushHistory(newData);
+      if (newData.slug.trim()) slugTouchedRef.current = true;
+      toast.success("Draft generated — save to persist, or refine in the editor.", { id: toastId });
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Generation failed", { id: toastId });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   const handleChange = (field: keyof typeof formData, value: string) => {
-    const newData = { ...formData, [field]: value };
+    const nextValue =
+      field === "slug"
+        ? normalizeBlogSlug(value)
+        : value;
+
+    const newData = { ...formData, [field]: nextValue };
     setFormData(newData);
 
-    // Auto-slug from title
-    if (field === "title" && !formData.slug) {
-      setFormData((prev) => ({
-        ...prev,
-        slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-      }));
+    if (field === "slug") {
+      slugTouchedRef.current = true;
     }
 
     pushHistory(newData);
     debouncedSave();
   };
 
+  const handleTitleBlur = () => {
+    if (!slugTouchedRef.current && formData.title.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        slug: normalizeBlogSlug(prev.title),
+      }));
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
+    <>
+      <MediaPickerModal
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        filterType="IMAGE"
+        title="Featured image"
+        onSelect={(asset) => {
+          const newData = {
+            ...formData,
+            featuredImageId: asset.id,
+            featuredImageUrl: asset.url,
+          };
+          setFormData(newData);
+          pushHistory(newData);
+        }}
+      />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="space-y-6 lg:col-span-2">
         {/* Main Editor */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
@@ -250,6 +369,7 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
               placeholder="Post Title..."
               value={formData.title}
               onChange={(e) => handleChange("title", e.target.value)}
+              onBlur={handleTitleBlur}
               className="flex-1 text-3xl font-bold bg-transparent outline-none placeholder:text-[var(--color-muted)] text-[var(--color-foreground)]"
             />
             <div className="flex gap-2 ml-4">
@@ -278,25 +398,32 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
               type="text"
               placeholder="post-slug"
               value={formData.slug}
-              onChange={(e) => handleChange("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+              onChange={(e) => handleChange("slug", e.target.value)}
               className="flex-1 bg-transparent outline-none text-[var(--color-primary)] font-mono"
             />
           </div>
 
-          <div className="h-[500px] border border-[var(--color-border)] rounded-xl overflow-hidden flex flex-col">
-            <div className="bg-[var(--color-background)] border-b border-[var(--color-border)] p-2 flex items-center gap-2">
-              <span className="text-xs font-medium text-[var(--color-muted)] px-2">Markdown Editor</span>
-              <div className="ml-auto flex gap-1">
-                {/* Format buttons could go here */}
+          <div className="flex min-h-[520px] flex-col overflow-hidden rounded-xl border border-[var(--color-border)] lg:grid lg:min-h-[560px] lg:grid-cols-2 lg:divide-x lg:divide-[var(--color-border)]">
+            <div className="flex min-h-[260px] flex-1 flex-col border-b border-[var(--color-border)] lg:min-h-0 lg:border-b-0">
+              <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2">
+                <span className="px-1 text-xs font-medium text-[var(--color-muted)]">Markdown</span>
+              </div>
+              <textarea
+                placeholder="Write your post content here (Markdown supported)..."
+                value={formData.content}
+                onChange={(e) => handleChange("content", e.target.value)}
+                className="min-h-0 flex-1 w-full resize-none bg-[var(--color-surface)] p-4 font-mono text-sm leading-relaxed text-[var(--color-foreground)] outline-none"
+                spellCheck={false}
+              />
+            </div>
+            <div className="flex min-h-[260px] flex-1 flex-col bg-[var(--color-background)] lg:min-h-0">
+              <div className="flex items-center gap-2 border-b border-[var(--color-border)] px-3 py-2">
+                <span className="px-1 text-xs font-medium text-[var(--color-muted)]">Preview</span>
+              </div>
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-auto p-4">
+                <MarkdownPreview markdown={formData.content} />
               </div>
             </div>
-            <textarea
-              placeholder="Write your post content here (Markdown supported)..."
-              value={formData.content}
-              onChange={(e) => handleChange("content", e.target.value)}
-              className="flex-1 w-full p-4 bg-[var(--color-surface)] resize-none outline-none text-[var(--color-foreground)] font-mono text-sm leading-relaxed"
-              spellCheck={false}
-            />
           </div>
 
           {lastSaved && (
@@ -335,6 +462,48 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
 
       {/* Sidebar */}
       <div className="space-y-6">
+        <div className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="h-5 w-5 text-[var(--color-primary)]" />
+            <h3 className="font-semibold text-[var(--color-foreground)]">Featured image</h3>
+          </div>
+          <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-background)]">
+            {formData.featuredImageUrl ? (
+              <Image
+                src={formData.featuredImageUrl}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 400px"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-xs text-[var(--color-muted)]">
+                No image selected
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setMediaPickerOpen(true)}>
+              Choose from library
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled={!formData.featuredImageId}
+              onClick={() => {
+                const newData = { ...formData, featuredImageId: "", featuredImageUrl: "" };
+                setFormData(newData);
+                pushHistory(newData);
+              }}
+              className="text-red-600 hover:bg-red-500/10"
+            >
+              <Trash2 className="mr-1 h-4 w-4" />
+              Clear
+            </Button>
+          </div>
+        </div>
+
         {/* Publishing */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm space-y-4">
           <h3 className="font-semibold text-[var(--color-foreground)]">Publishing</h3>
@@ -417,5 +586,6 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }

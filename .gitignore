@@ -45,6 +45,9 @@ AGENTS.md
 .env.local
 .env*.local
 !.env.example
+
 docs/master_plan_v1.1.md
 docs/master_plan_v1.md
-.env.local
+docs/implementation_plan2.md
+docs/implementation_plan.md
+docs/implementation_plan3.md

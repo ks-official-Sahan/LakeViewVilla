@@ -1,13 +1,10 @@
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 
-let cloudinaryReady = false;
-
 /**
- * Configure Cloudinary from discrete env vars or `CLOUDINARY_URL` (cloudinary://key:secret@cloud_name).
+ * Configure Cloudinary from env on every call (no module-level init).
+ * Ensures Turbopack HMR and serverless cold starts always see current env.
  */
 export function ensureCloudinaryConfigured(): boolean {
-  if (cloudinaryReady) return true;
-
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
   const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
   const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
@@ -19,7 +16,6 @@ export function ensureCloudinaryConfigured(): boolean {
       api_secret: apiSecret,
       secure: true,
     });
-    cloudinaryReady = true;
     return true;
   }
 
@@ -41,7 +37,6 @@ export function ensureCloudinaryConfigured(): boolean {
             api_secret: secret,
             secure: true,
           });
-          cloudinaryReady = true;
           return true;
         }
       }
@@ -54,8 +49,6 @@ export function ensureCloudinaryConfigured(): boolean {
 export function isCloudinaryConfigured(): boolean {
   return ensureCloudinaryConfigured();
 }
-
-ensureCloudinaryConfigured();
 
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",

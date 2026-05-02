@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Role } from "@prisma/client";
 import { updateUserRole, deleteUser, createUser, updateUserProfile } from "@/lib/actions/users";
-import { Trash2, UserPlus } from "lucide-react";
+import { Trash2, UserPlus, Download, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
@@ -16,6 +16,20 @@ type UserBasic = {
   createdAt: Date;
 };
 
+const ROLE_BADGE: Record<Role, string> = {
+  DEVELOPER:
+    "bg-violet-100 text-violet-800 ring-violet-500/20 dark:bg-violet-900/35 dark:text-violet-100 dark:ring-violet-400/20",
+  MANAGER:
+    "bg-sky-100 text-sky-900 ring-sky-500/20 dark:bg-sky-900/40 dark:text-sky-100 dark:ring-sky-400/20",
+  EDITOR:
+    "bg-emerald-100 text-emerald-900 ring-emerald-500/20 dark:bg-emerald-900/35 dark:text-emerald-100 dark:ring-emerald-400/20",
+};
+
+function escapeCsvCell(value: string): string {
+  const s = value.replace(/"/g, '""');
+  return `"${s}"`;
+}
+
 export function UsersClient({
   initialUsers,
   currentUserId,
@@ -24,6 +38,7 @@ export function UsersClient({
   currentUserId: string;
 }) {
   const [users, setUsers] = useState<UserBasic[]>(initialUsers);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -112,6 +127,39 @@ export function UsersClient({
     }
   };
 
+  const filteredUsers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter(
+      (u) =>
+        u.email.toLowerCase().includes(q) ||
+        (u.name ?? "").toLowerCase().includes(q) ||
+        u.role.toLowerCase().includes(q),
+    );
+  }, [users, search]);
+
+  const exportCsv = () => {
+    const rows = [
+      ["id", "email", "name", "role", "createdAt"],
+      ...filteredUsers.map((u) => [
+        u.id,
+        u.email,
+        u.name ?? "",
+        u.role,
+        new Date(u.createdAt).toISOString(),
+      ]),
+    ];
+    const csv = rows.map((line) => line.map((c) => escapeCsvCell(String(c))).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `users-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV downloaded.");
+  };
+
   const handleNameBlur = async (id: string, name: string, previous: string | null) => {
     const trimmed = name.trim();
     if (trimmed === (previous ?? "").trim()) return;
@@ -180,6 +228,22 @@ export function UsersClient({
       </form>
 
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm overflow-hidden">
+      <div className="flex flex-col gap-3 border-b border-[var(--color-border)] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <label className="relative flex max-w-md flex-1 items-center gap-2">
+          <Search className="pointer-events-none absolute left-3 h-4 w-4 text-[var(--color-muted)]" />
+          <input
+            type="search"
+            placeholder="Search name, email, role…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] py-2 pl-9 pr-3 text-sm"
+          />
+        </label>
+        <Button type="button" variant="outline" onClick={exportCsv} className="shrink-0 gap-2">
+          <Download className="h-4 w-4" />
+          Export CSV
+        </Button>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead className="bg-[var(--color-muted)]/10 text-[var(--color-muted)]">
@@ -191,7 +255,7 @@ export function UsersClient({
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user.id} className="hover:bg-[var(--color-muted)]/5 transition-colors">
                 <td className="p-4">
                   <input
@@ -205,16 +269,23 @@ export function UsersClient({
                   <div className="text-[var(--color-muted)] text-xs mt-1">{user.email}</div>
                 </td>
                 <td className="p-4">
-                  <select
-                    value={user.role}
-                    onChange={(e) => handleRoleChange(user.id, e.target.value as Role)}
-                    disabled={user.id === currentUserId || loading === user.id}
-                    className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] disabled:opacity-50"
-                  >
-                    {Object.values(Role).map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${ROLE_BADGE[user.role]}`}
+                    >
+                      {user.role}
+                    </span>
+                    <select
+                      value={user.role}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value as Role)}
+                      disabled={user.id === currentUserId || loading === user.id}
+                      className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] disabled:opacity-50"
+                    >
+                      {Object.values(Role).map((r) => (
+                        <option key={r} value={r}>{r}</option>
+                      ))}
+                    </select>
+                  </div>
                 </td>
                 <td className="p-4 text-[var(--color-muted)]">
                   {new Date(user.createdAt).toLocaleDateString()}
@@ -234,7 +305,7 @@ export function UsersClient({
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {filteredUsers.length === 0 && (
               <tr>
                 <td colSpan={4} className="p-8 text-center text-[var(--color-muted)]">
                   No users found.

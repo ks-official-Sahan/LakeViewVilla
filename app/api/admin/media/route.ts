@@ -28,6 +28,16 @@ export async function GET() {
         width: true,
         height: true,
         createdAt: true,
+        locations: {
+          orderBy: [{ order: "asc" }, { pageSlug: "asc" }],
+          select: {
+            id: true,
+            pageSlug: true,
+            sectionSlug: true,
+            isPrimary: true,
+            order: true,
+          },
+        },
       },
     });
 

@@ -1,106 +1,89 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Role } from "@prisma/client";
-import { can, PERMISSIONS } from "@/lib/auth/permissions";
-import {
-  LayoutDashboard,
-  Image,
-  FileText,
-  PenLine,
-  Users,
-  ClipboardList,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AdminNavList } from "@/components/admin/admin-nav";
+
+const SIDEBAR_COLLAPSED_KEY = "lvv-admin-sidebar-collapsed";
 
 interface AdminSidebarProps {
   role: Role;
 }
 
-interface NavItem {
-  label: string;
-  href: string;
-  icon: React.ComponentType<{ className?: string }>;
-  permission?: keyof typeof PERMISSIONS;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Media", href: "/admin/media", icon: Image },
-  { label: "Content", href: "/admin/content", icon: FileText },
-  { label: "Blog", href: "/admin/blog", icon: PenLine },
-  { label: "Users", href: "/admin/users", icon: Users, permission: "manageUsers" },
-  { label: "Audit Log", href: "/admin/audit", icon: ClipboardList, permission: "viewAuditLogs" },
-  { label: "Settings", href: "/admin/settings", icon: Settings, permission: "manageSettings" },
-];
-
 export function AdminSidebar({ role }: AdminSidebarProps) {
-  const pathname = usePathname();
+  const [isMd, setIsMd] = useState(false);
+  const [isLg, setIsLg] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  const filteredItems = NAV_ITEMS.filter(
-    (item) => !item.permission || can(role, item.permission)
-  );
+  useEffect(() => {
+    const qMd = window.matchMedia("(min-width: 768px)");
+    const qLg = window.matchMedia("(min-width: 1024px)");
+    const sync = () => {
+      setIsMd(qMd.matches);
+      setIsLg(qLg.matches);
+    };
+    sync();
+    qMd.addEventListener("change", sync);
+    qLg.addEventListener("change", sync);
+    const stored = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (stored === "1") setCollapsed(true);
+    setHydrated(true);
+    return () => {
+      qMd.removeEventListener("change", sync);
+      qLg.removeEventListener("change", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated || !isLg) return;
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, collapsed ? "1" : "0");
+  }, [collapsed, hydrated, isLg]);
+
+  if (!isMd) return null;
+
+  const wide = isLg && !collapsed;
+  const showLabels = wide;
+  const widthClass = wide ? "w-60" : "w-16";
 
   return (
     <aside
-      className={`relative hidden border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-all duration-300 md:flex md:flex-col ${
-        collapsed ? "w-16" : "w-60"
-      }`}
+      className={`relative hidden shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] transition-[width] duration-300 md:flex md:flex-col ${widthClass}`}
     >
-      {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b border-[var(--color-border)] px-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--color-primary)] text-xs font-bold text-[var(--color-primary-foreground)]">
           LV
         </div>
-        {!collapsed && (
+        {showLabels && (
           <span className="truncate text-sm font-semibold text-[var(--color-foreground)]">
             Admin Panel
           </span>
         )}
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2">
-        {filteredItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/admin" && pathname.startsWith(item.href));
+      <div className="flex-1 overflow-y-auto p-2">
+        <AdminNavList
+          role={role}
+          showGroupHeadings={showLabels}
+          showLabels={showLabels}
+        />
+      </div>
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                  : "text-[var(--color-muted)] hover:bg-[var(--color-background)] hover:text-[var(--color-foreground)]"
-              } ${collapsed ? "justify-center" : ""}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="h-5 w-5 shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Collapse toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] transition-colors hover:text-[var(--color-foreground)]"
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {collapsed ? (
-          <ChevronRight className="h-3.5 w-3.5" />
-        ) : (
-          <ChevronLeft className="h-3.5 w-3.5" />
-        )}
-      </button>
+      {isLg && (
+        <button
+          type="button"
+          onClick={() => setCollapsed((c) => !c)}
+          className="absolute -right-3 top-20 z-10 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] shadow-sm transition-colors hover:text-[var(--color-foreground)]"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <ChevronRight className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronLeft className="h-3.5 w-3.5" />
+          )}
+        </button>
+      )}
     </aside>
   );
 }

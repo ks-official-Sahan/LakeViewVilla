@@ -1,5 +1,7 @@
 import { getContentBlocks } from "@/lib/admin/content-actions";
 import { ContentEditor } from "@/components/admin/content-editor";
+import { getContentPage } from "@/lib/admin/content-pages";
+import type { ContentBlock } from "@prisma/client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,23 +10,15 @@ export const metadata = {
   title: "Edit Page Content — LakeViewVilla Admin",
 };
 
-const PAGES = [
-  { slug: "home", label: "Home Page", sections: ["hero", "highlights", "experiences", "stays-teaser", "gallery-teaser", "facilities", "values", "faq"] },
-  { slug: "stays", label: "Stays Page", sections: ["hero", "rooms", "pricing", "amenities"] },
-  { slug: "gallery", label: "Gallery Page", sections: ["hero", "grid"] },
-  { slug: "visit", label: "Visit Page", sections: ["hero", "map", "directions", "nearby"] },
-  { slug: "faq", label: "FAQ Page", sections: ["hero", "questions"] },
-];
-
 export default async function AdminContentSlugPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
-  const page = PAGES.find((p) => p.slug === params.slug);
+  const page = getContentPage(params.slug);
 
   if (!page) {
     notFound();
   }
 
-  let existingBlocks: any[] = [];
+  let existingBlocks: ContentBlock[] = [];
   try {
     existingBlocks = await getContentBlocks(params.slug);
   } catch (error) {

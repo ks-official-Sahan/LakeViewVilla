@@ -118,12 +118,28 @@ model MediaAsset {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  locations MediaLocation[]
   blogPosts BlogPost[] @relation("FeaturedImage")
 
   @@index([category])
   @@index([pageSlug, sectionSlug])
   @@index([order])
   @@map("media_assets")
+}
+
+/// Placement of a media asset on one or more pages/sections (many-to-many via join rows).
+model MediaLocation {
+  id          String     @id @default(cuid())
+  mediaId     String
+  pageSlug    String
+  sectionSlug String
+  isPrimary   Boolean    @default(false)
+  order       Int        @default(0)
+  media       MediaAsset @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaId, pageSlug, sectionSlug])
+  @@index([pageSlug, sectionSlug])
+  @@map("media_locations")
 }
 
 // ─── Content Management ──────────────────────────────────────────────────────

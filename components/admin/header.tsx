@@ -11,6 +11,8 @@ interface AdminHeaderProps {
     role: Role;
     image?: string | null;
   };
+  /** Opens the mobile navigation drawer (< md). */
+  onOpenMobileNav?: () => void;
 }
 
 const ROLE_BADGE: Record<Role, { label: string; className: string }> = {
@@ -28,20 +30,21 @@ const ROLE_BADGE: Record<Role, { label: string; className: string }> = {
   },
 };
 
-export function AdminHeader({ user }: AdminHeaderProps) {
+export function AdminHeader({ user, onOpenMobileNav }: AdminHeaderProps) {
   const badge = ROLE_BADGE[user.role];
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-surface)] px-4 md:px-6">
-      {/* Mobile menu trigger */}
       <button
+        type="button"
+        onClick={onOpenMobileNav}
         className="cursor-pointer rounded-lg p-2 text-[var(--color-muted)] transition-colors hover:bg-[var(--color-background)] md:hidden"
         aria-label="Open menu"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="hidden md:block" />
+      <div className="hidden md:block" aria-hidden />
 
       {/* User info */}
       <div className="flex items-center gap-4">
