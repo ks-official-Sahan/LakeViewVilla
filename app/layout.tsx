@@ -307,7 +307,10 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-svh bg-background text-foreground antialiased grain-overlay">
+      <body
+        className="min-h-svh bg-background text-foreground antialiased grain-overlay"
+        suppressHydrationWarning
+      >
         {/* Skip-to-content link for keyboard users (WCAG 2.2 AAA) */}
         <a href="#content" className="skip-link">
           Skip to content

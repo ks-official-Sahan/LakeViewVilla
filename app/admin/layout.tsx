@@ -14,7 +14,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   // The proxy already redirects non-login admin paths to /admin/login,
   // so only the login page reaches here without a session.
   if (!session?.user) {
-    return <>{children}</>;
+    return <div className="admin-login-wrapper">{children}</div>;
   }
 
   return (

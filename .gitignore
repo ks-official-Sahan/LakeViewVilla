@@ -35,9 +35,13 @@ WARP.md
 performance-fixes.md
 schema.json
 
+.agents/
 .gemini/
 .claude/
 gemini.md
 gha-creds-*.json
 
 docs/
+AGENTS.md
+
+AGENTS.md

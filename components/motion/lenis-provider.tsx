@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import Lenis from "lenis";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+// import { gsap, ScrollTrigger } from "@/lib/gsap"; // Removed static import to prevent SSR Date.now() evaluation
 
 type LenisContextValue = Lenis | null;
 
@@ -41,21 +41,33 @@ export function LenisProvider({ children }: LenisProviderProps) {
     });
 
     lenisRef.current = lenis;
+    
+    let tickerCallback: ((time: number) => void) | null = null;
+    let gsapInstance: any = null;
 
-    // Sync Lenis scroll position with ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update);
+    // Dynamically import GSAP to prevent Next.js from evaluating Date.now() on the server
+    import("@/lib/gsap").then(({ gsap, ScrollTrigger }) => {
+      if (!lenisRef.current) return; // Component unmounted before load
+      
+      gsapInstance = gsap;
+      
+      // Sync Lenis scroll position with ScrollTrigger
+      lenis.on("scroll", ScrollTrigger.update);
 
-    // Drive Lenis from GSAP's ticker for frame-perfect sync
-    const tickerCallback = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(tickerCallback);
+      // Drive Lenis from GSAP's ticker for frame-perfect sync
+      tickerCallback = (time: number) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(tickerCallback);
 
-    // Disable GSAP's built-in lagSmoothing so Lenis controls pacing
-    gsap.ticker.lagSmoothing(0);
+      // Disable GSAP's built-in lagSmoothing so Lenis controls pacing
+      gsap.ticker.lagSmoothing(0);
+    }).catch(console.error);
 
     return () => {
-      gsap.ticker.remove(tickerCallback);
+      if (gsapInstance && tickerCallback) {
+        gsapInstance.ticker.remove(tickerCallback);
+      }
       lenis.destroy();
       lenisRef.current = null;
     };
