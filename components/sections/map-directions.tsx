@@ -9,7 +9,6 @@ import { SectionReveal } from "@/components/motion/section-reveal";
 import { trackContact, trackMapOpen } from "@/lib/analytics";
 
 export function MapDirections() {
-  // const mapsEmbedSrc = `https://www.google.com/maps?q=${SITE_CONFIG.coordinates.lat},${SITE_CONFIG.coordinates.lng}&hl=en&z=15&output=embed`;
   const mapsEmbedSrc = SITE_CONFIG.googleMapsUrl;
 
   const handleGetDirections = () => {
@@ -22,45 +21,49 @@ export function MapDirections() {
     const message =
       "Hi! I need the exact pin location for Lake View Villa Tangalle. Could you please share the precise location?";
     const url = buildWhatsAppUrl(SITE_CONFIG.whatsappNumber, message);
-    //window.open(url, "_blank");
     trackContact("whatsapp", url, "Chat on WhatsApp");
     setTimeout(() => window.open(url, "_blank", "noopener"), 120);
   };
 
   return (
     <SectionReveal>
-      <section id="location" className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <section
+        id="location"
+        className="border-t border-[var(--color-border)] bg-[var(--color-background)] py-20 md:py-28"
+      >
+        <div className="container mx-auto max-w-6xl px-4">
           <motion.div
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-16"
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-14 text-center"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
+            <h2 className="font-[var(--font-display)] text-balance text-[clamp(1.75rem,4vw,2.75rem)] font-bold tracking-tight text-[var(--color-foreground)]">
               Find your way to paradise
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto text-pretty">
-              Located on a serene lagoon in Tangalle, easily accessible and
-              perfectly positioned for exploration.
+            <p className="mx-auto mt-4 max-w-2xl text-pretty text-lg text-[var(--color-muted)]">
+              Located on a serene lagoon in Tangalle — easy to reach and
+              perfectly positioned for exploring the south coast.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Map */}
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-14">
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
+              initial={{ opacity: 0, x: -36 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 0.75 }}
               className="relative"
             >
-              <div className="aspect-square rounded-2xl overflow-hidden shadow-lg">
+              <div
+                className="relative mx-auto aspect-square max-w-lg overflow-hidden rounded-[2.5rem] shadow-[0_24px_80px_rgba(14,165,233,.12)] ring-1 ring-[var(--color-border)] md:max-w-none md:[clip-path:circle(48%_at_50%_50%)]"
+              >
                 <iframe
                   src={mapsEmbedSrc}
                   width="100%"
                   height="100%"
+                  className="h-full min-h-[280px] w-full"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
@@ -69,74 +72,70 @@ export function MapDirections() {
                 />
               </div>
 
-              <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-                <div className="flex items-center text-sm font-medium">
-                  <MapPin className="w-4 h-4 text-red-500 mr-2" />
+              <div className="absolute left-6 top-6 z-10 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]/95 px-3 py-2 text-sm font-medium text-[var(--color-foreground)] shadow-lg backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-[var(--color-primary)]" />
                   Lake View Villa Tangalle
                 </div>
               </div>
             </motion.div>
 
-            {/* Directions */}
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: 36 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="space-y-8"
+              transition={{ duration: 0.75, delay: 0.08 }}
+              className="flex flex-col gap-8"
             >
               <div>
-                <h3 className="text-2xl font-semibold mb-6">How to reach us</h3>
+                <h3 className="mb-6 text-xl font-semibold text-[var(--color-foreground)] md:text-2xl">
+                  How to reach us
+                </h3>
                 <div className="space-y-4">
                   {DIRECTIONS.map((direction, index) => (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 16 }}
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      className="flex items-start"
+                      transition={{ duration: 0.45, delay: index * 0.06 }}
+                      className="flex items-start gap-4"
                     >
-                      <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-4 mt-1">
+                      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] text-sm font-bold text-white shadow-md">
                         {index + 1}
                       </div>
-                      <p className="text-gray-700 leading-relaxed">
-                        {direction}
-                      </p>
+                      <p className="leading-relaxed text-[var(--color-muted)]">{direction}</p>
                     </motion.div>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <Button
                   onClick={handleGetDirections}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
-                  data-magnetic
+                  className="w-full bg-[var(--color-primary)] py-6 text-[var(--color-primary-foreground)] hover:opacity-95"
                 >
-                  <Navigation className="w-5 h-5 mr-2" />
-                  Get Directions on Google Maps
+                  <Navigation className="mr-2 h-5 w-5" />
+                  Open in Google Maps
                 </Button>
 
                 <Button
                   onClick={handleCallForLocation}
                   variant="outline"
-                  className="w-full border-green-600 text-green-600 hover:bg-green-50 py-3 bg-transparent"
-                  data-magnetic
+                  className="w-full border-[var(--color-primary)] py-6 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
                 >
-                  <Phone className="w-5 h-5 mr-2" />
-                  Call/WhatsApp for Exact Pin Location
+                  <Phone className="mr-2 h-5 w-5" />
+                  WhatsApp for exact pin
                 </Button>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-6">
-                <h4 className="font-semibold text-blue-900 mb-2">
+              <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+                <h4 className="mb-2 font-semibold text-[var(--color-foreground)]">
                   Need assistance?
                 </h4>
-                <p className="text-blue-800 text-sm leading-relaxed">
-                  Our team is available 24/7 to help with directions, airport
-                  transfers, and any questions about reaching the villa. Don't
-                  hesitate to contact us!
+                <p className="text-sm leading-relaxed text-[var(--color-muted)]">
+                  We can help with directions, airport transfers, and timing.
+                  Message anytime — we typically reply within minutes.
                 </p>
               </div>
             </motion.div>

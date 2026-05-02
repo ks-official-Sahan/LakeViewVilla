@@ -76,19 +76,22 @@ export default function GalleryClient({ images }: { images: Img[] }) {
             onMouseUp={() => onMouseUp(i)}
           >
             <SectionReveal>
-              <div className="relative overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/15 backdrop-blur-md shadow-2xl">
+              <motion.div
+                layoutId={selected === i ? "gallery-flip" : undefined}
+                className="relative overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/15 backdrop-blur-md shadow-2xl"
+              >
                 <Image
                   src={image.src || "/placeholder.svg"}
                   alt={image.alt || "Lake View Villa photo"}
                   width={image.w}
                   height={image.h}
-                  className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="h-auto w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   placeholder="blur"
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              </motion.div>
             </SectionReveal>
           </motion.div>
         ))}
@@ -140,18 +143,20 @@ export default function GalleryClient({ images }: { images: Img[] }) {
               </button>
 
               <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
+                layoutId="gallery-flip"
+                initial={{ scale: 0.98, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                transition={{ duration: 0.25 }}
+                exit={{ scale: 0.98, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 320, damping: 28 }}
                 onClick={(e) => e.stopPropagation()}
+                className="relative overflow-hidden rounded-xl"
               >
                 <Image
                   src={images[selected].src}
                   alt={images[selected].alt}
                   width={images[selected].w}
                   height={images[selected].h}
-                  className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg"
+                  className="max-h-[90vh] w-auto max-w-full object-contain"
                   priority
                 />
               </motion.div>

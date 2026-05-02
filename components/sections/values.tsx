@@ -8,6 +8,7 @@ import {
   Car, Waves, Utensils, Wind, Trees, ShowerHead, CheckCircle2,
 } from "lucide-react";
 import { VALUES_ITEMS } from "@/data/content";
+import { CounterReveal } from "@/components/scroll/CounterReveal";
 
 const iconMap = {
   car: Car,
@@ -153,8 +154,13 @@ export function ValuesSection() {
             </div>
 
             {/* Floating stat badge */}
-            <div className="absolute -right-4 -top-4 flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-[var(--color-surface)] bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] text-white shadow-xl md:-right-6 md:-top-6 md:h-24 md:w-24">
-              <span className="text-lg font-black leading-none md:text-xl">4.9</span>
+            <div className="absolute -right-4 -top-4 flex h-20 w-20 flex-col items-center justify-center gap-0.5 rounded-full border-4 border-[var(--color-surface)] bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] px-1 text-white shadow-xl md:-right-6 md:-top-6 md:h-24 md:w-24">
+              <CounterReveal
+                value={4.9}
+                format={(n) => n.toFixed(1)}
+                duration={1.6}
+                className="text-lg font-black leading-none text-white md:text-xl"
+              />
               <span className="text-[9px] font-semibold uppercase tracking-wide opacity-90">
                 Rating
               </span>
@@ -179,8 +185,12 @@ export function ValuesSection() {
             </p>
             <h2
               id="values-heading"
-              className="font-[var(--font-display)] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-tight tracking-tight text-[var(--color-foreground)]"
+              className="relative font-[var(--font-display)] text-[clamp(1.9rem,4vw,3rem)] font-extrabold leading-tight tracking-tight text-[var(--color-foreground)]"
             >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -left-1 top-1/2 hidden h-[72%] w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-[#0ea5e9] to-[#22d3ee] md:block"
+              />
               The value we{" "}
               <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">
                 provide to you

@@ -5,8 +5,9 @@ import React, {
   useEffect,
   type ReactNode,
   type CSSProperties,
+  type ElementType,
 } from "react";
-import { gsap } from "@/lib/gsap";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "framer-motion";
 
 type RevealVariant =
@@ -44,6 +45,11 @@ interface RevealOnScrollProps {
   style?: CSSProperties;
   /** HTML tag to render. Default: "div" */
   as?: React.ElementType;
+  /**
+   * Use ScrollTrigger.batch for many sibling targets (efficient for grids).
+   * When true, `staggerSelector` selects batch members (default direct children).
+   */
+  batch?: boolean;
 }
 
 const VARIANT_FROM: Record<RevealVariant, gsap.TweenVars> = {
@@ -100,6 +106,7 @@ export function RevealOnScroll({
   className = "",
   style,
   as: Tag = "div",
+  batch = false,
 }: RevealOnScrollProps) {
   const ref = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion();
@@ -111,16 +118,39 @@ export function RevealOnScroll({
     const mm = gsap.matchMedia();
 
     const run = (motionScale: number, staggerFactor: number) => {
-      const targets =
-        stagger > 0 ? el.querySelectorAll(staggerSelector) : el;
       const from = scaleFromVars(VARIANT_FROM[variant], motionScale);
-      const to = {
+      const toVars = {
         ...VARIANT_TO[variant],
         duration,
         delay,
         ease: "power3.out",
-        stagger:
-          stagger > 0 ? stagger * staggerFactor : undefined,
+      };
+
+      if (batch) {
+        const staggerEach = stagger > 0 ? stagger : 0.08;
+        const ctxBatch = gsap.context(() => {
+          const nodes = Array.from(el.querySelectorAll(staggerSelector));
+          if (!nodes.length) return;
+          gsap.set(nodes, from);
+          ScrollTrigger.batch(nodes, {
+            start,
+            once,
+            onEnter: (elements) => {
+              gsap.to(elements, {
+                ...toVars,
+                stagger: staggerEach * staggerFactor,
+                overwrite: "auto",
+              });
+            },
+          });
+        }, el);
+        return () => ctxBatch.revert();
+      }
+
+      const targets = stagger > 0 ? el.querySelectorAll(staggerSelector) : el;
+      const to = {
+        ...toVars,
+        stagger: stagger > 0 ? stagger * staggerFactor : undefined,
         scrollTrigger: {
           trigger: el,
           start,
@@ -157,9 +187,10 @@ export function RevealOnScroll({
     start,
     once,
     prefersReduced,
+    batch,
   ]);
 
-  const Component = Tag as any;
+  const Component = Tag as ElementType;
 
   return (
     <Component

@@ -1,6 +1,15 @@
 export { SmoothScrollProvider, useSmoothScroll } from "./SmoothScroll";
 export { RevealOnScroll } from "./RevealOnScroll";
 export { ParallaxSection, ParallaxImage } from "./ParallaxSection";
+export { ParallaxLayer } from "./ParallaxLayer";
 export { HorizontalScrollSection } from "./HorizontalScrollSection";
+export { HorizontalScrollGallery } from "./HorizontalScrollGallery";
 export { MagneticElement } from "./MagneticElement";
+export { SplitTextReveal } from "./SplitTextReveal";
 export { TextReveal } from "./TextReveal";
+export type { SplitTextRevealProps, SplitTextRevealVariant } from "./SplitTextReveal";
+export type { TextRevealProps } from "./TextReveal";
+export { CounterReveal } from "./CounterReveal";
+export type { CounterRevealProps } from "./CounterReveal";
+export { ScrollPinnedScene } from "./ScrollPinnedScene";
+export type { ScrollPinnedSceneProps } from "./ScrollPinnedScene";

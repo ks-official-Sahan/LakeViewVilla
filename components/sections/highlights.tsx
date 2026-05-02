@@ -8,6 +8,7 @@ import {
   MapPin, Sparkles, Wind, ShieldCheck, Plane,
 } from "lucide-react";
 import { HIGHLIGHTS as RAW_HIGHLIGHTS } from "@/data/content";
+import { MagneticElement } from "@/components/scroll/MagneticElement";
 
 type Item =
   | string
@@ -181,14 +182,16 @@ export function Highlights() {
                 }}
               />
 
-              {/* Icon */}
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] shadow-md shadow-[#0ea5e9]/30">
-                {Icon ? (
-                  <Icon className="h-5 w-5 text-white" />
-                ) : (
-                  <Sparkles className="h-5 w-5 text-white" />
-                )}
-              </div>
+              {/* Icon — magnetic micro-interaction (desktop spring; reduced-motion noop inside MagneticElement) */}
+              <MagneticElement strength={7} className="mb-4 inline-flex">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] shadow-md shadow-[#0ea5e9]/30">
+                  {Icon ? (
+                    <Icon className="h-5 w-5 text-white" />
+                  ) : (
+                    <Sparkles className="h-5 w-5 text-white" />
+                  )}
+                </div>
+              </MagneticElement>
 
               <h3 className="mb-2 text-[15px] font-semibold text-[var(--color-foreground)] transition-colors group-hover:text-[var(--color-primary)]">
                 {title}

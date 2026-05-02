@@ -1,115 +1,139 @@
 "use client";
 
-import { useRef, useEffect, type ReactNode, type CSSProperties } from "react";
+import {
+  forwardRef,
+  useRef,
+  useEffect,
+  useCallback,
+  type ReactNode,
+  type CSSProperties,
+  type ComponentPropsWithoutRef,
+  type MutableRefObject,
+} from "react";
 import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "framer-motion";
 
-interface HorizontalScrollSectionProps {
+export type HorizontalScrollSectionProps = {
   children: ReactNode;
-  /** Additional className for the outer container */
   className?: string;
-  /** Additional inline style */
   style?: CSSProperties;
-  /** Show progress bar. Default: true */
   showProgress?: boolean;
-  /** Snap to child items. Default: false */
   snap?: boolean;
-}
+  /** Applied to the horizontal flex track (e.g. Tailwind `snap-x`) */
+  trackClassName?: string;
+} & Omit<ComponentPropsWithoutRef<"section">, "children">;
 
-export function HorizontalScrollSection({
-  children,
-  className = "",
-  style,
-  showProgress = true,
-  snap = false,
-}: HorizontalScrollSectionProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
-  const prefersReduced = useReducedMotion();
+export const HorizontalScrollSection = forwardRef<HTMLElement, HorizontalScrollSectionProps>(
+  function HorizontalScrollSection(
+    {
+      children,
+      className = "",
+      style,
+      showProgress = true,
+      snap = false,
+      trackClassName = "",
+      ...sectionProps
+    },
+    ref,
+  ) {
+    const innerRef = useRef<HTMLElement | null>(null);
+    const trackRef = useRef<HTMLDivElement>(null);
+    const progressRef = useRef<HTMLDivElement>(null);
+    const prefersReduced = useReducedMotion();
 
-  useEffect(() => {
-    const section = sectionRef.current;
-    const track = trackRef.current;
-    if (!section || !track) return;
+    const setSectionRef = useCallback(
+      (node: HTMLElement | null) => {
+        innerRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) (ref as MutableRefObject<HTMLElement | null>).current = node;
+      },
+      [ref],
+    );
 
-    const scrollWidth = track.scrollWidth;
-    const viewportWidth = window.innerWidth;
-    const distance = scrollWidth - viewportWidth;
+    useEffect(() => {
+      const section = innerRef.current;
+      const track = trackRef.current;
+      if (!section || !track) return;
 
-    if (prefersReduced || distance <= 0) return;
+      const scrollWidth = track.scrollWidth;
+      const viewportWidth = window.innerWidth;
+      const distance = scrollWidth - viewportWidth;
 
-    const mm = gsap.matchMedia();
+      if (prefersReduced || distance <= 0) return;
 
-    mm.add("(max-width: 767px)", () => {
-      /* Native horizontal scroll on small viewports — avoid pin + scrub cost */
-      return () => {};
-    });
+      const mm = gsap.matchMedia();
 
-    mm.add("(min-width: 768px)", () => {
-      const ctx = gsap.context(() => {
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: () => `+=${distance}`,
-            pin: true,
-            scrub: 0.5,
-            snap: snap
+      mm.add("(max-width: 767px)", () => {
+        return () => {};
+      });
+
+      mm.add("(min-width: 768px)", () => {
+        const ctx = gsap.context(() => {
+          const snapCfg =
+            snap && track.children.length > 1
               ? {
                   snapTo: 1 / (track.children.length - 1),
                   duration: { min: 0.2, max: 0.5 },
                   ease: "power2.inOut",
                 }
-              : undefined,
-            invalidateOnRefresh: true,
-            anticipatePin: 1,
-          },
-        });
+              : undefined;
 
-        tl.to(track, {
-          x: -distance,
-          ease: "none",
-        });
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: section,
+              start: "top top",
+              end: () => `+=${distance}`,
+              pin: true,
+              scrub: 0.5,
+              snap: snapCfg,
+              invalidateOnRefresh: true,
+              anticipatePin: 1,
+            },
+          });
 
-        if (progressRef.current) {
-          tl.to(progressRef.current, { scaleX: 1, ease: "none" }, 0);
-        }
-      }, section);
+          tl.to(track, {
+            x: -distance,
+            ease: "none",
+          });
 
-      return () => ctx.revert();
-    });
+          if (progressRef.current) {
+            tl.to(progressRef.current, { scaleX: 1, ease: "none" }, 0);
+          }
+        }, section);
 
-    return () => mm.revert();
-  }, [snap, prefersReduced]);
+        return () => ctx.revert();
+      });
 
-  return (
-    <section
-      ref={sectionRef}
-      className={`relative overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-hidden ${className}`}
-      style={style}
-      aria-label="Horizontal scroll section"
-    >
-      {/* Progress bar — desktop pinned scroll only (hidden when overflow-x-auto on mobile) */}
-      {showProgress && (
-        <div
-          className="absolute top-0 left-0 right-0 z-10 hidden h-[2px] bg-border/20 md:block"
-          aria-hidden="true"
-        >
-          <div
-            ref={progressRef}
-            className="h-full origin-left bg-linear-to-r from-[var(--color-primary)] to-[var(--color-accent)]"
-            style={{ transform: "scaleX(0)" }}
-          />
-        </div>
-      )}
+      return () => mm.revert();
+    }, [snap, prefersReduced]);
 
-      <div
-        ref={trackRef}
-        className="flex w-max min-w-full items-stretch gap-0 will-change-transform md:w-max"
+    return (
+      <section
+        ref={setSectionRef}
+        className={`relative overflow-x-auto overflow-y-hidden md:overflow-x-hidden md:overflow-hidden ${className}`}
+        style={style}
+        {...sectionProps}
       >
-        {children}
-      </div>
-    </section>
-  );
-}
+        {showProgress && (
+          <div
+            className="absolute top-0 left-0 right-0 z-10 hidden h-[2px] bg-border/20 md:block"
+            aria-hidden="true"
+          >
+            <div
+              ref={progressRef}
+              className="h-full origin-left bg-linear-to-r from-[var(--color-primary)] to-[var(--color-accent)]"
+              style={{ transform: "scaleX(0)" }}
+            />
+          </div>
+        )}
+
+        <div
+          ref={trackRef}
+          className={`flex w-max min-w-full items-stretch gap-0 will-change-transform md:w-max ${trackClassName}`}
+        >
+          {children}
+        </div>
+      </section>
+    );
+  },
+);

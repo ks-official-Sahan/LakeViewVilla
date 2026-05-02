@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useRef, useEffect, type ReactNode, type CSSProperties } from "react";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import React, {
+  useRef,
+  useEffect,
+  type ReactNode,
+  type CSSProperties,
+  type ElementType,
+} from "react";
+import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "framer-motion";
 
 interface ParallaxSectionProps {
@@ -55,7 +61,7 @@ export function ParallaxSection({
     return () => ctx.revert();
   }, [speed, axis, prefersReduced]);
 
-  const Component = Tag as any;
+  const Component = Tag as ElementType;
 
   return (
     <Component

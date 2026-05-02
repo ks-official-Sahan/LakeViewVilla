@@ -7,6 +7,12 @@ interface MagneticElementProps {
   children: ReactNode;
   /** Magnetic pull strength (px). Default: 12 */
   strength?: number;
+  /** Framer Motion spring stiffness. Default: 280 */
+  stiffness?: number;
+  /** Framer Motion spring damping. Default: 26 */
+  damping?: number;
+  /** Framer Motion spring mass. Default: 0.72 */
+  mass?: number;
   /** Additional className */
   className?: string;
   /** Additional inline style */
@@ -16,6 +22,9 @@ interface MagneticElementProps {
 export function MagneticElement({
   children,
   strength = 12,
+  stiffness = 280,
+  damping = 26,
+  mass = 0.72,
   className = "",
   style,
 }: MagneticElementProps) {
@@ -25,8 +34,8 @@ export function MagneticElement({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const springX = useSpring(x, { stiffness: 200, damping: 20 });
-  const springY = useSpring(y, { stiffness: 200, damping: 20 });
+  const springX = useSpring(x, { stiffness, damping, mass });
+  const springY = useSpring(y, { stiffness, damping, mass });
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (prefersReduced) return;

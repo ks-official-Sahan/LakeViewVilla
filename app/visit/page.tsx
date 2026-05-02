@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SeoJsonLd from "@/components/SeoJsonLd";
 import VisitPage from "./client";
+import { DIRECTIONS } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
@@ -36,6 +37,15 @@ export default function Page() {
           { name: "Home", url: "https://lakeviewvillatangalle.com/" },
           { name: "Visit", url: "https://lakeviewvillatangalle.com/visit" },
         ]}
+        howTo={{
+          name: "Driving directions to Lake View Villa Tangalle",
+          description:
+            "Overview of reaching the villa by road from Tangalle. Confirm the exact pin via WhatsApp.",
+          steps: DIRECTIONS.map((text, i) => ({
+            name: `Step ${i + 1}`,
+            text,
+          })),
+        }}
       />
       <VisitPage />
     </>

@@ -784,12 +784,30 @@ img[data-nimg] {
       animation-timeline: scroll(root block);
       transform-origin: left center;
     }
+
+    @keyframes lvv-scroll-scale-in {
+      from {
+        opacity: 0;
+        transform: scale(0.94);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .lvv-scroll-scale-view {
+      animation: lvv-scroll-scale-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .lvv-scroll-fade-view,
-  .lvv-scroll-progress-root {
+  .lvv-scroll-progress-root,
+  .lvv-scroll-scale-view {
     animation: none !important;
   }
 }

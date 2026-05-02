@@ -7,6 +7,20 @@ import { serializeJsonLd } from "@/lib/utils";
 type Breadcrumb = { name: string; url: string };
 type Faq = { q: string; a: string };
 
+export type SchemaOfferInput = {
+  name: string;
+  description?: string;
+  url?: string;
+  price?: string;
+  priceCurrency?: string;
+};
+
+export type SchemaHowToInput = {
+  name: string;
+  description?: string;
+  steps: { name: string; text: string }[];
+};
+
 const BASE = "https://lakeviewvillatangalle.com";
 
 const SAME_AS = [
@@ -23,9 +37,13 @@ const SAME_AS = [
 export default function SeoJsonLd({
   breadcrumb,
   faq,
+  offers,
+  howTo,
 }: {
   breadcrumb?: Breadcrumb[];
   faq?: Faq[];
+  offers?: SchemaOfferInput[];
+  howTo?: SchemaHowToInput;
 }) {
   // Organization
   const org = {
@@ -99,7 +117,7 @@ export default function SeoJsonLd({
     sameAs: SAME_AS,
   };
 
-  const blocks: any[] = [org, site, lodging];
+  const blocks: Record<string, unknown>[] = [org, site, lodging];
 
   if (breadcrumb && Array.isArray(breadcrumb) && breadcrumb.length) {
     blocks.push({
@@ -122,6 +140,37 @@ export default function SeoJsonLd({
         "@type": "Question",
         name: f.q,
         acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+  }
+
+  if (offers && offers.length) {
+    for (const o of offers) {
+      blocks.push({
+        "@context": "https://schema.org",
+        "@type": "Offer",
+        name: o.name,
+        ...(o.description ? { description: o.description } : {}),
+        url: o.url ?? BASE,
+        offeredBy: { "@id": `${BASE}#lodging` },
+        ...(o.price && o.priceCurrency
+          ? { price: o.price, priceCurrency: o.priceCurrency }
+          : {}),
+      });
+    }
+  }
+
+  if (howTo?.steps?.length) {
+    blocks.push({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      name: howTo.name,
+      ...(howTo.description ? { description: howTo.description } : {}),
+      step: howTo.steps.map((s, i) => ({
+        "@type": "HowToStep",
+        position: i + 1,
+        name: s.name,
+        text: s.text,
       })),
     });
   }

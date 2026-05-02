@@ -28,6 +28,8 @@ export function PinnedHero({ nextSectionId }: Props) {
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
   const line2Ref = useRef<HTMLSpanElement>(null);
+  /** Layer 5 — radial vignette (subtle scroll-linked contrast) */
+  const vignetteRef = useRef<HTMLDivElement>(null);
 
   const whatsappUrl = buildWhatsAppUrl(
     SITE_CONFIG.whatsappNumber,
@@ -167,6 +169,12 @@ export function PinnedHero({ nextSectionId }: Props) {
             p <= 0.1 ? 1 : Math.max(0, 1 - (p - 0.1) / 0.35);
           gsap.set(scrollHintRef.current, { opacity: hintOpacity });
         }
+        if (vignetteRef.current) {
+          gsap.set(vignetteRef.current, {
+            opacity: 0.42 + p * 0.38,
+            scale: 1 + p * 0.04,
+          });
+        }
       },
     });
 
@@ -217,6 +225,16 @@ export function PinnedHero({ nextSectionId }: Props) {
         style={{
           background:
             "linear-gradient(to top, rgba(0,178,180,.22), transparent)",
+        }}
+      />
+      <div
+        ref={vignetteRef}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 origin-center will-change-[opacity,transform]"
+        style={{
+          background:
+            "radial-gradient(ellipse 85% 65% at 50% 45%, transparent 35%, rgba(2,8,14,.55) 100%)",
+          opacity: 0.42,
         }}
       />
 

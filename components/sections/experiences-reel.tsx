@@ -110,8 +110,26 @@ export function ExperiencesReel() {
   const cur = EXPERIENCES[index];
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") go(-1);
-    if (e.key === "ArrowRight") go(1);
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      go(-1);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      go(1);
+    }
+    if (e.key === "Home") {
+      e.preventDefault();
+      clearInterval(autoRef.current);
+      setPaused(false);
+      setIndex(0);
+    }
+    if (e.key === "End") {
+      e.preventDefault();
+      clearInterval(autoRef.current);
+      setPaused(false);
+      setIndex(EXPERIENCES.length - 1);
+    }
   };
 
   return (
