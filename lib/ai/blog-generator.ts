@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { openRouterChatCompletion } from "@/lib/ai/openrouter-chat";
 
 export const BlogGenerationInputSchema = z.object({
   title: z.string().min(5).max(200),
@@ -21,8 +22,6 @@ export interface BlogGenerationOutput {
   readingTimeMinutes: number;
 }
 
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lakeviewvillatangalle.com";
 const SITE_NAME = "Lake View Villa Tangalle";
 
@@ -51,27 +50,20 @@ export async function generateBlogPost(input: BlogGenerationInput): Promise<Blog
 
   const user = `Write a ${data.tone} blog post.\nTitle: "${data.title}"\n${data.imageDescription ? `Scene: ${data.imageDescription}\n` : ""}${data.keywords?.length ? `Keywords: ${data.keywords.join(", ")}\n` : ""}Target ~${data.wordCount} words.\n\nReturn JSON: { "title": string, "excerpt": string, "content": string (Markdown), "tags": string[], "seoTitle": string (max 60), "seoDescription": string (max 160) }`;
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": SITE_URL,
-      "X-Title": SITE_NAME,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [{ role: "system", content: system }, { role: "user", content: user }],
-      temperature: 0.7,
-      max_tokens: 3000,
-      response_format: { type: "json_object" },
-    }),
+  const completion = await openRouterChatCompletion(apiKey, {
+    messages: [{ role: "system", content: system }, { role: "user", content: user }],
+    temperature: 0.7,
+    max_tokens: 3000,
+    response_format: { type: "json_object" },
   });
 
-  if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${await res.text()}`);
+  if (!completion.ok) {
+    throw new Error(
+      completion.detail ? `${completion.userMessage} (${completion.detail})` : completion.userMessage,
+    );
+  }
 
-  const json = await res.json();
-  const raw = json.choices?.[0]?.message?.content;
+  const raw = completion.content;
   if (!raw) throw new Error("Empty AI response.");
 
   let result: Omit<BlogGenerationOutput, "readingTimeMinutes">;

@@ -12,6 +12,7 @@ import { WebVitals } from "@/components/analytics/web-vitals";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
 import { LenisProvider } from "@/components/motion/lenis-provider";
+import { ReactQueryProvider } from "@/lib/cache/react-query";
 
 // ✅ New: unified, typed SEO helpers (replaces "@/lib/seo/structured-data")
 import { siteGraph } from "@/lib/seo";
@@ -332,32 +333,34 @@ export default function RootLayout({
           defaultTheme="light"
           // disableTransitionOnChange
         >
-          <MantineProvider defaultColorScheme="light" theme={theme}>
-            <AudioProvider>
-              <LenisProvider>
-                <ClientLoadingScreen
-                  logoSrc="/logo.png"
-                  logoAlt="Lake View Villa Tangalle"
-                  enableTapSkip
-                />
-                <ScrollProgress />
-                <Suspense fallback={null}>
-                  <ClientEffects />
-                </Suspense>
-                <Suspense fallback={null}>
-                  <Navigation />
-                </Suspense>
-                <main id="content" className="relative isolate">
-                  <Suspense fallback={null}>{children}</Suspense>
-                </main>
-                <ExpandableCTA />
-                {/* Analytics & tracking components (client-side) */}
-                <Analytics />
-                <WebVitals />
-                <MarketingPixels />
-              </LenisProvider>
-            </AudioProvider>
-          </MantineProvider>
+          <ReactQueryProvider>
+            <MantineProvider defaultColorScheme="light" theme={theme}>
+              <AudioProvider>
+                <LenisProvider>
+                  <ClientLoadingScreen
+                    logoSrc="/logo.png"
+                    logoAlt="Lake View Villa Tangalle"
+                    enableTapSkip
+                  />
+                  <ScrollProgress />
+                  <Suspense fallback={null}>
+                    <ClientEffects />
+                  </Suspense>
+                  <Suspense fallback={null}>
+                    <Navigation />
+                  </Suspense>
+                  <main id="content" className="relative isolate">
+                    <Suspense fallback={null}>{children}</Suspense>
+                  </main>
+                  <ExpandableCTA />
+                  {/* Analytics & tracking components (client-side) */}
+                  <Analytics />
+                  <WebVitals />
+                  <MarketingPixels />
+                </LenisProvider>
+              </AudioProvider>
+            </MantineProvider>
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

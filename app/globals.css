@@ -476,7 +476,7 @@ textarea {
 /* Prevent nav overlap at page top */
 .safe-top {
   scroll-margin-top: 100px;
-  padding-top: clamp(82px, 9vh, 108px);
+  padding-top: clamp(82px, 9dvh, 108px);
 }
 
 /* Print niceties */
@@ -728,4 +728,4 @@ img[data-nimg] {
 }
 .skip-link:focus {
   top: 0;
-}
+}

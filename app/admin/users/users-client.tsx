@@ -5,6 +5,7 @@ import { Role } from "@prisma/client";
 import { updateUserRole, deleteUser } from "@/lib/actions/users";
 import { Trash2, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
 type UserBasic = {
   id: string;
@@ -23,6 +24,8 @@ export function UsersClient({
 }) {
   const [users, setUsers] = useState<UserBasic[]>(initialUsers);
   const [loading, setLoading] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleRoleChange = async (id: string, newRole: Role) => {
     setLoading(id);
@@ -38,18 +41,25 @@ export function UsersClient({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    setLoading(id);
+  const handleDelete = (id: string) => {
+    setDeletingId(id);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingId) return;
+    setLoading(deletingId);
     try {
-      const res = await deleteUser(id);
+      const res = await deleteUser(deletingId);
       if (res.success) {
-        setUsers(users.filter((u) => u.id !== id));
+        setUsers(users.filter((u) => u.id !== deletingId));
       } else {
         alert(res.error || "Failed to delete user");
       }
     } finally {
       setLoading(null);
+      setConfirmOpen(false);
+      setDeletingId(null);
     }
   };
 
@@ -82,9 +92,7 @@ export function UsersClient({
                     className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] disabled:opacity-50"
                   >
                     {Object.values(Role).map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
+                      <option key={r} value={r}>{r}</option>
                     ))}
                   </select>
                 </td>
@@ -116,6 +124,16 @@ export function UsersClient({
           </tbody>
         </table>
       </div>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete User"
+        description="Are you sure you want to delete this user permanently? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => { setConfirmOpen(false); setDeletingId(null); }}
+      />
     </div>
   );
 }

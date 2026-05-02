@@ -4,65 +4,62 @@ on:
   pull_request:
     branches: [main]
 
-concurrency:
-  group: preview-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   preview:
-    name: Vercel Preview Deployment
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          cache: "npm"
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci
 
-      - name: Generate Prisma client
+      - name: Generate Prisma Client
         run: npx prisma generate
 
       - name: Build
         run: npm run build
         env:
-          CI: "true"
+          NEXT_PUBLIC_SITE_URL: https://lakeviewvillatangalle.com
           NEXT_PUBLIC_WHATSAPP: ${{ secrets.NEXT_PUBLIC_WHATSAPP }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
 
-      - name: Deploy to Vercel Preview
-        id: deploy
+      - name: Deploy to Vercel (Preview)
         uses: amondnet/vercel-action@v25
+        id: deployment
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-comment: true
+          scope: ${{ secrets.VERCEL_ORG_ID }}
 
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v12
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
         with:
-          urls: ${{ steps.deploy.outputs.preview-url }}
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-        continue-on-error: true
+          urls: |
+            ${{ steps.deployment.outputs.url }}
+            ${{ steps.deployment.outputs.url }}/gallery
+            ${{ steps.deployment.outputs.url }}/blog
+          upload-artifacts: true
+          temporary-public-storage: true
 
-      - name: Bundle Size Check
-        run: |
-          BUNDLE_SIZE=$(du -sh .next/static/chunks/*.js 2>/dev/null | sort -rh | head -5 || echo "N/A")
-          echo "## Bundle Sizes" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "$BUNDLE_SIZE" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-        continue-on-error: true
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const previewUrl = '${{ steps.deployment.outputs.url }}';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🎉 Preview Deployment\n\nPreview URL: ${previewUrl}\n\nLighthouse results are available in the Actions tab.`
+            })

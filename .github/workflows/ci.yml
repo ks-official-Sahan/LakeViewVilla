@@ -7,55 +7,42 @@ on:
     branches: [main]
 
 concurrency:
-  group: lakeview-ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  lint-typecheck-build:
-    name: Lint, Type Check & Build
+  ci:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: package-lock.json
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci
 
-      - name: Security audit
-        run: npm audit --audit-level=high || true
-        continue-on-error: true
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Lint
         run: npm run lint
-        continue-on-error: true
 
       - name: Type check
         run: npx tsc --noEmit
 
-      - name: Generate Prisma client
-        run: npx prisma generate
-
-      - name: Cache Next.js build
-        uses: actions/cache@v4
-        with:
-          path: .next/cache
-          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('**/*.ts', '**/*.tsx') }}
-          restore-keys: |
-            nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
-            nextjs-${{ runner.os }}-
-
       - name: Build
         run: npm run build
         env:
-          CI: "true"
-          NEXT_PUBLIC_WHATSAPP: "+94701164056"
+          NEXT_PUBLIC_SITE_URL: https://lakeviewvillatangalle.com
+          NEXT_PUBLIC_WHATSAPP: ${{ secrets.NEXT_PUBLIC_WHATSAPP }}
+
+      - name: Cache build
+        uses: actions/cache/save@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}

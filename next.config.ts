@@ -235,6 +235,7 @@ const nextConfig: NextConfig = {
     },
     turbopackFileSystemCacheForDev: true,
     turbopackFileSystemCacheForBuild: true,
+
   },
 };
 

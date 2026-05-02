@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/rbac";
+import { openRouterChatCompletion } from "@/lib/ai/openrouter-chat";
 
 export async function POST(req: Request) {
   try {
@@ -28,36 +29,27 @@ excerpt: "A short 2-sentence summary"
 
 Then provide the content using proper markdown headings (##, ###), bullet points, and formatting.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://lakeviewvillatangalle.com",
-        "X-Title": "LakeViewVilla CMS",
-      },
-      body: JSON.stringify({
-        // model: "mistralai/mistral-7b-instruct",
-        // model: "google/gemini-3-pro-preview",
-        model: "qwen/qwen3-coder:free",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt }
-        ],
-      }),
+    const result = await openRouterChatCompletion(apiKey, {
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.75,
+      max_tokens: 4096,
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("OpenRouter Error:", err);
-      return NextResponse.json({ error: "Failed to generate content from AI provider" }, { status: 502 });
+    if (!result.ok) {
+      console.error("OpenRouter Error:", result.detail ?? result.userMessage);
+      return NextResponse.json(
+        {
+          error: result.userMessage,
+          ...(result.detail ? { detail: result.detail } : {}),
+        },
+        { status: result.status },
+      );
     }
 
-    const data = await response.json();
-    const generatedText = data.choices?.[0]?.message?.content || "";
-
-    return NextResponse.json({ content: generatedText });
-
+    return NextResponse.json({ content: result.content, model: result.model });
   } catch (error) {
     console.error("AI Generation error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

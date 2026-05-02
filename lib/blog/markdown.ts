@@ -2,6 +2,26 @@ import { remark } from "remark";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import remarkHtml from "remark-html";
+import { visit } from "unist-util-visit";
+import { toString } from "mdast-util-to-string";
+
+/**
+ * Plugin to add id attributes to headings based on their text content.
+ */
+function remarkHeadingIds() {
+  return (tree: any) => {
+    visit(tree, "heading", (node: any) => {
+      const text = toString(node);
+      const id = text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      node.data = node.data || {};
+      node.data.hProperties = node.data.hProperties || {};
+      node.data.hProperties.id = id;
+    });
+  };
+}
 
 /**
  * Convert Markdown content to sanitized HTML string.
@@ -11,6 +31,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
   const result = await remark()
     .use(remarkGfm)       // Tables, strikethrough, task lists, autolinks
     .use(remarkBreaks)    // Newlines become <br>
+    .use(remarkHeadingIds) // Add IDs to headings
     .use(remarkHtml, { sanitize: false }) // We trust our own CMS content
     .process(markdown);
 

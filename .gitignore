@@ -41,7 +41,9 @@ schema.json
 gemini.md
 gha-creds-*.json
 
-docs/
+# docs/
 AGENTS.md
 
-AGENTS.md
+.env*
+.env*.local
+!.env.example

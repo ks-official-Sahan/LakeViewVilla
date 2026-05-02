@@ -9,6 +9,7 @@ import { markdownToHtml, estimateReadTime } from "@/lib/blog/markdown";
 import { ArrowLeft, Clock, Calendar, User, Sparkles, ArrowRight } from "lucide-react";
 import { ReadingProgress } from "./reading-progress";
 import { ShareButtons } from "./share-buttons";
+import { TableOfContents } from "@/components/blog/TableOfContents";
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -99,7 +100,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <div className="relative overflow-hidden">
           {post.featuredImage ? (
             /* Hero with featured image */
-            <div className="relative h-[50vh] min-h-[360px] md:h-[65vh]">
+            <div className="relative h-[50dvh] min-h-[360px] md:h-[65dvh]">
               <Image
                 src={post.featuredImage.url}
                 alt={post.featuredImage.alt ?? post.title}

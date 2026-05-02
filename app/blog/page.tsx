@@ -4,8 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { estimateReadTime } from "@/lib/blog/markdown";
-import { Clock, ArrowRight, Sparkles, Pen } from "lucide-react";
-import { breadcrumbSchema } from "@/lib/seo";
+import { Clock, ArrowRight, Sparkles, Pen, Search, Filter } from "lucide-react";
 import { serializeJsonLd } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -21,6 +20,9 @@ export const metadata: Metadata = {
   },
 };
 
+const CATEGORIES = ["All", "Travel", "Food", "Villa Life", "Tangalle", "Guides"];
+const TAGS = ["beach", "travel-tips", "villa", "tangalle", "dining", "surfing", "wildlife"];
+
 type Post = {
   id: string;
   title: string;
@@ -34,29 +36,66 @@ type Post = {
   author: { name: string | null };
 };
 
+type SearchParams = {
+  page?: string;
+  category?: string;
+  tag?: string;
+  q?: string;
+};
 
-
-export default async function BlogPage() {
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await connection();
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const category = params.category || "All";
+  const tag = params.tag || "";
+  const q = params.q || "";
+  const limit = 9;
+
   let posts: Post[] = [];
+  let totalPages = 1;
 
   try {
-    posts = await prisma.blogPost.findMany({
-      where: { status: "PUBLISHED" },
-      orderBy: { publishedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        excerpt: true,
-        content: true,
-        publishedAt: true,
-        generatedByAI: true,
-        tags: true,
-        featuredImage: { select: { url: true, alt: true } },
-        author: { select: { name: true } },
-      },
-    });
+    const where: any = { status: "PUBLISHED" };
+    if (category !== "All") where.category = category;
+    if (tag) where.tags = { has: tag };
+    if (q) {
+      where.OR = [
+        { title: { contains: q, mode: "insensitive" } },
+        { content: { contains: q, mode: "insensitive" } },
+        { excerpt: { contains: q, mode: "insensitive" } },
+        { tags: { has: q } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      prisma.blogPost.findMany({
+        where,
+        orderBy: { publishedAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          excerpt: true,
+          content: true,
+          publishedAt: true,
+          generatedByAI: true,
+          tags: true,
+          featuredImage: { select: { url: true, alt: true } },
+          author: { select: { name: true } },
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.blogPost.count({ where }),
+    ]);
+
+    posts = items as Post[];
+    totalPages = Math.ceil(total / limit);
   } catch {
     // DB not available — render empty state
   }
@@ -64,22 +103,11 @@ export default async function BlogPage() {
   const featuredPost = posts[0] ?? null;
   const restPosts = posts.slice(1);
 
-  const breadcrumb = breadcrumbSchema([
-    { name: "Home", url: "https://lakeviewvillatangalle.com" },
-    { name: "Blog", url: "https://lakeviewvillatangalle.com/blog" },
-  ]);
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumb) }}
-      />
-
       <main className="min-h-screen bg-[var(--color-background)]">
-        {/* ── Hero ─────────────────────────────────────────────────────── */}
+        {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="relative overflow-hidden py-24 md:py-32">
-          {/* Ambient background */}
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0"
@@ -118,8 +146,71 @@ export default async function BlogPage() {
         </section>
 
         <div className="mx-auto max-w-6xl px-4 pb-28 md:px-8">
+          {/* ── Search & Filters ─────────────────────────────────── */}
+          <div className="mb-8 space-y-4">
+            {/* Search */}
+            <form action="/blog" method="GET" className="relative max-w-2xl mx-auto">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted)]" />
+              <input
+                type="text"
+                name="q"
+                defaultValue={q}
+                placeholder="Search stories..."
+                className="w-full rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] py-3 pl-11 pr-4 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+              />
+              {q && (
+                <Link
+                  href="/blog"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
+                >
+                  Clear
+                </Link>
+              )}
+            </form>
+
+            {/* Category Tabs */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {CATEGORIES.map((cat) => {
+                const isActive = category === cat;
+                return (
+                  <Link
+                    key={cat}
+                    href={`/blog?category=${cat}${q ? `&q=${q}` : ""}`}
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
+                      isActive
+                        ? "bg-[var(--color-primary)] text-white shadow-sm"
+                        : "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:border-[var(--color-primary)]/50 hover:text-[var(--color-foreground)]"
+                    }`}
+                  >
+                    {cat}
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Tag Filters */}
+            <div className="flex flex-wrap justify-center gap-1.5">
+              {TAGS.map((t) => {
+                const isActive = tag === t;
+                return (
+                  <Link
+                    key={t}
+                    href={`/blog?tag=${t}${category !== "All" ? `&category=${category}` : ""}${q ? `&q=${q}` : ""}`}
+                    className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all ${
+                      isActive
+                        ? "bg-[var(--color-gold)]/20 text-[var(--color-gold)] border border-[var(--color-gold)]/30"
+                        : "bg-[var(--color-primary)]/8 text-[var(--color-primary)]/80 hover:bg-[var(--color-primary)]/15"
+                    }`}
+                  >
+                    #{t}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
           {posts.length === 0 ? (
-            /* ── Empty State ─────────────────────────────────────────────── */
+            /* ── Empty State ─────────────────────────────────────── */
             <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-[var(--color-border)] bg-[var(--color-surface)] py-24 text-center">
               <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--color-gold)]/10">
                 <Pen className="h-10 w-10 text-[var(--color-gold)]" />
@@ -128,7 +219,7 @@ export default async function BlogPage() {
                 Stories coming soon
               </h2>
               <p className="mt-3 max-w-md text-[var(--color-muted)]">
-                We&apos;re preparing travel guides and villa stories for you. Check back
+                We're preparing travel guides and villa stories for you. Check back
                 soon — or subscribe to hear first.
               </p>
               <Link
@@ -233,12 +324,51 @@ export default async function BlogPage() {
                 </Link>
               )}
 
-              {/* ── Post Grid ────────────────────────────────────────────── */}
+              {/* ── Post Grid ────────────────────────────────────── */}
               {restPosts.length > 0 && (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {restPosts.map((post) => (
                     <PostCard key={post.id} post={post} />
                   ))}
+                </div>
+              )}
+
+              {/* ── Pagination ───────────────────────────────────── */}
+              {totalPages > 1 && (
+                <div className="mt-12 flex items-center justify-center gap-2">
+                  {page > 1 && (
+                    <Link
+                      href={`/blog?page=${page - 1}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] hover:border-[var(--color-primary)] transition-colors"
+                    >
+                      ← Previous
+                    </Link>
+                  )}
+
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                      <Link
+                        key={p}
+                        href={`/blog?page=${p}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                        className={`h-8 w-8 rounded-lg text-center text-sm font-medium transition-all ${
+                          p === page
+                            ? "bg-[var(--color-primary)] text-white"
+                            : "text-[var(--color-muted)] hover:bg-[var(--color-surface)]"
+                        }`}
+                      >
+                        {p}
+                      </Link>
+                    ))}
+                  </div>
+
+                  {page < totalPages && (
+                    <Link
+                      href={`/blog?page=${page + 1}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] hover:border-[var(--color-primary)] transition-colors"
+                    >
+                      Next →
+                    </Link>
+                  )}
                 </div>
               )}
             </>

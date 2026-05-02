@@ -1,5 +1,5 @@
-const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
-const MODEL = "meta-llama/llama-3.1-8b-instruct:free";
+import { openRouterChatCompletion } from "@/lib/ai/openrouter-chat";
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lakeviewvillatangalle.com";
 const SITE_NAME = "Lake View Villa Tangalle";
 
@@ -14,32 +14,24 @@ async function callAI(prompt: string): Promise<string> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY is not set.");
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": SITE_URL,
-      "X-Title": SITE_NAME,
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are an SEO expert for ${SITE_NAME}, a luxury private villa in Tangalle, Sri Lanka. Return ONLY valid JSON, no markdown fences.`,
-        },
-        { role: "user", content: prompt },
-      ],
-      temperature: 0.4,
-      max_tokens: 500,
-      response_format: { type: "json_object" },
-    }),
+  const result = await openRouterChatCompletion(apiKey, {
+    messages: [
+      {
+        role: "system",
+        content: `You are an SEO expert for ${SITE_NAME}, a luxury private villa in Tangalle, Sri Lanka. Return ONLY valid JSON, no markdown fences.`,
+      },
+      { role: "user", content: prompt },
+    ],
+    temperature: 0.4,
+    max_tokens: 500,
+    response_format: { type: "json_object" },
   });
 
-  if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content ?? "";
+  if (!result.ok) {
+    throw new Error(result.detail ? `${result.userMessage}: ${result.detail}` : result.userMessage);
+  }
+
+  return result.content;
 }
 
 /** Generate SEO metadata from blog post content */

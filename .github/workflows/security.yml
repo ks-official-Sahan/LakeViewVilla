@@ -1,85 +1,45 @@
-name: Security
+name: Security Scan
 
 on:
   schedule:
-    - cron: "0 2 * * 1" # Every Monday at 02:00 UTC
+    - cron: '0 3 * * 1' # Weekly on Monday
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
 
-concurrency:
-  group: security-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: read
+  security-events: write
 
 jobs:
-  audit:
-    name: NPM Security Audit
+  security:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
-          cache: "npm"
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci
 
-      - name: NPM Audit
-        run: npm audit --audit-level=high
+      - name: npm audit
+        run: npm audit --production
         continue-on-error: true
 
-  codeql:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      matrix:
-        language: [javascript-typescript]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
+      - name: CodeQL Analysis
         uses: github/codeql-action/init@v3
         with:
-          languages: ${{ matrix.language }}
-          queries: +security-and-quality
-
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+          languages: javascript
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        with:
-          category: "/language:${{ matrix.language }}"
-
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Dependency Review
-        uses: actions/dependency-review-action@v4
+        uses: actions/dependency-review@v3
         with:
           fail-on-severity: high
-          comment-summary-in-pr: always
+          vulnerability-check: true

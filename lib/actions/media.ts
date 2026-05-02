@@ -53,6 +53,7 @@ export async function updateMediaAsset(data: MediaUpdateInput) {
     });
 
     revalidatePath("/admin/media");
+    revalidatePath("/gallery");
 
     return { success: true, data: media };
   } catch (error) {
@@ -65,7 +66,13 @@ export async function deleteMediaAsset(id: string) {
   const session = await requireRole("MANAGER");
 
   try {
-    await prisma.mediaAsset.delete({ where: { id } });
+    await prisma.$transaction([
+      prisma.blogPost.updateMany({
+        where: { featuredImageId: id },
+        data: { featuredImageId: null },
+      }),
+      prisma.mediaAsset.delete({ where: { id } }),
+    ]);
 
     await prisma.auditLog.create({
       data: {
@@ -77,11 +84,72 @@ export async function deleteMediaAsset(id: string) {
     });
 
     revalidatePath("/admin/media");
+    revalidatePath("/gallery");
 
     return { success: true };
   } catch (error) {
     console.error("Failed to delete media asset:", error);
     return { success: false, error: "Internal server error" };
+  }
+}
+
+export async function bulkUpdateMedia(params: {
+  ids: string[];
+  action: "delete" | "recategorize";
+  category?: string;
+}) {
+  const { ids, action } = params;
+  if (!ids.length) return { success: true as const };
+
+  try {
+    if (action === "delete") {
+      const session = await requireRole("MANAGER");
+      await prisma.$transaction([
+        prisma.blogPost.updateMany({
+          where: { featuredImageId: { in: ids } },
+          data: { featuredImageId: null },
+        }),
+        prisma.mediaAsset.deleteMany({ where: { id: { in: ids } } }),
+      ]);
+
+      await prisma.auditLog.create({
+        data: {
+          userId: session.user.id,
+          action: "DELETE_BULK",
+          entityType: "MediaAsset",
+          entityId: null,
+          newValue: { ids },
+        },
+      });
+    } else if (action === "recategorize") {
+      const cat = params.category?.trim();
+      if (!cat) return { success: false as const, error: "Category required" };
+
+      const session = await requireRole("EDITOR");
+      await prisma.mediaAsset.updateMany({
+        where: { id: { in: ids } },
+        data: { category: cat },
+      });
+
+      await prisma.auditLog.create({
+        data: {
+          userId: session.user.id,
+          action: "UPDATE_BULK",
+          entityType: "MediaAsset",
+          entityId: null,
+          newValue: { ids, category: cat },
+        },
+      });
+    } else {
+      return { success: false as const, error: "Invalid action" };
+    }
+
+    revalidatePath("/admin/media");
+    revalidatePath("/gallery");
+    return { success: true as const };
+  } catch (error) {
+    console.error("Bulk media update failed:", error);
+    return { success: false as const, error: "Internal server error" };
   }
 }
 

@@ -146,11 +146,26 @@ export async function getBlogPosts(options?: {
   status?: BlogStatus;
   page?: number;
   limit?: number;
+  category?: string;
+  tag?: string;
+  search?: string;
 }) {
   const session = await requireAuth();
-  const { status, page = 1, limit = 20 } = options ?? {};
+  const { status, page = 1, limit = 20, category, tag, search } = options ?? {};
 
-  const where = status ? { status } : {};
+  const where: Prisma.BlogPostWhereInput = {};
+  if (status) where.status = status;
+  if (category) where.category = category;
+  if (tag) where.tags = { has: tag };
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { content: { contains: search, mode: "insensitive" } },
+      { excerpt: { contains: search, mode: "insensitive" } },
+      { tags: { has: search } },
+    ];
+  }
+
   const [items, total] = await Promise.all([
     prisma.blogPost.findMany({
       where,
@@ -233,12 +248,18 @@ export async function updateBlogPost(
   return post;
 }
 
-export async function publishBlogPost(id: string) {
+export async function publishBlogPost(id: string, publishAt?: string) {
   const session = await requireRole("MANAGER");
+
+  const publishDate = publishAt ? new Date(publishAt) : new Date();
+  const status = publishAt && publishDate > new Date() ? "DRAFT" : "PUBLISHED";
 
   const post = await prisma.blogPost.update({
     where: { id },
-    data: { status: "PUBLISHED", publishedAt: new Date() },
+    data: {
+      status,
+      publishedAt: publishDate,
+    },
   });
 
   await audit({
