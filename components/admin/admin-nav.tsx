@@ -13,6 +13,7 @@ import {
   Users,
   ClipboardList,
   Settings,
+  DatabaseBackup,
 } from "lucide-react";
 
 export type NavItemDef = {
@@ -41,6 +42,12 @@ export const ADMIN_NAV_GROUPS: { heading: string; items: NavItemDef[] }[] = [
       { label: "Users", href: "/admin/users", icon: Users, permission: "manageUsers" },
       { label: "Audit Log", href: "/admin/audit", icon: ClipboardList, permission: "viewAuditLogs" },
       { label: "Settings", href: "/admin/settings", icon: Settings, permission: "manageSettings" },
+      {
+        label: "Backup & export",
+        href: "/admin/data",
+        icon: DatabaseBackup,
+        permission: "importExport",
+      },
     ],
   },
 ];

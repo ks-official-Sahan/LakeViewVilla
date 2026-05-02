@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import SeoJsonLd from "@/components/SeoJsonLd";
 import FAQClient from "./client";
+import { FAQ_ITEMS } from "@/data/content";
 
 export const metadata: Metadata = {
   title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
@@ -36,6 +37,10 @@ export default function Page() {
           { name: "Home", url: "https://lakeviewvillatangalle.com/" },
           { name: "FAQ", url: "https://lakeviewvillatangalle.com/faq" },
         ]}
+        faq={FAQ_ITEMS.map((item) => ({
+          q: item.question,
+          a: item.answer,
+        }))}
       />
       <FAQClient />
     </>

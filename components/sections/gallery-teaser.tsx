@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useGSAP } from "@/lib/gsap";
 import { gsap, EASE, DURATION } from "@/lib/gsap";
 import { X, ChevronLeft, ChevronRight, ArrowRight, Maximize2 } from "lucide-react";
@@ -195,7 +196,11 @@ export function GalleryTeaser() {
                 role="button"
                 aria-label={`View full image: ${img.alt}`}
               >
-                <div className={`relative w-full overflow-hidden ${aspect}`}>
+                <motion.div
+                  layoutId={lightbox === i ? "gallery-teaser-flip" : undefined}
+                  transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                  className={`relative w-full overflow-hidden ${aspect}`}
+                >
                   <Image
                     src={img.src}
                     alt={img.alt}
@@ -223,7 +228,7 @@ export function GalleryTeaser() {
                       <Maximize2 className="h-6 w-6 text-white drop-shadow-md" />
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
             );
           })}
@@ -257,17 +262,23 @@ export function GalleryTeaser() {
             className="relative flex h-full w-full max-w-[90vw] md:max-w-[80vw] flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Image */}
+            {/* Image — shared layout id with grid thumb for FLIP */}
             <div className="relative flex h-[80vh] w-full items-center justify-center">
-              <Image
-                src={images[lightbox].src}
-                alt={images[lightbox].alt}
-                width={images[lightbox].w}
-                height={images[lightbox].h}
-                className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                quality={90}
-                priority
-              />
+              <motion.div
+                layoutId="gallery-teaser-flip"
+                transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                className="relative max-h-full max-w-full"
+              >
+                <Image
+                  src={images[lightbox].src}
+                  alt={images[lightbox].alt}
+                  width={images[lightbox].w}
+                  height={images[lightbox].h}
+                  className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                  quality={90}
+                  priority
+                />
+              </motion.div>
             </div>
 
             {/* Caption */}

@@ -8,6 +8,7 @@ import { Phone, ChevronDown } from "lucide-react";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { trackContact } from "@/lib/analytics";
+import { SplitTextReveal } from "@/components/scroll/SplitTextReveal";
 
 const BLUR =
   "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAKAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgUH/8QAIhAAAgEDBAMBAAAAAAAAAAAAAQIDAAQFBhESIRMxQWH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABkRAAIDAQAAAAAAAAAAAAAAAAECAAMRIf/aAAwDAQACEQMRAD8Atu0NQZjIyW8sMUkUbAAqBsR+1nGoLlri/lkJ9NVSlKpuSxi5DYz/2Q==";
@@ -22,7 +23,6 @@ export function PinnedHero({ nextSectionId }: Props) {
   /** Scroll-driven exit: eyebrow through CTAs (layer 3) */
   const heroContentRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
-  const subRef = useRef<HTMLParagraphElement>(null);
   const ctasRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLButtonElement>(null);
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
@@ -86,14 +86,6 @@ export function PinnedHero({ nextSectionId }: Props) {
       { y: 80, opacity: 0, clipPath: "inset(0 0 100% 0)" },
       { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.85, ease: EASE.premium },
       0.75
-    );
-
-    // Subtitle fades up
-    tl.fromTo(
-      subRef.current,
-      { y: 24, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.65, ease: EASE.out },
-      0.95
     );
 
     // CTAs — scale + fade with snap
@@ -283,14 +275,16 @@ export function PinnedHero({ nextSectionId }: Props) {
             </h1>
           </div>
 
-          {/* Subtitle */}
-          <p
-            ref={subRef}
+          {/* Subtitle — scroll-driven word reveal (Phase 4) */}
+          <SplitTextReveal
+            text={HERO_CONTENT.tagline}
+            as="p"
+            variant="words"
+            intensity="subtle"
+            start="top 78%"
             className="mx-auto mt-6 max-w-[62ch] text-[clamp(0.95rem,2.4vw,1.25rem)] font-medium leading-relaxed text-white/80"
             style={{ textShadow: "0 2px 14px rgba(0,0,0,.5)" }}
-          >
-            {HERO_CONTENT.tagline}
-          </p>
+          />
 
           {/* CTAs */}
           <div

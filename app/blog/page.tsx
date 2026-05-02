@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { estimateReadTime } from "@/lib/blog/markdown";
-import { Clock, ArrowRight, Sparkles, Pen, Search, Filter } from "lucide-react";
+import { Clock, ArrowRight, Sparkles, Pen, Search } from "lucide-react";
 import { serializeJsonLd } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -32,6 +32,8 @@ type SearchParams = {
   tag?: string;
   q?: string;
 };
+
+const SITE_BASE = "https://lakeviewvillatangalle.com";
 
 export default async function BlogPage({
   searchParams,
@@ -66,8 +68,34 @@ export default async function BlogPage({
   const featuredPost = posts[0] ?? null;
   const restPosts = posts.slice(1);
 
+  const blogListLd =
+    posts.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "Lake View Villa Blog",
+          description:
+            "Travel tips, Tangalle explorations, and villa stories from Lake View Villa Tangalle.",
+          url: `${SITE_BASE}/blog`,
+          blogPost: posts.slice(0, 24).map((p) => ({
+            "@type": "BlogPosting",
+            headline: p.title,
+            url: `${SITE_BASE}/blog/${p.slug}`,
+            ...(p.publishedAt
+              ? { datePublished: p.publishedAt.toISOString() }
+              : {}),
+          })),
+        }
+      : null;
+
   return (
     <>
+      {blogListLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(blogListLd) }}
+        />
+      ) : null}
       <main className="min-h-screen bg-[var(--color-background)]">
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="relative overflow-hidden py-24 md:py-32">

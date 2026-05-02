@@ -118,6 +118,10 @@ export function ExperiencesReel() {
       e.preventDefault();
       go(1);
     }
+    if (e.key === " " || e.code === "Space") {
+      e.preventDefault();
+      setPaused((p) => !p);
+    }
     if (e.key === "Home") {
       e.preventDefault();
       clearInterval(autoRef.current);
@@ -172,7 +176,11 @@ export function ExperiencesReel() {
           role="region"
           aria-label="Experiences slideshow"
           aria-roledescription="carousel"
+          aria-keyshortcuts="ArrowLeft ArrowRight Space Home End"
         >
+          <p className="sr-only" aria-live="polite">
+            {cur.name}. Slide {index + 1} of {EXPERIENCES.length}.
+          </p>
           {/* Peek — prev */}
           <button
             type="button"

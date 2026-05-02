@@ -22,7 +22,9 @@ export function proxy(request: NextRequest) {
 
     if (!sessionToken) {
       const loginUrl = new URL("/admin/login", request.url);
-      loginUrl.searchParams.set("callbackUrl", pathname);
+      const returnTo =
+        pathname + (request.nextUrl.search ? request.nextUrl.search : "");
+      loginUrl.searchParams.set("callbackUrl", returnTo);
       return NextResponse.redirect(loginUrl);
     }
   }
