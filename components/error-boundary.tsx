@@ -125,7 +125,7 @@ export class ErrorBoundary extends React.Component<
                 </div>
 
                 <Button variant="ghost" asChild className="w-full">
-                  <Link href="/">
+                  <Link href="/" transitionTypes={["spa-page"]}>
                     <Home className="mr-2 h-4 w-4" />
                     Back to Home
                   </Link>

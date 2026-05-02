@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { bumpBlogAndSitemapCache } from "@/lib/cache/tags";
 import { prisma } from "@/lib/db/prisma";
 import { requireRole } from "@/lib/auth/rbac";
 import { BlogStatus } from "@prisma/client";
@@ -58,6 +59,7 @@ export async function createBlogPost(data: BlogPostInput) {
 
     revalidatePath("/blog");
     revalidatePath("/admin/blog");
+    bumpBlogAndSitemapCache();
 
     return { success: true, data: post };
   } catch (error: any) {
@@ -109,6 +111,7 @@ export async function updateBlogPost(id: string, data: BlogPostInput) {
     revalidatePath("/blog");
     revalidatePath(`/blog/${post.slug}`);
     revalidatePath("/admin/blog");
+    bumpBlogAndSitemapCache();
 
     return { success: true, data: post };
   } catch (error: any) {
@@ -137,6 +140,7 @@ export async function deleteBlogPost(id: string) {
 
     revalidatePath("/blog");
     revalidatePath("/admin/blog");
+    bumpBlogAndSitemapCache();
 
     return { success: true };
   } catch (error) {

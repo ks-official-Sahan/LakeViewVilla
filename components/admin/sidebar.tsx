@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { Role } from "@prisma/client";
-import { can, PERMISSIONS } from "@/lib/auth/rbac";
+import { can, PERMISSIONS } from "@/lib/auth/permissions";
 import {
   LayoutDashboard,
   Image,

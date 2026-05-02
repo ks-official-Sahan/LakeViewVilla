@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { gsap, ScrollTrigger, useGSAP, EASE } from "@/lib/gsap";
 import { Phone, ChevronDown } from "lucide-react";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
@@ -17,10 +18,14 @@ export function PinnedHero({ nextSectionId }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const scrimRef = useRef<HTMLDivElement>(null);
+  const tealWashRef = useRef<HTMLDivElement>(null);
+  /** Scroll-driven exit: eyebrow through CTAs (layer 3) */
+  const heroContentRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLDivElement>(null);
   const subRef = useRef<HTMLParagraphElement>(null);
   const ctasRef = useRef<HTMLDivElement>(null);
   const scrollHintRef = useRef<HTMLButtonElement>(null);
+  const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const line1Ref = useRef<HTMLSpanElement>(null);
   const line2Ref = useRef<HTMLSpanElement>(null);
 
@@ -32,10 +37,6 @@ export function PinnedHero({ nextSectionId }: Props) {
   const handleWhatsApp = () => {
     trackContact("whatsapp", whatsappUrl, "Chat on WhatsApp");
     setTimeout(() => window.open(whatsappUrl, "_blank", "noopener,noreferrer"), 80);
-  };
-
-  const handleGallery = () => {
-    window.location.href = "/gallery";
   };
 
   const handleScrollDown = () => {
@@ -61,37 +62,52 @@ export function PinnedHero({ nextSectionId }: Props) {
     // Scrim fades in
     tl.fromTo(scrimRef.current, { opacity: 0 }, { opacity: 1, duration: 1 }, 0.2);
 
+    // Eyebrow — horizontal clip reveal + fade
+    tl.fromTo(
+      eyebrowRef.current,
+      { opacity: 0, clipPath: "inset(0 100% 0 0)" },
+      { opacity: 1, clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: EASE.out },
+      0.4
+    );
+
     // Line 1 — slides up + reveals via clip-path
     tl.fromTo(
       line1Ref.current,
       { y: 80, opacity: 0, clipPath: "inset(0 0 100% 0)" },
-      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 1.0 },
-      0.4
+      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.85, ease: EASE.premium },
+      0.55
     );
 
-    // Line 2 — same, slightly delayed
+    // Line 2 — same, staggered
     tl.fromTo(
       line2Ref.current,
       { y: 80, opacity: 0, clipPath: "inset(0 0 100% 0)" },
-      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 1.0 },
-      0.6
+      { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.85, ease: EASE.premium },
+      0.75
     );
 
     // Subtitle fades up
     tl.fromTo(
       subRef.current,
       { y: 24, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7 },
-      0.85
+      { y: 0, opacity: 1, duration: 0.65, ease: EASE.out },
+      0.95
     );
 
-    // CTAs fade up staggered
+    // CTAs — scale + fade with snap
     const btns = ctasRef.current?.children;
     tl.fromTo(
       btns ?? [],
-      { y: 20, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.55, stagger: 0.12 },
-      1.0
+      { y: 20, opacity: 0, scale: 0.92 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.5,
+        stagger: 0.12,
+        ease: "back.out(1.7)",
+      },
+      1.1
     );
 
     // Scroll hint fades in last
@@ -99,7 +115,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       scrollHintRef.current,
       { opacity: 0, y: 10 },
       { opacity: 1, y: 0, duration: 0.4 },
-      1.4
+      1.5
     );
 
     // ── Floating scroll hint bob animation ────────────────────────
@@ -109,7 +125,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       ease: "sine.inOut",
       yoyo: true,
       repeat: -1,
-      delay: 1.8,
+      delay: 2.0,
     });
   }, { scope: sectionRef });
 
@@ -120,8 +136,8 @@ export function PinnedHero({ nextSectionId }: Props) {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) return;
 
-    // Background parallax — moves slower than scroll (Ken Burns feel)
-    ScrollTrigger.create({
+    // Layer 1 parallax + layer 2 teal wash + layer 3–4 text / hint (spec §4.4)
+    const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: "top top",
       end: "bottom top",
@@ -130,21 +146,31 @@ export function PinnedHero({ nextSectionId }: Props) {
         const p = self.progress;
         if (bgRef.current) {
           gsap.set(bgRef.current, {
-            y: `${p * 18}%`,
-            scale: 1.04 + p * 0.04,
+            y: `${p * 22}%`,
+            scale: 1.04 + p * 0.08,
           });
         }
-        // Fade text as user scrolls away
-        if (headingRef.current) {
-          gsap.set(headingRef.current, { opacity: 1 - p * 2.2 });
+        if (tealWashRef.current) {
+          gsap.set(tealWashRef.current, {
+            opacity: 0.35 + p * 0.65,
+          });
         }
-        if (subRef.current) {
-          gsap.set(subRef.current, { opacity: 1 - p * 2.5 });
+        if (heroContentRef.current) {
+          gsap.set(heroContentRef.current, {
+            y: -40 * p,
+            opacity: Math.max(0, 1 - p * 2.15),
+            filter: `blur(${8 * p}px)`,
+          });
+        }
+        if (scrollHintRef.current) {
+          const hintOpacity =
+            p <= 0.1 ? 1 : Math.max(0, 1 - (p - 0.1) / 0.35);
+          gsap.set(scrollHintRef.current, { opacity: hintOpacity });
         }
       },
     });
 
-    return () => ScrollTrigger.getAll().forEach((st) => st.kill());
+    return () => st.kill();
   }, { scope: sectionRef });
 
   return (
@@ -183,13 +209,14 @@ export function PinnedHero({ nextSectionId }: Props) {
             "linear-gradient(180deg, rgba(4,12,18,.75) 0%, rgba(4,12,18,.40) 30%, rgba(4,12,18,.18) 60%, rgba(4,12,18,.55) 100%)",
         }}
       />
-      {/* Colour-grade: teal cast at bottom */}
+      {/* Layer 2 — teal wash (opacity scrubbed on scroll) */}
       <div
+        ref={tealWashRef}
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 opacity-[0.35] will-change-opacity"
         style={{
           background:
-            "linear-gradient(to top, rgba(0,178,180,.14), transparent)",
+            "linear-gradient(to top, rgba(0,178,180,.22), transparent)",
         }}
       />
 
@@ -204,9 +231,15 @@ export function PinnedHero({ nextSectionId }: Props) {
 
       {/* ── Content ─────────────────────────────────────────────── */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white">
-        <div className="w-full max-w-5xl">
+        <div
+          ref={heroContentRef}
+          className="w-full max-w-5xl will-change-[transform,opacity,filter]"
+        >
           {/* Eyebrow label */}
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm">
+          <p
+            ref={eyebrowRef}
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm"
+          >
             <span className="h-1.5 w-1.5 rounded-full bg-[#22d3ee] animate-pulse" />
             Tangalle · Sri Lanka
           </p>
@@ -246,8 +279,9 @@ export function PinnedHero({ nextSectionId }: Props) {
             ref={ctasRef}
             className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
           >
-            <button
-              onClick={handleGallery}
+            <Link
+              href="/gallery"
+              transitionTypes={["spa-page"]}
               aria-label="View the photo gallery"
               className="group relative inline-flex min-w-44 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-white/30 bg-white/12 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
             >
@@ -258,7 +292,7 @@ export function PinnedHero({ nextSectionId }: Props) {
                 style={{ animation: "none" }}
               />
               View Gallery
-            </button>
+            </Link>
 
             <button
               onClick={handleWhatsApp}

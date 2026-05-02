@@ -1,11 +1,6 @@
 import { auth } from "./config";
 import type { Role } from "@prisma/client";
-
-const ROLE_HIERARCHY: Record<Role, number> = {
-  DEVELOPER: 3,
-  MANAGER: 2,
-  EDITOR: 1,
-};
+import { hasMinRole } from "./permissions";
 
 /**
  * Get the current authenticated session. Returns null if not authenticated.
@@ -29,5 +24,5 @@ export async function requireAuth() {
  * Check if a user has at least the given role level.
  */
 export function hasRole(userRole: Role, minimumRole: Role): boolean {
-  return (ROLE_HIERARCHY[userRole] ?? 0) >= (ROLE_HIERARCHY[minimumRole] ?? 0);
+  return hasMinRole(userRole, minimumRole);
 }

@@ -1,5 +1,8 @@
-import { prisma } from "@/lib/db/prisma";
 import { connection } from "next/server";
+import {
+  getCachedBlogListPage,
+  type BlogListPost,
+} from "@/lib/blog/cached-queries";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -23,19 +26,6 @@ export const metadata: Metadata = {
 const CATEGORIES = ["All", "Travel", "Food", "Villa Life", "Tangalle", "Guides"];
 const TAGS = ["beach", "travel-tips", "villa", "tangalle", "dining", "surfing", "wildlife"];
 
-type Post = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string | null;
-  content: string;
-  publishedAt: Date | null;
-  generatedByAI: boolean;
-  tags: string[];
-  featuredImage: { url: string; alt: string | null } | null;
-  author: { name: string | null };
-};
-
 type SearchParams = {
   page?: string;
   category?: string;
@@ -56,46 +46,19 @@ export default async function BlogPage({
   const q = params.q || "";
   const limit = 9;
 
-  let posts: Post[] = [];
+  let posts: BlogListPost[] = [];
   let totalPages = 1;
 
   try {
-    const where: any = { status: "PUBLISHED" };
-    if (category !== "All") where.category = category;
-    if (tag) where.tags = { has: tag };
-    if (q) {
-      where.OR = [
-        { title: { contains: q, mode: "insensitive" } },
-        { content: { contains: q, mode: "insensitive" } },
-        { excerpt: { contains: q, mode: "insensitive" } },
-        { tags: { has: q } },
-      ];
-    }
-
-    const [items, total] = await Promise.all([
-      prisma.blogPost.findMany({
-        where,
-        orderBy: { publishedAt: "desc" },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          excerpt: true,
-          content: true,
-          publishedAt: true,
-          generatedByAI: true,
-          tags: true,
-          featuredImage: { select: { url: true, alt: true } },
-          author: { select: { name: true } },
-        },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.blogPost.count({ where }),
-    ]);
-
-    posts = items as Post[];
-    totalPages = Math.ceil(total / limit);
+    const { posts: items, total } = await getCachedBlogListPage(
+      page,
+      category,
+      tag,
+      q,
+      limit,
+    );
+    posts = items;
+    totalPages = Math.max(1, Math.ceil(total / limit));
   } catch {
     // DB not available — render empty state
   }
@@ -161,6 +124,7 @@ export default async function BlogPage({
               {q && (
                 <Link
                   href="/blog"
+                  transitionTypes={["spa-page"]}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[var(--color-muted)] hover:text-[var(--color-foreground)]"
                 >
                   Clear
@@ -176,6 +140,7 @@ export default async function BlogPage({
                   <Link
                     key={cat}
                     href={`/blog?category=${cat}${q ? `&q=${q}` : ""}`}
+                    transitionTypes={["spa-page"]}
                     className={`rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all ${
                       isActive
                         ? "bg-[var(--color-primary)] text-white shadow-sm"
@@ -196,6 +161,7 @@ export default async function BlogPage({
                   <Link
                     key={t}
                     href={`/blog?tag=${t}${category !== "All" ? `&category=${category}` : ""}${q ? `&q=${q}` : ""}`}
+                    transitionTypes={["spa-page"]}
                     className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium transition-all ${
                       isActive
                         ? "bg-[var(--color-gold)]/20 text-[var(--color-gold)] border border-[var(--color-gold)]/30"
@@ -224,6 +190,7 @@ export default async function BlogPage({
               </p>
               <Link
                 href="/"
+                transitionTypes={["spa-page"]}
                 className="mt-8 inline-flex items-center gap-2 rounded-full bg-[var(--color-primary)] px-6 py-3 text-sm font-semibold text-[var(--color-primary-foreground)] transition-opacity hover:opacity-90"
               >
                 Back to Home <ArrowRight className="h-4 w-4" />
@@ -235,6 +202,7 @@ export default async function BlogPage({
               {featuredPost && (
                 <Link
                   href={`/blog/${featuredPost.slug}`}
+                  transitionTypes={["spa-page"]}
                   className="group mb-12 flex flex-col overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm transition-all duration-500 hover:shadow-xl hover:border-[var(--color-gold)]/30 md:flex-row"
                 >
                   {/* Image */}
@@ -339,6 +307,7 @@ export default async function BlogPage({
                   {page > 1 && (
                     <Link
                       href={`/blog?page=${page - 1}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                      transitionTypes={["spa-page"]}
                       className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] hover:border-[var(--color-primary)] transition-colors"
                     >
                       ← Previous
@@ -350,6 +319,7 @@ export default async function BlogPage({
                       <Link
                         key={p}
                         href={`/blog?page=${p}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                        transitionTypes={["spa-page"]}
                         className={`h-8 w-8 rounded-lg text-center text-sm font-medium transition-all ${
                           p === page
                             ? "bg-[var(--color-primary)] text-white"
@@ -364,6 +334,7 @@ export default async function BlogPage({
                   {page < totalPages && (
                     <Link
                       href={`/blog?page=${page + 1}${category !== "All" ? `&category=${category}` : ""}${tag ? `&tag=${tag}` : ""}${q ? `&q=${q}` : ""}`}
+                      transitionTypes={["spa-page"]}
                       className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)] hover:border-[var(--color-primary)] transition-colors"
                     >
                       Next →
@@ -379,12 +350,13 @@ export default async function BlogPage({
   );
 }
 
-function PostCard({ post }: { post: Post }) {
+function PostCard({ post }: { post: BlogListPost }) {
   const readTime = estimateReadTime(post.content);
 
   return (
     <Link
       href={`/blog/${post.slug}`}
+      transitionTypes={["spa-page"]}
       className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm transition-all duration-300 hover:shadow-lg hover:border-[var(--color-gold)]/25 hover:-translate-y-1"
     >
       {/* Image */}

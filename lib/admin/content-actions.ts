@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { requireRole } from "@/lib/auth/rbac";
 import { audit } from "@/lib/admin/audit";
 import { cacheInvalidatePattern } from "@/lib/cache";
+import { bumpContentPageCache } from "@/lib/cache/tags";
 import { auth } from "@/lib/auth/config";
 
 export async function saveContentBlock(pageSlug: string, sectionSlug: string, data: any) {
@@ -37,6 +38,7 @@ export async function saveContentBlock(pageSlug: string, sectionSlug: string, da
   });
 
   await cacheInvalidatePattern(`content:${pageSlug}`);
+  bumpContentPageCache(pageSlug);
   return block;
 }
 

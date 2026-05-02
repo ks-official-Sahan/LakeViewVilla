@@ -3,11 +3,10 @@ import plugin from "tailwindcss/plugin";
 import tailwindcssAnimate from "tailwindcss-animate";
 import svgToDataUri from "mini-svg-data-uri";
 
-// v3 is intentional: Next.js App Router + shadcn + your existing tokens & utilities are stable here.
-// NextUI plugin is omitted (v3/v4 compat risk, Mantine covers needs).
+// Loaded via `@config` in app/globals.css (Tailwind v4). Dark mode: `@custom-variant dark` in globals.css.
+// NextUI plugin is omitted (compat risk; Mantine covers needs).
 
 const config: Config = {
-  darkMode: ["class", '[data-mantine-color-scheme="dark"]'],
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -24,8 +23,6 @@ const config: Config = {
         xs: "480px",
         "3xl": "1920px",
         "4k": "2560px",
-        portrait: { raw: "(orientation: portrait)" },
-        landscape: { raw: "(orientation: landscape)" },
       },
       colors: {
         background: "hsl(var(--background))",

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useGSAP } from "@/lib/gsap";
-import { gsap, EASE, DURATION } from "@/lib/gsap";
+import { gsap, ScrollTrigger, EASE, DURATION } from "@/lib/gsap";
 import { Star, Users, Phone, ArrowRight } from "lucide-react";
 import { BOOKING_FACTS, STAYS_INTRO, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
@@ -35,13 +35,54 @@ export function StaysTeaser() {
         scrollTrigger: { trigger: headingRef.current, start: "top 85%", once: true },
       });
 
+      let revertCards: (() => void) | undefined;
       const cards = cardsRef.current?.querySelectorAll<HTMLElement>("[data-room]");
-      if (cards) {
-        gsap.fromTo(cards, { opacity: 0, y: 32 }, {
-          opacity: 1, y: 0,
-          duration: 0.65, ease: EASE.out,
-          stagger: 0.12,
-          scrollTrigger: { trigger: cardsRef.current, start: "top 82%", once: true },
+      if (cards?.length) {
+        const mm = gsap.matchMedia();
+        revertCards = () => mm.revert();
+        mm.add("(max-width: 767px)", () => {
+          ScrollTrigger.batch(cards, {
+            batchMax: 2,
+            interval: 0.06,
+            once: true,
+            start: "top 88%",
+            onEnter: (batch) => {
+              gsap.fromTo(
+                batch,
+                { opacity: 0, y: 28 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.58,
+                  stagger: 0.08,
+                  ease: EASE.out,
+                  overwrite: true,
+                }
+              );
+            },
+          });
+        });
+        mm.add("(min-width: 768px)", () => {
+          ScrollTrigger.batch(cards, {
+            batchMax: 2,
+            interval: 0.08,
+            once: true,
+            start: "top 82%",
+            onEnter: (batch) => {
+              gsap.fromTo(
+                batch,
+                { opacity: 0, y: 32 },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.65,
+                  stagger: 0.12,
+                  ease: EASE.out,
+                  overwrite: true,
+                }
+              );
+            },
+          });
         });
       }
 
@@ -49,6 +90,8 @@ export function StaysTeaser() {
         opacity: 1, y: 0, duration: 0.65, ease: EASE.out, delay: 0.1,
         scrollTrigger: { trigger: ctaRef.current, start: "top 88%", once: true },
       });
+
+      return () => revertCards?.();
     },
     { scope: sectionRef }
   );

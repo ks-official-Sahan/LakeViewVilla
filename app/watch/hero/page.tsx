@@ -75,7 +75,7 @@ export default function WatchHeroPage() {
       <div className="mt-6">
         <p>
           Prefer booking details and photos? Visit the{" "}
-          <Link href="/" className="text-blue-600 underline">
+          <Link href="/" transitionTypes={["spa-page"]} className="text-blue-600 underline">
             Lake View Villa homepage
           </Link>
           .

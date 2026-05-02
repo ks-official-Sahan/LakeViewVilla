@@ -329,6 +329,7 @@ export default function DeveloperClient({
                     <Button size="lg" variant="secondary" asChild>
                       <Link
                         href="/developer/cv"
+                        transitionTypes={["spa-page"]}
                         aria-label="Open print-ready CV mode"
                       >
                         <Zap className="mr-2 h-5 w-5" /> CV Mode

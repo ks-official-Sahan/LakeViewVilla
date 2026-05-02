@@ -39,9 +39,11 @@ export function GalleryTeaser() {
         }
       );
 
-      // Staggered parallax grid reveal
+      let revertParallax: (() => void) | undefined;
+
+      // Staggered grid reveal + tiered scrub parallax (plan §4.5: ~0.3 / 0.5 / 0.7 × baseline)
       const cells = gridRef.current?.querySelectorAll<HTMLElement>("[data-cell]");
-      if (cells) {
+      if (cells?.length) {
         gsap.fromTo(
           cells,
           { opacity: 0, y: 60, scale: 0.94, filter: "blur(4px)" },
@@ -57,16 +59,25 @@ export function GalleryTeaser() {
           }
         );
 
-        // Add subtle parallax to grid on scroll
-        gsap.to(cells, {
-          yPercent: -15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: gridRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 1.5,
-          },
+        const mm = gsap.matchMedia();
+        revertParallax = () => mm.revert();
+        const PARALLAX_BASE_Y = -24;
+        const SPEED_TIERS = [0.3, 0.5, 0.5, 0.5, 0.7, 0.7];
+
+        mm.add("(min-width: 768px)", () => {
+          cells.forEach((cell, i) => {
+            const tier = SPEED_TIERS[i] ?? 0.55;
+            gsap.to(cell, {
+              yPercent: PARALLAX_BASE_Y * tier,
+              ease: "none",
+              scrollTrigger: {
+                trigger: gridRef.current!,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.5,
+              },
+            });
+          });
         });
       }
 
@@ -82,6 +93,8 @@ export function GalleryTeaser() {
           scrollTrigger: { trigger: ctaRef.current, start: "top 90%", once: true },
         }
       );
+
+      return () => revertParallax?.();
     },
     { scope: sectionRef }
   );
@@ -220,6 +233,7 @@ export function GalleryTeaser() {
         <div ref={ctaRef} className="mt-16 flex justify-center">
           <Link
             href="/gallery"
+            transitionTypes={["spa-page"]}
             className="group inline-flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-8 py-4 text-sm font-bold text-[var(--color-foreground)] shadow-sm transition-all duration-300 hover:border-[var(--color-gold)] hover:shadow-[0_8px_30px_rgba(212,168,83,0.15)] btn-ripple"
           >
             Explore Full Gallery

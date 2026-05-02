@@ -80,6 +80,7 @@ export function Navigation() {
           {/* Logo */}
           <Link
             href="/"
+            transitionTypes={["spa-page"]}
             className="group flex items-center gap-2.5"
             aria-label="Lake View Villa — Home"
           >
@@ -112,6 +113,7 @@ export function Navigation() {
                 <Link
                   key={href}
                   href={href}
+                  transitionTypes={["spa-page"]}
                   aria-current={active ? "page" : undefined}
                   className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60 ${
                     isHero
@@ -186,6 +188,7 @@ export function Navigation() {
                 <Link
                   key={href}
                   href={href}
+                  transitionTypes={["spa-page"]}
                   aria-current={active ? "page" : undefined}
                   className={`flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
                     active

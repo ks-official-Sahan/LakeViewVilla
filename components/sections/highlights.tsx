@@ -2,7 +2,7 @@
 
 import { useRef, useMemo } from "react";
 import { useGSAP } from "@/lib/gsap";
-import { gsap, EASE, DURATION } from "@/lib/gsap";
+import { gsap, ScrollTrigger, EASE, DURATION } from "@/lib/gsap";
 import {
   SunMedium, Wifi, Utensils, BedDouble, Waves,
   MapPin, Sparkles, Wind, ShieldCheck, Plane,
@@ -60,20 +60,61 @@ export function Highlights() {
         }
       );
 
-      // Cards stagger with 3D tilt entrance
+      // Cards — batched ScrollTriggers (fewer callbacks, smoother with large grids)
       const cards = gridRef.current?.querySelectorAll<HTMLElement>("[data-card]");
-      if (cards) {
-        gsap.fromTo(
-          cards,
-          { opacity: 0, y: 50, rotateX: 8, transformOrigin: "top center" },
-          {
-            opacity: 1, y: 0, rotateX: 0,
-            duration: 0.75, ease: EASE.out,
-            stagger: { each: 0.07, from: "start" },
-            scrollTrigger: { trigger: gridRef.current, start: "top 82%", once: true },
-          }
-        );
-      }
+      if (!cards?.length) return;
+
+      const mm = gsap.matchMedia();
+
+      mm.add("(max-width: 767px)", () => {
+        ScrollTrigger.batch(cards, {
+          batchMax: 4,
+          interval: 0.05,
+          once: true,
+          start: "top 88%",
+          onEnter: (batch) => {
+            gsap.fromTo(
+              batch,
+              { opacity: 0, y: 36, rotateX: 4, transformOrigin: "top center" },
+              {
+                opacity: 1,
+                y: 0,
+                rotateX: 0,
+                duration: 0.65,
+                stagger: 0.06,
+                ease: EASE.out,
+                overwrite: true,
+              }
+            );
+          },
+        });
+      });
+
+      mm.add("(min-width: 768px)", () => {
+        ScrollTrigger.batch(cards, {
+          batchMax: 4,
+          interval: 0.06,
+          once: true,
+          start: "top 82%",
+          onEnter: (batch) => {
+            gsap.fromTo(
+              batch,
+              { opacity: 0, y: 60, rotateX: 6, transformOrigin: "top center" },
+              {
+                opacity: 1,
+                y: 0,
+                rotateX: 0,
+                duration: 0.75,
+                stagger: 0.08,
+                ease: EASE.out,
+                overwrite: true,
+              }
+            );
+          },
+        });
+      });
+
+      return () => mm.revert();
     },
     { scope: sectionRef }
   );

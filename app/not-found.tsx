@@ -16,27 +16,35 @@ export default function NotFound() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button asChild size="lg" className="px-6">
-            <Link href="/">Return Home</Link>
+            <Link href="/" transitionTypes={["spa-page"]}>
+              Return Home
+            </Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="px-6">
-            <Link href="/gallery">View Gallery</Link>
+            <Link href="/gallery" transitionTypes={["spa-page"]}>
+              View Gallery
+            </Link>
           </Button>
           <Button asChild size="lg" variant="ghost" className="px-6">
-            <Link href="/stays">See Stays</Link>
+            <Link href="/stays" transitionTypes={["spa-page"]}>
+              See Stays
+            </Link>
           </Button>
           {/* New: Developer shortcut */}
           <Button asChild size="lg" variant="secondary" className="px-6">
-            <Link href="/developer">Developer</Link>
+            <Link href="/developer" transitionTypes={["spa-page"]}>
+              Developer
+            </Link>
           </Button>
         </div>
 
         <p className="mt-6 text-sm text-muted-foreground">
           Or visit{" "}
-          <Link href="/faq" className="underline underline-offset-4">
+          <Link href="/faq" transitionTypes={["spa-page"]} className="underline underline-offset-4">
             FAQ
           </Link>{" "}
           •{" "}
-          <Link href="/visit" className="underline underline-offset-4">
+          <Link href="/visit" transitionTypes={["spa-page"]} className="underline underline-offset-4">
             How to visit
           </Link>
         </p>

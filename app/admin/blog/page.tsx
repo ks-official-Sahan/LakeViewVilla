@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/config";
-import { can } from "@/lib/auth/rbac";
+import { can } from "@/lib/auth/permissions";
 import { Plus, PenLine, Eye, Trash2 } from "lucide-react";
 
 export const metadata = {

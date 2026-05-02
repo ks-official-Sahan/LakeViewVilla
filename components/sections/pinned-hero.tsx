@@ -16,16 +16,12 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { Play, Pause, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { trackContact } from "@/lib/analytics";
-
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 type Props = { nextSectionId: string };
 

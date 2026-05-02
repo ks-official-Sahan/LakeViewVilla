@@ -5,8 +5,37 @@ import { requireRole } from "@/lib/auth/rbac";
 import { auth } from "@/lib/auth/config";
 import { audit } from "@/lib/admin/audit";
 import { cacheInvalidatePattern } from "@/lib/cache";
+import {
+  bumpBlogAndSitemapCache,
+  bumpMediaAndGalleryCache,
+} from "@/lib/cache/tags";
 import { uploadToCloudinary, deleteFromCloudinary, validateFile } from "@/lib/admin/upload";
-import type { MediaType, BlogStatus } from "@prisma/client";
+import type { MediaType, BlogStatus, Prisma } from "@prisma/client";
+import { generateSEOMeta } from "@/lib/ai/seo-generator";
+
+function optionalStr(v: unknown): string | undefined {
+  if (v === undefined || v === null) return undefined;
+  const s = String(v).trim();
+  return s === "" ? undefined : s;
+}
+
+function normalizeSlug(slug: string): string {
+  return slug
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function stripMarkdownPreview(md: string, maxLen: number): string {
+  const plain = md
+    .replace(/^---[\s\S]*?---\s*/m, "")
+    .replace(/^#+\s+.*/gm, "")
+    .replace(/[*_`#\[\]()]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return plain.slice(0, maxLen);
+}
 
 async function requireAuth() {
   const session = await auth();
@@ -87,6 +116,7 @@ export async function uploadMedia(formData: FormData) {
   });
 
   await cacheInvalidatePattern("media:*");
+  bumpMediaAndGalleryCache();
   return asset;
 }
 
@@ -114,6 +144,7 @@ export async function deleteMedia(id: string) {
   });
 
   await cacheInvalidatePattern("media:*");
+  bumpMediaAndGalleryCache();
 }
 
 export async function updateMediaMetadata(
@@ -137,6 +168,7 @@ export async function updateMediaMetadata(
   });
 
   await cacheInvalidatePattern("media:*");
+  bumpMediaAndGalleryCache();
   return updated;
 }
 
@@ -155,8 +187,9 @@ export async function getBlogPosts(options?: {
 
   const where: Prisma.BlogPostWhereInput = {};
   if (status) where.status = status;
-  if (category) where.category = category;
-  if (tag) where.tags = { has: tag };
+  const tagFilter =
+    tag || (category && category !== "All" ? category : undefined);
+  if (tagFilter) where.tags = { has: tagFilter };
   if (search) {
     where.OR = [
       { title: { contains: search, mode: "insensitive" } },
@@ -183,27 +216,37 @@ export async function getBlogPosts(options?: {
   return { items, total, page, totalPages: Math.ceil(total / limit) };
 }
 
-export async function createBlogPost(data: {
-  title: string;
-  slug: string;
-  content: string;
-  excerpt?: string;
-  tags?: string[];
-  seoTitle?: string;
-  seoDescription?: string;
-  featuredImageId?: string;
-  generatedByAI?: boolean;
-}) {
+export async function createBlogPost(raw: Record<string, unknown>) {
   const session = await requireAuth();
 
-  const existing = await prisma.blogPost.findUnique({ where: { slug: data.slug } });
+  const title = String(raw.title ?? "").trim();
+  const slug = normalizeSlug(String(raw.slug ?? ""));
+  const content = String(raw.content ?? "");
+
+  if (!title || !slug || !content) {
+    throw new Error("Title, slug, and content are required.");
+  }
+
+  const publishAtRaw =
+    typeof raw.publishAt === "string" ? raw.publishAt.trim() : "";
+
+  const existing = await prisma.blogPost.findUnique({ where: { slug } });
   if (existing) throw new Error("A post with this slug already exists");
 
   const post = await prisma.blogPost.create({
     data: {
-      ...data,
+      title,
+      slug,
+      content,
+      excerpt: optionalStr(raw.excerpt) ?? null,
+      tags: Array.isArray(raw.tags) ? (raw.tags as string[]) : [],
+      seoTitle: optionalStr(raw.seoTitle) ?? null,
+      seoDescription: optionalStr(raw.seoDescription) ?? null,
+      featuredImageId: optionalStr(raw.featuredImageId) ?? null,
+      generatedByAI: Boolean(raw.generatedByAI),
       authorId: session.user.id,
       status: "DRAFT",
+      publishedAt: publishAtRaw ? new Date(publishAtRaw) : null,
     },
   });
 
@@ -215,24 +258,43 @@ export async function createBlogPost(data: {
     newValue: { title: post.title, slug: post.slug },
   });
 
+  bumpBlogAndSitemapCache();
   return post;
 }
 
-export async function updateBlogPost(
-  id: string,
-  data: {
-    title?: string;
-    slug?: string;
-    content?: string;
-    excerpt?: string;
-    tags?: string[];
-    seoTitle?: string;
-    seoDescription?: string;
-    seoKeywords?: string[];
-    featuredImageId?: string;
-  },
-) {
+export async function updateBlogPost(id: string, raw: Record<string, unknown>) {
   const session = await requireAuth();
+
+  const data: Prisma.BlogPostUpdateInput = {};
+
+  if (typeof raw.title === "string") data.title = raw.title.trim();
+  if (typeof raw.slug === "string") data.slug = normalizeSlug(raw.slug);
+  if (typeof raw.content === "string") data.content = raw.content;
+  if (raw.excerpt !== undefined) {
+    data.excerpt = optionalStr(raw.excerpt) ?? null;
+  }
+  if (Array.isArray(raw.tags)) data.tags = raw.tags as string[];
+  if (raw.seoTitle !== undefined) data.seoTitle = optionalStr(raw.seoTitle) ?? null;
+  if (raw.seoDescription !== undefined) {
+    data.seoDescription = optionalStr(raw.seoDescription) ?? null;
+  }
+  if (Array.isArray(raw.seoKeywords)) data.seoKeywords = raw.seoKeywords as string[];
+  if (raw.featuredImageId !== undefined) {
+    const fid = optionalStr(raw.featuredImageId);
+    data.featuredImage = fid
+      ? { connect: { id: fid } }
+      : { disconnect: true };
+  }
+
+  if (raw.status === "DRAFT" || raw.status === "PUBLISHED" || raw.status === "ARCHIVED") {
+    data.status = raw.status;
+  }
+
+  const publishAtRaw =
+    typeof raw.publishAt === "string" ? raw.publishAt.trim() : "";
+  if (publishAtRaw) {
+    data.publishedAt = new Date(publishAtRaw);
+  }
 
   const post = await prisma.blogPost.update({ where: { id }, data });
 
@@ -241,11 +303,49 @@ export async function updateBlogPost(
     action: "UPDATE",
     entityType: "BlogPost",
     entityId: id,
-    newValue: data,
+    newValue: data as Record<string, unknown>,
   });
 
   await cacheInvalidatePattern("blog:*");
+  bumpBlogAndSitemapCache();
   return post;
+}
+
+/** Fill excerpt + SEO from title/content via AI with offline fallback. */
+export async function enrichBlogPostSeo(id: string) {
+  await requireAuth();
+  const post = await prisma.blogPost.findUnique({ where: { id } });
+  if (!post) throw new Error("Post not found");
+
+  const fallbackExcerpt = stripMarkdownPreview(post.content, 280);
+  try {
+    const seo = await generateSEOMeta({
+      title: post.title,
+      content: post.content.slice(0, 4000),
+    });
+
+    const data: Prisma.BlogPostUpdateInput = {
+      seoTitle: seo.title || post.title.slice(0, 60),
+      seoDescription: seo.description || fallbackExcerpt.slice(0, 160),
+    };
+    if (!post.excerpt?.trim()) data.excerpt = fallbackExcerpt || null;
+    if (seo.keywords?.length) data.seoKeywords = seo.keywords;
+
+    const updated = await prisma.blogPost.update({ where: { id }, data });
+    await cacheInvalidatePattern("blog:*");
+    bumpBlogAndSitemapCache();
+    return updated;
+  } catch {
+    const data: Prisma.BlogPostUpdateInput = {
+      seoTitle: post.title.slice(0, 60),
+      seoDescription: fallbackExcerpt.slice(0, 160),
+    };
+    if (!post.excerpt?.trim()) data.excerpt = fallbackExcerpt || null;
+    const updated = await prisma.blogPost.update({ where: { id }, data });
+    await cacheInvalidatePattern("blog:*");
+    bumpBlogAndSitemapCache();
+    return updated;
+  }
 }
 
 export async function publishBlogPost(id: string, publishAt?: string) {
@@ -270,6 +370,7 @@ export async function publishBlogPost(id: string, publishAt?: string) {
   });
 
   await cacheInvalidatePattern("blog:*");
+  bumpBlogAndSitemapCache();
   return post;
 }
 
@@ -286,6 +387,7 @@ export async function deleteBlogPost(id: string) {
   });
 
   await cacheInvalidatePattern("blog:*");
+  bumpBlogAndSitemapCache();
 }
 
 // ─── Audit Log Actions ──────────────────────────────────────────────────────
@@ -296,7 +398,7 @@ export async function getAuditLogs(options?: {
   entityType?: string;
   userId?: string;
 }) {
-  const session = await requireRole("MANAGER");
+  const session = await requireRole("DEVELOPER");
   const { page = 1, limit = 50, entityType, userId } = options ?? {};
 
   const where: Record<string, unknown> = {};

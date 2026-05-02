@@ -1,21 +1,55 @@
 "use client";
 
 import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  type ReactNode,
-} from "react";
-import Lenis from "lenis";
-// import { gsap, ScrollTrigger } from "@/lib/gsap"; // Removed static import to prevent SSR Date.now() evaluation
+  ReactLenis,
+  useLenis as useLenisFromReact,
+} from "lenis/react";
+import { useEffect, useState, type ReactNode } from "react";
 
-type LenisContextValue = Lenis | null;
-
-const LenisContext = createContext<LenisContextValue>(null);
-
+/** Lenis instance from `ReactLenis` context (`undefined` outside provider / during SSR). */
 export function useLenis() {
-  return useContext(LenisContext);
+  return useLenisFromReact();
+}
+
+/**
+ * Bridges Lenis `raf` to GSAP ticker + ScrollTrigger after the Lenis instance exists.
+ * Must render inside `ReactLenis` so `useLenisFromReact()` returns the live instance.
+ */
+function LenisGsapBridge() {
+  const lenis = useLenisFromReact();
+
+  useEffect(() => {
+    if (!lenis) return;
+
+    let cancelled = false;
+    let scrollCb: ((instance: import("lenis").default) => void) | undefined;
+    let tick: ((time: number) => void) | undefined;
+
+    void import("@/lib/gsap").then(({ gsap, ScrollTrigger }) => {
+      if (cancelled) return;
+
+      scrollCb = () => {
+        ScrollTrigger.update();
+      };
+      lenis.on("scroll", scrollCb);
+
+      tick = (time: number) => {
+        lenis.raf(time * 1000);
+      };
+      gsap.ticker.add(tick);
+      gsap.ticker.lagSmoothing(0);
+    });
+
+    return () => {
+      cancelled = true;
+      if (scrollCb) lenis.off("scroll", scrollCb);
+      void import("@/lib/gsap").then(({ gsap }) => {
+        if (tick) gsap.ticker.remove(tick);
+      });
+    };
+  }, [lenis]);
+
+  return null;
 }
 
 interface LenisProviderProps {
@@ -23,59 +57,33 @@ interface LenisProviderProps {
 }
 
 export function LenisProvider({ children }: LenisProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-    if (prefersReducedMotion) return;
-
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      touchMultiplier: 1.5,
-      infinite: false,
-      autoRaf: false, // GSAP drives the RAF loop for perfect sync
-    });
-
-    lenisRef.current = lenis;
-    
-    let tickerCallback: ((time: number) => void) | null = null;
-    let gsapInstance: any = null;
-
-    // Dynamically import GSAP to prevent Next.js from evaluating Date.now() on the server
-    import("@/lib/gsap").then(({ gsap, ScrollTrigger }) => {
-      if (!lenisRef.current) return; // Component unmounted before load
-      
-      gsapInstance = gsap;
-      
-      // Sync Lenis scroll position with ScrollTrigger
-      lenis.on("scroll", ScrollTrigger.update);
-
-      // Drive Lenis from GSAP's ticker for frame-perfect sync
-      tickerCallback = (time: number) => {
-        lenis.raf(time * 1000);
-      };
-      gsap.ticker.add(tickerCallback);
-
-      // Disable GSAP's built-in lagSmoothing so Lenis controls pacing
-      gsap.ticker.lagSmoothing(0);
-    }).catch(console.error);
-
-    return () => {
-      if (gsapInstance && tickerCallback) {
-        gsapInstance.ticker.remove(tickerCallback);
-      }
-      lenis.destroy();
-      lenisRef.current = null;
-    };
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduceMotion(mq.matches);
+    const onChange = () => setReduceMotion(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  if (reduceMotion) {
+    return <>{children}</>;
+  }
+
   return (
-    <LenisContext.Provider value={lenisRef.current}>
+    <ReactLenis
+      root
+      options={{
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        touchMultiplier: 1.5,
+        infinite: false,
+        autoRaf: false,
+      }}
+    >
+      <LenisGsapBridge />
       {children}
-    </LenisContext.Provider>
+    </ReactLenis>
   );
 }

@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { Role } from "@prisma/client";
-import { updateUserRole, deleteUser } from "@/lib/actions/users";
-import { Trash2, UserCog } from "lucide-react";
+import { updateUserRole, deleteUser, createUser, updateUserProfile } from "@/lib/actions/users";
+import { Trash2, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 
@@ -27,14 +28,27 @@ export function UsersClient({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newRole, setNewRole] = useState<Role>("EDITOR");
+  const [creating, setCreating] = useState(false);
+
   const handleRoleChange = async (id: string, newRole: Role) => {
     setLoading(id);
     try {
       const res = await updateUserRole({ id, role: newRole });
       if (res.success && res.data) {
         setUsers(users.map((u) => (u.id === id ? { ...u, role: res.data.role } : u)));
+        toast.success("Role updated");
       } else {
-        alert(res.error || "Failed to update role");
+        const msg =
+          "error" in res && res.error
+            ? String(res.error)
+            : "errors" in res && res.errors
+              ? "Validation failed"
+              : "Failed to update role";
+        toast.error(msg);
       }
     } finally {
       setLoading(null);
@@ -53,8 +67,9 @@ export function UsersClient({
       const res = await deleteUser(deletingId);
       if (res.success) {
         setUsers(users.filter((u) => u.id !== deletingId));
+        toast.success("User removed");
       } else {
-        alert(res.error || "Failed to delete user");
+        toast.error(res.error || "Failed to delete user");
       }
     } finally {
       setLoading(null);
@@ -63,7 +78,107 @@ export function UsersClient({
     }
   };
 
+  const handleCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreating(true);
+    try {
+      const res = await createUser({
+        email: newEmail,
+        name: newName || undefined,
+        password: newPassword,
+        role: newRole,
+      });
+      if (res.success && res.data) {
+        toast.success("User created");
+        setUsers((prev) => [
+          ...prev,
+          {
+            id: res.data.id,
+            email: res.data.email,
+            name: res.data.name,
+            role: res.data.role,
+            createdAt: res.data.createdAt,
+          },
+        ]);
+        setNewEmail("");
+        setNewName("");
+        setNewPassword("");
+        setNewRole("EDITOR");
+      } else {
+        toast.error("error" in res && res.error ? String(res.error) : "Could not create user");
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleNameBlur = async (id: string, name: string, previous: string | null) => {
+    const trimmed = name.trim();
+    if (trimmed === (previous ?? "").trim()) return;
+    const res = await updateUserProfile({ id, name: trimmed || null });
+    if (res.success && res.data) {
+      setUsers((prev) =>
+        prev.map((u) => (u.id === id ? { ...u, name: res.data?.name ?? null } : u)),
+      );
+      toast.success("Name saved");
+    } else {
+      toast.error("Could not update name");
+    }
+  };
+
   return (
+    <div className="space-y-6">
+      <form
+        onSubmit={handleCreateUser}
+        className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 md:p-6 shadow-sm space-y-4"
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          <UserPlus className="h-5 w-5 text-[var(--color-primary)]" />
+          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">Invite user</h2>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <input
+            type="email"
+            required
+            placeholder="Email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+          />
+          <input
+            type="text"
+            placeholder="Display name"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+          />
+          <input
+            type="password"
+            required
+            placeholder="Password (min 8 chars)"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+          />
+          <div className="flex gap-2">
+            <select
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value as Role)}
+              className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm"
+            >
+              {Object.values(Role).map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+            <Button type="submit" disabled={creating}>
+              {creating ? "…" : "Create"}
+            </Button>
+          </div>
+        </div>
+      </form>
+
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -79,10 +194,15 @@ export function UsersClient({
             {users.map((user) => (
               <tr key={user.id} className="hover:bg-[var(--color-muted)]/5 transition-colors">
                 <td className="p-4">
-                  <div className="font-medium text-[var(--color-foreground)]">
-                    {user.name || "Unnamed"}
-                  </div>
-                  <div className="text-[var(--color-muted)]">{user.email}</div>
+                  <input
+                    type="text"
+                    defaultValue={user.name ?? ""}
+                    placeholder="Display name"
+                    disabled={loading === user.id}
+                    onBlur={(e) => handleNameBlur(user.id, e.target.value, user.name)}
+                    className="font-medium text-[var(--color-foreground)] w-full max-w-[14rem] rounded border border-transparent bg-transparent px-1 py-0.5 hover:border-[var(--color-border)] focus:border-[var(--color-primary)] focus:outline-none"
+                  />
+                  <div className="text-[var(--color-muted)] text-xs mt-1">{user.email}</div>
                 </td>
                 <td className="p-4">
                   <select
@@ -134,6 +254,7 @@ export function UsersClient({
         onConfirm={confirmDelete}
         onCancel={() => { setConfirmOpen(false); setDeletingId(null); }}
       />
+    </div>
     </div>
   );
 }

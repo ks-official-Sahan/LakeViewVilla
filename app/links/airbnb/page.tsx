@@ -34,7 +34,7 @@ export default function AirbnbLinkPage() {
         confirmation.
       </p>
 
-      <Link href="/" className="text-blue-600 underline mt-6 inline-block">
+      <Link href="/" transitionTypes={["spa-page"]} className="text-blue-600 underline mt-6 inline-block">
         ← Return to Lake View Villa
       </Link>
 

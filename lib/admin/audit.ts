@@ -6,13 +6,16 @@ export type AuditAction =
   | "CREATE"
   | "UPDATE"
   | "DELETE"
+  | "DELETE_BULK"
+  | "UPDATE_BULK"
   | "LOGIN"
   | "LOGOUT"
   | "UPLOAD"
   | "PUBLISH"
   | "UNPUBLISH"
   | "ARCHIVE"
-  | "REORDER";
+  | "REORDER"
+  | "UPDATE_ROLE";
 
 export type AuditEntity =
   | "MediaAsset"

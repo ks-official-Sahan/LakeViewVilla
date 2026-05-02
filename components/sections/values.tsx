@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import Image from "next/image";
 import { useGSAP } from "@/lib/gsap";
-import { gsap, EASE, DURATION } from "@/lib/gsap";
+import { gsap, ScrollTrigger, EASE, DURATION } from "@/lib/gsap";
 import {
   Car, Waves, Utensils, Wind, Trees, ShowerHead, CheckCircle2,
 } from "lucide-react";
@@ -55,20 +55,58 @@ export function ValuesSection() {
         }
       );
 
-      // Accordion items stagger in
+      let revertList: (() => void) | undefined;
       const items = listRef.current?.querySelectorAll<HTMLElement>("[data-value-item]");
-      if (items) {
-        gsap.fromTo(
-          items,
-          { opacity: 0, x: 24 },
-          {
-            opacity: 1, x: 0,
-            duration: 0.55, ease: EASE.out,
-            stagger: 0.09,
-            scrollTrigger: { trigger: listRef.current, start: "top 84%", once: true },
-          }
-        );
+      if (items?.length) {
+        const mm = gsap.matchMedia();
+        revertList = () => mm.revert();
+        mm.add("(max-width: 767px)", () => {
+          ScrollTrigger.batch(items, {
+            batchMax: 3,
+            interval: 0.05,
+            once: true,
+            start: "top 88%",
+            onEnter: (batch) => {
+              gsap.fromTo(
+                batch,
+                { opacity: 0, x: 16 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.48,
+                  stagger: 0.06,
+                  ease: EASE.out,
+                  overwrite: true,
+                }
+              );
+            },
+          });
+        });
+        mm.add("(min-width: 768px)", () => {
+          ScrollTrigger.batch(items, {
+            batchMax: 3,
+            interval: 0.07,
+            once: true,
+            start: "top 84%",
+            onEnter: (batch) => {
+              gsap.fromTo(
+                batch,
+                { opacity: 0, x: 24 },
+                {
+                  opacity: 1,
+                  x: 0,
+                  duration: 0.55,
+                  stagger: 0.09,
+                  ease: EASE.out,
+                  overwrite: true,
+                }
+              );
+            },
+          });
+        });
       }
+
+      return () => revertList?.();
     },
     { scope: sectionRef }
   );

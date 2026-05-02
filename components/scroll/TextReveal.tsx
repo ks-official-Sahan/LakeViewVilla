@@ -1,11 +1,8 @@
 "use client";
 
 import { useRef, useEffect, type CSSProperties } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useReducedMotion } from "framer-motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 type TextRevealVariant = "words" | "chars" | "lines";
 

@@ -1,7 +1,14 @@
 /* app/globals.css — unified, industrial-grade */
 
-/* Tailwind v4 core */
+/* Tailwind v4 — see https://tailwindcss.com/docs/installation/using-postcss */
 @import "tailwindcss";
+
+/* Legacy JS config: theme extensions, content globs, tailwindcss-animate, grid/dot utilities */
+@config "../tailwind.config.ts";
+
+/* Class + Mantine color scheme (replaces tailwind.config `darkMode`) */
+@custom-variant dark (&:where(.dark, .dark *, [data-mantine-color-scheme="dark"], [data-mantine-color-scheme="dark"] *));
+
 @plugin "@tailwindcss/typography";
 
 /* ----------------------- Root defaults & motion guard ----------------------- */
@@ -58,58 +65,59 @@ html {
   }
 }
 
-/* -------------------------- Light theme (HSL tokens) ----------------------- */
+/* -------------------------- Light theme (Shadcn HSL components + brand aliases) ----------------------- */
 :root {
-  --background: hsl(210 20% 98%);
-  --foreground: hsl(210 15% 8%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(210 15% 8%);
-  --popover: hsl(210 25% 99%);
-  --popover-foreground: hsl(210 15% 8%);
-  --primary: hsl(189 84% 33%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(205 70% 39%);
-  --secondary-foreground: hsl(0 0% 100%);
-  --muted: hsl(210 12% 55%);
-  --muted-foreground: hsl(210 10% 40%);
-  --accent: hsl(205 70% 39%);
-  --accent-foreground: hsl(0 0% 100%);
-  --destructive: hsl(0 84% 60%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(180 10% 85%);
-  --input: hsl(180 10% 85%);
-  --ring: hsl(189 84% 33%);
-  --chart-1: hsl(199 89% 48%);
-  --chart-2: hsl(173 80% 40%);
-  --chart-3: hsl(47 95% 54%);
-  --chart-4: hsl(12 88% 62%);
-  --chart-5: hsl(283 86% 53%);
+  /* Semantic tokens — values are HSL components for Tailwind `hsl(var(--token))` */
+  --background: 40 25% 96%;
+  --foreground: 210 25% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 25% 8%;
+  --popover: 210 25% 99%;
+  --popover-foreground: 210 25% 8%;
+  --primary: 189 84% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 205 70% 39%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 12% 55%;
+  --muted-foreground: 210 10% 40%;
+  --accent: 38 51% 48%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 180 10% 85%;
+  --input: 180 10% 85%;
+  --ring: 189 84% 33%;
+  --chart-1: 199 89% 48%;
+  --chart-2: 173 80% 40%;
+  --chart-3: 47 95% 54%;
+  --chart-4: 12 88% 62%;
+  --chart-5: 283 86% 53%;
 
-  --sidebar-background: var(--background);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --sidebar-background: hsl(var(--background));
+  --sidebar-foreground: hsl(var(--foreground));
+  --sidebar-primary: hsl(var(--primary));
+  --sidebar-primary-foreground: hsl(var(--primary-foreground));
+  --sidebar-accent: hsl(var(--accent));
+  --sidebar-accent-foreground: hsl(var(--accent-foreground));
+  --sidebar-border: hsl(var(--border));
+  --sidebar-ring: hsl(var(--ring));
 
-  /* brand colors for decorative layers */
-  --color-background: #f4f7f6;
-  --color-surface: #ffffff;
-  --color-foreground: #0a0e12;
-  --color-primary: #0e8e9a;
-  --color-primary-foreground: #ffffff;
-  --color-accent: #1b6ca8;
-  --color-accent-foreground: #ffffff;
-  --color-muted: #6b7a85;
-  --color-success: #0ea5e9;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-border: #d9e2e1;
-  --color-outline: #d9e2e1;
+  /* Brand layer — aliases only (single source: semantic tokens above) */
+  --color-background: hsl(var(--background));
+  --color-surface: hsl(var(--card));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-success: hsl(var(--chart-1));
+  --color-warning: hsl(38 92% 50%);
+  --color-danger: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-outline: hsl(var(--border));
 
-  /* Premium accent — sunset gold */
+  /* Premium accent — sunset gold (gradients / decorative) */
   --color-gold: #b8933f;
   --color-gold-muted: #9a7c35;
 
@@ -126,44 +134,53 @@ html {
 
 /* --------------------------- Dark theme overrides -------------------------- */
 .dark {
-  --background: hsl(200 14% 6%);
-  --foreground: hsl(195 35% 92%);
-  --card: hsl(200 14% 7%);
-  --card-foreground: hsl(195 35% 92%);
-  --popover: hsl(200 14% 8%);
-  --popover-foreground: hsl(195 35% 92%);
-  --primary: hsl(199 89% 60%);
-  --primary-foreground: hsl(200 50% 7%);
-  --secondary: hsl(173 70% 55%);
-  --secondary-foreground: hsl(200 50% 7%);
-  --muted: hsl(200 10% 60%);
-  --muted-foreground: hsl(200 12% 72%);
-  --accent: hsl(173 70% 55%);
-  --accent-foreground: hsl(200 50% 7%);
-  --destructive: hsl(0 84% 62%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(200 20% 18%);
-  --input: hsl(200 20% 18%);
-  --ring: hsl(199 89% 60%);
-  --chart-1: hsl(199 89% 60%);
-  --chart-2: hsl(173 70% 55%);
-  --chart-3: hsl(47 95% 58%);
-  --chart-4: hsl(12 88% 62%);
-  --chart-5: hsl(283 86% 64%);
+  --background: 200 14% 6%;
+  --foreground: 195 35% 92%;
+  --card: 200 14% 7%;
+  --card-foreground: 195 35% 92%;
+  --popover: 200 14% 8%;
+  --popover-foreground: 195 35% 92%;
+  --primary: 199 89% 60%;
+  --primary-foreground: 200 50% 7%;
+  --secondary: 173 70% 55%;
+  --secondary-foreground: 200 50% 7%;
+  --muted: 200 10% 60%;
+  --muted-foreground: 200 12% 72%;
+  --accent: 38 65% 58%;
+  --accent-foreground: 200 50% 7%;
+  --destructive: 0 84% 62%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 20% 18%;
+  --input: 200 20% 18%;
+  --ring: 199 89% 60%;
+  --chart-1: 199 89% 60%;
+  --chart-2: 173 70% 55%;
+  --chart-3: 47 95% 58%;
+  --chart-4: 12 88% 62%;
+  --chart-5: 283 86% 64%;
 
-  --color-background: #0a0f10;
-  --color-surface: #101518;
-  --color-foreground: #e8eff1;
-  --color-primary: #38bdf8;
-  --color-primary-foreground: #061015;
-  --color-accent: #2dd4bf;
-  --color-accent-foreground: #051013;
-  --color-muted: #9aa7af;
-  --color-success: #38bdf8;
-  --color-warning: #fbbf24;
-  --color-danger: #f87171;
-  --color-border: #1f2a2e;
-  --color-outline: #1f2a2e;
+  --sidebar-background: hsl(var(--background));
+  --sidebar-foreground: hsl(var(--foreground));
+  --sidebar-primary: hsl(var(--primary));
+  --sidebar-primary-foreground: hsl(var(--primary-foreground));
+  --sidebar-accent: hsl(var(--accent));
+  --sidebar-accent-foreground: hsl(var(--accent-foreground));
+  --sidebar-border: hsl(var(--border));
+  --sidebar-ring: hsl(var(--ring));
+
+  --color-background: hsl(var(--background));
+  --color-surface: hsl(var(--card));
+  --color-foreground: hsl(var(--foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-success: hsl(var(--chart-1));
+  --color-warning: hsl(43 96% 56%);
+  --color-danger: hsl(var(--destructive));
+  --color-border: hsl(var(--border));
+  --color-outline: hsl(var(--border));
 
   /* Premium accent — sunset gold */
   --color-gold: #d4a853;
@@ -728,4 +745,51 @@ img[data-nimg] {
 }
 .skip-link:focus {
   top: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Native scroll-driven animations (progressive enhancement)
+   Pair with GSAP where needed; disabled when reduced motion is on.
+   ───────────────────────────────────────────────────────────────── */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes lvv-scroll-fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(1.25rem);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes lvv-scroll-progress-bar {
+      from {
+        transform: scaleX(0);
+      }
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .lvv-scroll-fade-view {
+      animation: lvv-scroll-fade-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+
+    .lvv-scroll-progress-root {
+      animation: lvv-scroll-progress-bar linear both;
+      animation-timeline: scroll(root block);
+      transform-origin: left center;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lvv-scroll-fade-view,
+  .lvv-scroll-progress-root {
+    animation: none !important;
+  }
 }

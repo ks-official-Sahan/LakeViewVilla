@@ -30,10 +30,14 @@ const DEFAULT_CONFIG: QueryClientConfig = {
   },
 };
 
+function makeQueryClient() {
+  return new QueryClient(DEFAULT_CONFIG);
+}
+
 // ─── Provider ───────────────────────────────────────────────────────────────
 
 export function ReactQueryProvider({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient(DEFAULT_CONFIG));
+  const [queryClient] = useState(() => makeQueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -65,14 +69,9 @@ export function ReactQueryProvider({ children }: { children: ReactNode }) {
  * }
  * ```
  */
+/** New QueryClient for the current server render (do not reuse across requests). */
 export function createServerQueryClient() {
-  return new QueryClient({
-    defaultOptions: {
-      queries: {
-        staleTime: 60 * 1000,
-      },
-    },
-  });
+  return makeQueryClient();
 }
 
 // ─── Optimistic Update Utilities ────────────────────────────────────────────
@@ -137,9 +136,10 @@ export const queryKeys = {
   blogPosts: () => ["blog", "posts"] as const,
   blogPost: (slug: string) => ["blog", "posts", slug] as const,
 
-  // Media
-  media: () => ["media"] as const,
-  mediaByCategory: (category: string) => ["media", category] as const,
+  // Admin media library (`GET /api/admin/media`)
+  adminMediaLibrary: () => ["admin", "media", "library"] as const,
+  mediaByCategory: (category: string) =>
+    ["admin", "media", "library", category] as const,
 
   // Admin
   dashboard: () => ["admin", "dashboard"] as const,

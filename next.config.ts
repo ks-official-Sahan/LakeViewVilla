@@ -121,11 +121,32 @@ const nextConfig: NextConfig = {
   // Packages that must run in Node.js (not bundled by webpack)
   serverExternalPackages: ["@prisma/client", "bcryptjs"],
 
-  // Next.js 16 — explicit cache directive + automatic memoization
+  // Next.js 16 — Cache Components + named profiles for cacheLife() in cached data helpers
   cacheComponents: true,
+  cacheLife: {
+    pages: { stale: 30, revalidate: 60, expire: 3600 },
+    gallery: { stale: 300, revalidate: 600, expire: 86400 },
+    blogList: {
+      stale: 60,
+      revalidate: 120,
+      expire: 7200,
+    },
+    blogPost: {
+      stale: 120,
+      revalidate: 300,
+      expire: 86400,
+    },
+    blogSitemap: {
+      stale: 300,
+      revalidate: 600,
+      expire: 86400,
+    },
+    admin: { stale: 0, revalidate: 5, expire: 60 },
+    seoMeta: { stale: 600, revalidate: 1800, expire: 604800 },
+  },
   reactCompiler: true,
 
-  typescript: { ignoreBuildErrors: true },
+  typescript: { ignoreBuildErrors: false },
   skipTrailingSlashRedirect: true,
 
   images: {
@@ -205,11 +226,10 @@ const nextConfig: NextConfig = {
       transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
       preventFullImport: true,
     },
-  },
-
-  onDemandEntries: {
-    maxInactiveAge: 60 * 1000,
-    pagesBufferLength: 5,
+    "@tabler/icons-react": {
+      transform: "@tabler/icons-react/dist/esm/icons/{{member}}",
+      preventFullImport: true,
+    },
   },
 
   experimental: {
@@ -229,6 +249,7 @@ const nextConfig: NextConfig = {
       "next-auth",
     ],
     useLightningcss: true,
+    viewTransition: true,
     staleTimes: {
       dynamic: 30,
       static: 180,

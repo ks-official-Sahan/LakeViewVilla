@@ -1,14 +1,70 @@
 import { v2 as cloudinary, type UploadApiResponse } from "cloudinary";
 
-// Configure Cloudinary from environment
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
+let cloudinaryReady = false;
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+/**
+ * Configure Cloudinary from discrete env vars or `CLOUDINARY_URL` (cloudinary://key:secret@cloud_name).
+ */
+export function ensureCloudinaryConfigured(): boolean {
+  if (cloudinaryReady) return true;
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+  if (cloudName && apiKey && apiSecret) {
+    cloudinary.config({
+      cloud_name: cloudName,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      secure: true,
+    });
+    cloudinaryReady = true;
+    return true;
+  }
+
+  const rawUrl = process.env.CLOUDINARY_URL?.trim();
+  if (rawUrl?.startsWith("cloudinary://")) {
+    const rest = rawUrl.slice("cloudinary://".length);
+    const at = rest.lastIndexOf("@");
+    if (at > 0) {
+      const credPart = rest.slice(0, at);
+      const cloud = rest.slice(at + 1);
+      const colonIdx = credPart.indexOf(":");
+      if (colonIdx > 0) {
+        const key = credPart.slice(0, colonIdx);
+        const secret = credPart.slice(colonIdx + 1);
+        if (cloud && key && secret) {
+          cloudinary.config({
+            cloud_name: cloud,
+            api_key: key,
+            api_secret: secret,
+            secure: true,
+          });
+          cloudinaryReady = true;
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
+}
+
+export function isCloudinaryConfigured(): boolean {
+  return ensureCloudinaryConfigured();
+}
+
+ensureCloudinaryConfigured();
+
+const ALLOWED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/gif",
+  "image/svg+xml",
+];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm"];
 const ALLOWED_DOC_TYPES = ["application/pdf"];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -38,7 +94,7 @@ export function validateFile(
   if (!isImage && !isVideo && !isDoc) {
     return {
       valid: false,
-      error: `File type "${mimeType}" is not allowed. Accepted: JPEG, PNG, WebP, AVIF, MP4, WebM, PDF.`,
+      error: `File type "${mimeType}" is not allowed. Accepted: JPEG, PNG, WebP, AVIF, GIF, SVG, MP4, WebM, PDF.`,
     };
   }
 
@@ -65,6 +121,12 @@ export async function uploadToCloudinary(
     tags?: string[];
   } = {},
 ): Promise<UploadResult> {
+  if (!ensureCloudinaryConfigured()) {
+    throw new Error(
+      "Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, or CLOUDINARY_URL.",
+    );
+  }
+
   const { folder = "lakeviewvilla", publicId, resourceType = "auto", tags = [] } = options;
 
   return new Promise((resolve, reject) => {
@@ -94,8 +156,8 @@ export async function uploadToCloudinary(
         resolve({
           url: result.secure_url,
           publicId: result.public_id,
-          width: result.width,
-          height: result.height,
+          width: result.width ?? 0,
+          height: result.height ?? 0,
           format: result.format,
           sizeBytes: result.bytes,
           resourceType: result.resource_type as "image" | "video" | "raw",
@@ -117,6 +179,10 @@ export async function uploadFromUrl(
     tags?: string[];
   } = {},
 ): Promise<UploadResult> {
+  if (!ensureCloudinaryConfigured()) {
+    throw new Error("Cloudinary is not configured.");
+  }
+
   const { folder = "lakeviewvilla", tags = [] } = options;
 
   const result: UploadApiResponse = await cloudinary.uploader.upload(url, {
@@ -130,8 +196,8 @@ export async function uploadFromUrl(
   return {
     url: result.secure_url,
     publicId: result.public_id,
-    width: result.width,
-    height: result.height,
+    width: result.width ?? 0,
+    height: result.height ?? 0,
     format: result.format,
     sizeBytes: result.bytes,
     resourceType: result.resource_type as "image" | "video" | "raw",

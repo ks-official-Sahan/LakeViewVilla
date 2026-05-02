@@ -81,7 +81,12 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-12 md:gap-8 md:py-20">
           {/* Brand */}
           <div data-footer-col className="md:col-span-5 lg:col-span-4">
-            <Link href="/" className="inline-flex items-center gap-3 group" aria-label="Lake View Villa home">
+            <Link
+              href="/"
+              transitionTypes={["spa-page"]}
+              className="inline-flex items-center gap-3 group"
+              aria-label="Lake View Villa home"
+            >
               <Image
                 src="/icon.png"
                 alt="Lake View Villa Tangalle logo"
@@ -180,6 +185,7 @@ export function Footer() {
                   <li key={href}>
                     <Link
                       href={href}
+                      transitionTypes={["spa-page"]}
                       className="text-sm text-slate-400 transition-colors hover:text-white"
                     >
                       {label}
@@ -194,7 +200,7 @@ export function Footer() {
         {/* ── Bottom bar ───────────────────────────────────────────── */}
         <div className="flex flex-col items-center justify-between gap-3 border-t border-white/8 py-6 text-xs text-slate-500 md:flex-row">
           <p>
-            <Link href="/developer" className="transition-colors hover:text-slate-300">
+            <Link href="/developer" transitionTypes={["spa-page"]} className="transition-colors hover:text-slate-300">
               Sahan Sachintha
             </Link>{" "}
             &copy; {year} Lake View Villa Tangalle. All rights reserved.

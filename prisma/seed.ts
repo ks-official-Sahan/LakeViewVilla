@@ -28,8 +28,8 @@ async function seed() {
     return;
   }
 
-  const email = process.env.ADMIN_EMAIL || "admin@lakeviewvillatangalle.com";
-  const password = process.env.ADMIN_PASSWORD || "changeme123!";
+  const email = (process.env.ADMIN_EMAIL || "admin@lakeviewvillatangalle.com").trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD || "ChangeMe123!";
 
   const passwordHash = await hash(password, 12);
 

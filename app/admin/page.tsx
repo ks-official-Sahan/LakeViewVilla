@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { prisma } from "@/lib/db/prisma";
-import { can } from "@/lib/auth/rbac";
+import { can } from "@/lib/auth/permissions";
 import { Image, PenLine, FileText, Activity } from "lucide-react";
 
 export default async function AdminDashboardPage() {

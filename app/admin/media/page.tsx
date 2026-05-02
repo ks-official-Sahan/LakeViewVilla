@@ -13,6 +13,8 @@ export default async function AdminMediaPage() {
     url: string;
     title: string | null;
     alt: string | null;
+    tags: string[];
+    featured: boolean;
     category: string;
     type: string;
     width: number | null;
@@ -28,6 +30,8 @@ export default async function AdminMediaPage() {
         url: true,
         title: true,
         alt: true,
+        tags: true,
+        featured: true,
         category: true,
         type: true,
         width: true,

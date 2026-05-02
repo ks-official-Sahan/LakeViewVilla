@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { bumpMediaAndGalleryCache } from "@/lib/cache/tags";
 import { prisma } from "@/lib/db/prisma";
 import { requireRole } from "@/lib/auth/rbac";
 import { MediaType } from "@prisma/client";
@@ -54,6 +55,7 @@ export async function updateMediaAsset(data: MediaUpdateInput) {
 
     revalidatePath("/admin/media");
     revalidatePath("/gallery");
+    bumpMediaAndGalleryCache();
 
     return { success: true, data: media };
   } catch (error) {
@@ -85,6 +87,7 @@ export async function deleteMediaAsset(id: string) {
 
     revalidatePath("/admin/media");
     revalidatePath("/gallery");
+    bumpMediaAndGalleryCache();
 
     return { success: true };
   } catch (error) {
@@ -146,6 +149,7 @@ export async function bulkUpdateMedia(params: {
 
     revalidatePath("/admin/media");
     revalidatePath("/gallery");
+    bumpMediaAndGalleryCache();
     return { success: true as const };
   } catch (error) {
     console.error("Bulk media update failed:", error);

@@ -2,7 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createBlogPost, updateBlogPost, publishBlogPost } from "@/lib/admin/actions";
+import { createBlogPost, updateBlogPost, publishBlogPost, enrichBlogPostSeo } from "@/lib/admin/actions";
+import { toast } from "sonner";
 import {
   Sparkles, Save, Send, Image as ImageIcon, Loader2, Undo2, Redo2, Clock,
 } from "lucide-react";
@@ -106,7 +107,10 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
   }, [autoSaveTimer]);
 
   const handleGenerateAI = async () => {
-    if (!aiPrompt) return alert("Please enter a prompt for the AI.");
+    if (!aiPrompt) {
+      toast.error("Enter a prompt for the AI.");
+      return;
+    }
     setGenerating(true);
     try {
       const res = await fetch("/api/admin/blog/generate", {
@@ -137,19 +141,25 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
         }
       }
 
+      const slugFromTitle = newTitle
+        ? newTitle
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)+/g, "")
+        : "";
+
       const newData = {
         ...formData,
         content: newContent,
         title: newTitle || formData.title,
         excerpt: newExcerpt || formData.excerpt,
-        slug: formData.slug || (newTitle
-          ? newTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-          : ""),
+        slug: formData.slug || slugFromTitle,
       };
       setFormData(newData);
       pushHistory(newData);
-    } catch (err: any) {
-      alert(err.message);
+      toast.success("Draft generated — save to persist, or refine in the editor.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Generation failed");
     } finally {
       setGenerating(false);
     }
@@ -157,7 +167,7 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
 
   const handleSave = async (publish = false, isAutoSave = false) => {
     if (!formData.title || !formData.slug || !formData.content) {
-      if (!isAutoSave) alert("Title, Slug, and Content are required.");
+      if (!isAutoSave) toast.error("Title, slug, and content are required.");
       return;
     }
 
@@ -171,8 +181,23 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
           generatedByAI: !!aiPrompt,
         });
         postId = post.id;
+
+        const needsSeo =
+          !formData.excerpt?.trim() ||
+          !formData.seoTitle?.trim() ||
+          !formData.seoDescription?.trim();
+        if (needsSeo) {
+          await enrichBlogPostSeo(post.id);
+        }
       } else if (postId) {
-        await updateBlogPost(postId, formData);
+        await updateBlogPost(postId, { ...formData });
+        const needsSeo =
+          !formData.excerpt?.trim() ||
+          !formData.seoTitle?.trim() ||
+          !formData.seoDescription?.trim();
+        if (needsSeo) {
+          await enrichBlogPostSeo(postId);
+        }
       }
 
       if (publish && formData.status !== "PUBLISHED" && postId) {
@@ -180,7 +205,7 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
       }
 
       if (!isAutoSave) {
-        alert(`Post ${publish ? "published" : "saved"} successfully!`);
+        toast.success(publish ? "Post published." : "Post saved.");
       }
       setLastSaved(new Date());
 
@@ -189,8 +214,10 @@ export function BlogEditor({ initialPost, isNew, userId }: BlogEditorProps) {
       } else {
         router.refresh();
       }
-    } catch (err: any) {
-      if (!isAutoSave) alert(err.message || "Failed to save post");
+    } catch (err: unknown) {
+      if (!isAutoSave) {
+        toast.error(err instanceof Error ? err.message : "Failed to save post");
+      }
     } finally {
       setSaving(false);
     }

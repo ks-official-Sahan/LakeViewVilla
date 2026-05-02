@@ -16,7 +16,9 @@ export default function CVPage() {
           <h1 className="text-2xl font-bold">Curriculum Vitae</h1>
           <div className="flex gap-2">
             <Button variant="outline" asChild>
-              <Link href="/developer">Back to Developer</Link>
+              <Link href="/developer" transitionTypes={["spa-page"]}>
+                Back to Developer
+              </Link>
             </Button>
             <Button onClick={() => window.print()}>Print / Save PDF</Button>
           </div>

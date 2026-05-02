@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useRef, useEffect, type ReactNode, type CSSProperties } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, {
+  useRef,
+  useEffect,
+  type ReactNode,
+  type CSSProperties,
+} from "react";
+import { gsap } from "@/lib/gsap";
 import { useReducedMotion } from "framer-motion";
-
-gsap.registerPlugin(ScrollTrigger);
 
 type RevealVariant =
   | "fade-up"
@@ -74,6 +76,18 @@ const VARIANT_TO: Record<RevealVariant, gsap.TweenVars> = {
   "blur-in": { opacity: 1, filter: "blur(0px)", y: 0 },
 };
 
+function scaleFromVars(
+  from: gsap.TweenVars,
+  factor: number,
+): gsap.TweenVars {
+  const next = { ...from };
+  if (typeof next.y === "number") next.y = Math.round(next.y * factor);
+  if (typeof next.x === "number") next.x = Math.round(next.x * factor);
+  if (typeof next.rotateX === "number")
+    next.rotateX = Math.round(next.rotateX * factor);
+  return next;
+}
+
 export function RevealOnScroll({
   children,
   variant = "fade-up",
@@ -94,28 +108,56 @@ export function RevealOnScroll({
     const el = ref.current;
     if (!el || prefersReduced) return;
 
-    const targets = stagger > 0 ? el.querySelectorAll(staggerSelector) : el;
-    const from = VARIANT_FROM[variant];
-    const to = {
-      ...VARIANT_TO[variant],
-      duration,
-      delay,
-      ease: "power3.out",
-      stagger: stagger > 0 ? stagger : undefined,
-      scrollTrigger: {
-        trigger: el,
-        start,
-        once,
-        toggleActions: once ? "play none none none" : "play reverse play reverse",
-      },
+    const mm = gsap.matchMedia();
+
+    const run = (motionScale: number, staggerFactor: number) => {
+      const targets =
+        stagger > 0 ? el.querySelectorAll(staggerSelector) : el;
+      const from = scaleFromVars(VARIANT_FROM[variant], motionScale);
+      const to = {
+        ...VARIANT_TO[variant],
+        duration,
+        delay,
+        ease: "power3.out",
+        stagger:
+          stagger > 0 ? stagger * staggerFactor : undefined,
+        scrollTrigger: {
+          trigger: el,
+          start,
+          once,
+          toggleActions: once ? "play none none none" : "play reverse play reverse",
+        },
+      };
+
+      const ctx = gsap.context(() => {
+        gsap.fromTo(targets, from, to);
+      }, el);
+      return () => ctx.revert();
     };
 
-    const ctx = gsap.context(() => {
-      gsap.fromTo(targets, from, to);
-    }, el);
+    mm.add(
+      {
+        mobile: "(max-width: 767px)",
+        desktop: "(min-width: 768px)",
+      },
+      (ctx) => {
+        const mobile = !!ctx.conditions?.mobile;
+        const cleanup = run(mobile ? 0.55 : 1, mobile ? 0.65 : 1);
+        return () => cleanup?.();
+      },
+    );
 
-    return () => ctx.revert();
-  }, [variant, duration, delay, stagger, staggerSelector, start, once, prefersReduced]);
+    return () => mm.revert();
+  }, [
+    variant,
+    duration,
+    delay,
+    stagger,
+    staggerSelector,
+    start,
+    once,
+    prefersReduced,
+  ]);
 
   const Component = Tag as any;
 

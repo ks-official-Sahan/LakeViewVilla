@@ -6,14 +6,12 @@ interface SortableItemProps<T> {
   item: T;
   index: number;
   onMove: (fromIndex: number, toIndex: number) => void;
-  children: (props: {
-    isDragging: boolean;
-    dragHandleProps: {
-      onMouseDown: (e: React.MouseEvent) => void;
-      onTouchStart: (e: React.TouchEvent) => void;
-      onKeyDown: (e: React.KeyboardEvent) => void;
-    };
-  }) => ReactNode;
+  isDragging: boolean;
+  dragHandleProps: {
+    onMouseDown: (e: React.MouseEvent<HTMLElement>) => void;
+    onTouchStart: (e: React.TouchEvent<HTMLElement>) => void;
+    onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => void;
+  };
 }
 
 interface SortableListProps<T> {
@@ -128,8 +126,6 @@ export function SortableList<T>({
                 newItems.splice(to, 0, moved);
                 onReorder(newItems);
               },
-              children: (props) =>
-                props.children as ReactNode,
               isDragging,
               dragHandleProps: {
                 onMouseDown: (e) => handleDragStart(e, index),

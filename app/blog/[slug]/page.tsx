@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db/prisma";
 import { connection } from "next/server";
+import {
+  getCachedBlogPostMeta,
+  getCachedBlogPostFull,
+  getCachedRelatedPosts,
+  relatedPostsTagsKey,
+} from "@/lib/blog/cached-queries";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -9,8 +14,6 @@ import { markdownToHtml, estimateReadTime } from "@/lib/blog/markdown";
 import { ArrowLeft, Clock, Calendar, User, Sparkles, ArrowRight } from "lucide-react";
 import { ReadingProgress } from "./reading-progress";
 import { ShareButtons } from "./share-buttons";
-import { TableOfContents } from "@/components/blog/TableOfContents";
-
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
@@ -22,17 +25,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const { slug } = await params;
 
   try {
-    const post = await prisma.blogPost.findUnique({
-      where: { slug, status: "PUBLISHED" },
-      select: {
-        title: true,
-        seoTitle: true,
-        seoDescription: true,
-        excerpt: true,
-        ogImage: true,
-        featuredImage: { select: { url: true } },
-      },
-    });
+    const post = await getCachedBlogPostMeta(slug);
 
     if (!post) return { title: "Post Not Found — Lake View Villa" };
 
@@ -67,19 +60,22 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   await connection();
   const { slug } = await params;
 
-  let post: Awaited<ReturnType<typeof fetchPost>> | null = null;
-  let relatedPosts: RelatedPost[] = [];
+  let post: Awaited<ReturnType<typeof getCachedBlogPostFull>> | null = null;
+  let relatedPosts: Awaited<ReturnType<typeof getCachedRelatedPosts>> = [];
   let contentHtml = "";
 
   try {
-    post = await fetchPost(slug);
+    post = await getCachedBlogPostFull(slug);
     if (!post) notFound();
 
     // Parse markdown content
     contentHtml = await markdownToHtml(post.content);
 
     // Fetch related posts (same tags, exclude current)
-    relatedPosts = await fetchRelatedPosts(post.id, post.tags);
+    relatedPosts = await getCachedRelatedPosts(
+      post.id,
+      relatedPostsTagsKey(post.tags),
+    );
   } catch (err) {
     console.error(err);
     notFound();
@@ -147,6 +143,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {/* Back navigation */}
               <Link
                 href="/blog"
+                transitionTypes={["spa-page"]}
                 className="mb-10 inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-2 text-sm font-medium text-[var(--color-muted)] transition-all hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
               >
                 <ArrowLeft className="h-4 w-4" /> Back to Blog
@@ -258,6 +255,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 </h2>
                 <Link
                   href="/blog"
+                  transitionTypes={["spa-page"]}
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:gap-2.5 transition-all"
                 >
                   All posts <ArrowRight className="h-4 w-4" />
@@ -269,6 +267,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   <Link
                     key={p.id}
                     href={`/blog/${p.slug}`}
+                    transitionTypes={["spa-page"]}
                     className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] transition-all hover:border-[var(--color-gold)]/30 hover:shadow-md hover:-translate-y-0.5"
                   >
                     {p.featuredImage && (
@@ -322,7 +321,7 @@ function PostHeroContent({
   readTime,
   hasBg,
 }: {
-  post: Awaited<ReturnType<typeof fetchPost>>;
+  post: NonNullable<Awaited<ReturnType<typeof getCachedBlogPostFull>>>;
   readTime: number;
   hasBg: boolean;
 }) {
@@ -408,59 +407,3 @@ function PostHeroContent({
   );
 }
 
-/* ─── Data fetching ─────────────────────────────────────────────────────── */
-
-async function fetchPost(slug: string) {
-  return prisma.blogPost.findUnique({
-    where: { slug, status: "PUBLISHED" },
-    include: {
-      author: { select: { name: true } },
-      featuredImage: { select: { url: true, alt: true } },
-    },
-  });
-}
-
-type RelatedPost = {
-  id: string;
-  title: string;
-  slug: string;
-  publishedAt: Date | null;
-  featuredImage: { url: string; alt: string | null } | null;
-};
-
-async function fetchRelatedPosts(
-  currentId: string,
-  tags: string[]
-): Promise<RelatedPost[]> {
-  if (tags.length === 0) {
-    return prisma.blogPost.findMany({
-      where: { status: "PUBLISHED", id: { not: currentId } },
-      orderBy: { publishedAt: "desc" },
-      take: 3,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        publishedAt: true,
-        featuredImage: { select: { url: true, alt: true } },
-      },
-    });
-  }
-
-  return prisma.blogPost.findMany({
-    where: {
-      status: "PUBLISHED",
-      id: { not: currentId },
-      tags: { hasSome: tags },
-    },
-    orderBy: { publishedAt: "desc" },
-    take: 3,
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      publishedAt: true,
-      featuredImage: { select: { url: true, alt: true } },
-    },
-  });
-}

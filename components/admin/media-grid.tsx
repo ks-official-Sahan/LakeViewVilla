@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useLayoutEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import {
@@ -8,6 +9,7 @@ import {
 } from "lucide-react";
 import { updateMediaAsset, bulkUpdateMedia } from "@/lib/actions/media";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { queryKeys } from "@/lib/cache/react-query";
 
 interface MediaAsset {
   id: string;
@@ -15,6 +17,7 @@ interface MediaAsset {
   title: string | null;
   alt: string | null;
   tags: string[];
+  featured: boolean;
   category: string;
   type: string;
   width: number | null;
@@ -42,8 +45,39 @@ const CATEGORIES = [
   "amenities",
 ];
 
+async function fetchAdminMedia(): Promise<MediaAsset[]> {
+  const res = await fetch("/api/admin/media", { credentials: "same-origin" });
+  if (!res.ok) throw new Error("Failed to load media");
+  return res.json();
+}
+
 export function MediaGrid({ initialAssets }: MediaGridProps) {
-  const [assets, setAssets] = useState(initialAssets);
+  const queryClient = useQueryClient();
+  /** Marks SSR/props data as “just fetched” so TanStack Query does not treat it as infinitely stale (timestamp 0). */
+  const serverSyncedAt = useRef(Date.now());
+
+  const listFingerprint = useMemo(
+    () => initialAssets.map((a) => a.id).join("|"),
+    [initialAssets],
+  );
+
+  useLayoutEffect(() => {
+    queryClient.setQueryData(queryKeys.adminMediaLibrary(), initialAssets);
+    serverSyncedAt.current = Date.now();
+  }, [listFingerprint, initialAssets, queryClient]);
+
+  const { data, isFetching } = useQuery({
+    queryKey: queryKeys.adminMediaLibrary(),
+    queryFn: fetchAdminMedia,
+    initialData: initialAssets,
+    initialDataUpdatedAt: serverSyncedAt.current,
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: 2,
+  });
+
+  const assets = data ?? initialAssets;
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -57,11 +91,12 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
   const [bulkCategory, setBulkCategory] = useState("");
 
   const filtered = assets.filter((a) => {
+    const tagList = a.tags ?? [];
     const matchesSearch =
       !search ||
       a.title?.toLowerCase().includes(search.toLowerCase()) ||
       a.alt?.toLowerCase().includes(search.toLowerCase()) ||
-      a.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
+      tagList.some((t) => t.toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = category === "all" || a.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -75,18 +110,18 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
       const res = await fetch("/api/admin/media/upload", {
         method: "POST",
         body: formData,
+        credentials: "same-origin",
       });
 
       if (res.ok) {
-        const uploaded = await res.json();
-        setAssets((prev) => [...uploaded, ...prev]);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
       }
     } catch (error) {
       console.error("Upload failed:", error);
     } finally {
       setUploading(false);
     }
-  }, []);
+  }, [queryClient]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -135,13 +170,16 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
     try {
       if (confirmAction === "bulkDelete") {
         await bulkUpdateMedia({ ids, action: "delete" });
-        setAssets((prev) => prev.filter((a) => !ids.includes(a.id)));
         setSelectedIds(new Set());
+        await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
       } else if (editingAsset) {
-        const res = await fetch(`/api/admin/media/${editingAsset.id}`, { method: "DELETE" });
+        const res = await fetch(`/api/admin/media/${editingAsset.id}`, {
+          method: "DELETE",
+          credentials: "same-origin",
+        });
         if (res.ok) {
-          setAssets((prev) => prev.filter((a) => a.id !== editingAsset.id));
           setEditingAsset(null);
+          await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
         }
       }
     } catch (err) {
@@ -156,13 +194,9 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
     if (!bulkCategory || selectedIds.size === 0) return;
     try {
       await bulkUpdateMedia({ ids: Array.from(selectedIds), action: "recategorize", category: bulkCategory });
-      setAssets((prev) =>
-        prev.map((a) =>
-          selectedIds.has(a.id) ? { ...a, category: bulkCategory } : a
-        )
-      );
       setSelectedIds(new Set());
       setBulkCategory("");
+      await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
     } catch (err) {
       console.error("Bulk recategorize failed:", err);
     }
@@ -188,24 +222,12 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
       alt: alt || null,
       category: cat,
       tags,
+      featured: editingAsset.featured,
     });
 
     if (result.success && result.data) {
-      const row = result.data;
-      setAssets((prev) =>
-        prev.map((a) =>
-          a.id === row.id
-            ? {
-                ...a,
-                ...row,
-                tags: row.tags ?? [],
-                createdAt:
-                  row.createdAt instanceof Date ? row.createdAt.toISOString() : String(row.createdAt),
-              }
-            : a
-        )
-      );
       setEditingAsset(null);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
     } else {
       alert("Failed to update media asset");
     }
@@ -220,6 +242,11 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
 
   return (
     <div className="space-y-6">
+      {isFetching ? (
+        <p className="text-xs text-[var(--color-muted)]" aria-live="polite">
+          Updating library…
+        </p>
+      ) : null}
       {/* Upload zone */}
       <div
         {...getRootProps()}

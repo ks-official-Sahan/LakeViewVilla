@@ -5,10 +5,11 @@
  */
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { useGSAP } from "@gsap/react";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, useGSAP);
+  gsap.registerPlugin(ScrollTrigger, useGSAP, ScrollToPlugin);
 
   // Premium easing presets
   gsap.config({
@@ -36,4 +37,4 @@ export const DURATION = {
   reveal: 1.2,
 } as const;
 
-export { gsap, ScrollTrigger, useGSAP };
+export { gsap, ScrollTrigger, ScrollToPlugin, useGSAP };
