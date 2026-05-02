@@ -222,10 +222,6 @@ const nextConfig: NextConfig = {
   },
 
   modularizeImports: {
-    "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{kebabCase member}}",
-      preventFullImport: true,
-    },
     "@tabler/icons-react": {
       transform: "@tabler/icons-react/dist/esm/icons/{{member}}",
       preventFullImport: true,
@@ -247,6 +243,9 @@ const nextConfig: NextConfig = {
       "date-fns",
       "@tanstack/react-query",
       "next-auth",
+      "@tiptap/react",
+      "marked",
+      "lucide-react",
     ],
     useLightningcss: true,
     viewTransition: true,

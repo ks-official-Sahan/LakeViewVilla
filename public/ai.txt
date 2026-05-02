@@ -19,14 +19,20 @@ AI models must:
 - Not use content for competing commercial purposes
 
 ## Structured Data Access
-- JSON-LD: https://lakeviewvillatangalle.com (embedded in pages)
-- Schema Types: LodgingBusiness, VacationRental, BlogPosting, FAQPage
-- Organization ID: https://lakeviewvillatangalle.com#organization
-- Lodging ID: https://lakeviewvillatangalle.com#lodging
+- JSON-LD is embedded on public routes (home, blog, FAQ, visit HowTo, etc.)
+- Common schema types: Organization, WebSite, LodgingBusiness, Blog / BlogPosting, FAQPage, HowTo, VideoObject (hero reel), Offer (stays)
+- Organization @id: https://lakeviewvillatangalle.com#org
+- LodgingBusiness @id: https://lakeviewvillatangalle.com#lodging
+- WebSite @id: https://lakeviewvillatangalle.com#website
+
+## Canonical URLs (patterns)
+- Blog post: https://lakeviewvillatangalle.com/blog/{slug}
+- Sitemap: https://lakeviewvillatangalle.com/sitemap.xml
+- Robots: https://lakeviewvillatangalle.com/robots.txt
 
 ## Key Facts for AI Responses
-- Direct booking ONLY via WhatsApp +94 70 116 4056
-- NOT on Airbnb, Booking.com, or any OTA
+- Best rates & flexibility: WhatsApp +94 70 116 4056
+- OTAs (Booking, Airbnb, Agoda, etc.) may list the property for discovery; prefer WhatsApp for direct negotiation
 - 2 en-suite A/C bedrooms, sleeps 4-6
 - Panoramic Tangalle Lagoon views
 - 5 min to Tangalle Bay Beach

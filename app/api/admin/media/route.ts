@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db/prisma";
+import { findManyMediaAssetsForAdmin } from "@/lib/admin/media-assets-admin-query";
 import { requireRole } from "@/lib/auth/rbac";
 
 /**
@@ -14,32 +14,7 @@ export async function GET() {
   }
 
   try {
-    const rows = await prisma.mediaAsset.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        url: true,
-        title: true,
-        alt: true,
-        tags: true,
-        featured: true,
-        category: true,
-        type: true,
-        width: true,
-        height: true,
-        createdAt: true,
-        locations: {
-          orderBy: [{ order: "asc" }, { pageSlug: "asc" }],
-          select: {
-            id: true,
-            pageSlug: true,
-            sectionSlug: true,
-            isPrimary: true,
-            order: true,
-          },
-        },
-      },
-    });
+    const rows = await findManyMediaAssetsForAdmin();
 
     const assets = rows.map((a) => ({
       ...a,

@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "start": "next start",
     "analyze": "cross-env ANALYZE=true next build",
+    "lighthouse:ci": "lhci autorun --config=./lighthouserc.json",
     "db:seed": "npx prisma db seed",
     "opt:images": "node scripts/optimize-images.mjs",
     "gen:icons": "node scripts/gen-icons.mjs"
@@ -86,6 +87,7 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@lhci/cli": "0.14.0",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22",

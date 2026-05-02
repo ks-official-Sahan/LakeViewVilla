@@ -2,7 +2,11 @@
 import type { MetadataRoute } from "next";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://lakeviewvillatangalle.com";
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  process.env.NEXT_PUBLIC_BASE_URL ??
+  "https://lakeviewvillatangalle.com";
+
+const HOST = BASE_URL.replace(/^https?:\/\//, "");
 
 // ─── Shared disallow lists ────────────────────────────────────────────────────
 const API_ONLY = ["/api/"];
@@ -27,6 +31,8 @@ export default function robots(): MetadataRoute.Robots {
           "/search",
           "/_error",
           "/404",
+          "/foo",
+          "/test-login",
         ],
       },
 
@@ -318,105 +324,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
+    host: HOST,
   };
 }
-
-// const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lakeviewvillatangalle.com";
-
-// export default function robots(): MetadataRoute.Robots {
-//   return {
-//     rules: [
-//       // Allow all standard search engine crawlers
-//       { userAgent: "Googlebot", allow: "/" },
-//       { userAgent: "Bingbot", allow: "/" },
-//       { userAgent: "Slurp", allow: "/" },
-//       { userAgent: "DuckDuckBot", allow: "/" },
-//       { userAgent: "Baiduspider", allow: "/" },
-//       { userAgent: "YandexBot", allow: "/" },
-//       { userAgent: "Applebot", allow: "/" },
-//       { userAgent: "Twitterbot", allow: "/" },
-//       { userAgent: "facebookexternalhit", allow: "/" },
-
-//       // Explicitly allow ALL AI crawlers (no restrictions)
-//       { userAgent: "GPTBot", allow: "/" },
-//       { userAgent: "ChatGPT-User", allow: "/" },
-//       { userAgent: "Google-Extended", allow: "/" },
-//       { userAgent: "PerplexityBot", allow: "/" },
-//       { userAgent: "ClaudeBot", allow: "/" },
-//       { userAgent: "Bytespider", allow: "/" },
-//       { userAgent: "cohere-ai", allow: "/" },
-//       { userAgent: "anthropic-ai", allow: "/" },
-//       { userAgent: "OAI-SearchBot", allow: "/" },
-//       { userAgent: "CCBot", allow: "/" },
-//       { userAgent: "Omgilibot", allow: "/" },
-//       { userAgent: "Omgili", allow: "/" },
-
-//       // Catch-all for all other crawlers
-//       {
-//         userAgent: "*",
-//         allow: "/",
-//         disallow: [
-//           "/admin/",
-//           "/api/",
-//           "/_next/",
-//           "/search",
-//           "/_error",
-//           "/404",
-//           "/login",
-//           "/register",
-//           "/dashboard",
-//         ],
-//       },
-//     ],
-//     sitemap: `${SITE}/sitemap.xml`,
-//     host: SITE,
-//   };
-// }
-
-// import { MetadataRoute } from "next";
-
-// const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lakeviewvillatangalle.com";
-
-// export default function robots(): MetadataRoute.Robots {
-//   return {
-//     rules: [
-//       // Standard search engine crawlers
-//       { userAgent: "Googlebot", allow: "/" },
-//       { userAgent: "Bingbot", allow: "/" },
-//       { userAgent: "Slurp", allow: "/" }, // Yahoo
-//       { userAgent: "DuckDuckBot", allow: "/" },
-//       { userAgent: "Baiduspider", allow: "/" },
-//       { userAgent: "YandexBot", allow: "/" },
-
-//       // AI and LLM crawlers
-//       { userAgent: "GPTBot", allow: "/" },
-//       { userAgent: "ChatGPT-User", allow: "/" },
-//       { userAgent: "Google-Extended", allow: "/" },
-//       { userAgent: "PerplexityBot", allow: "/" },
-//       { userAgent: "ClaudeBot", allow: "/" },
-//       { userAgent: "Applebot", allow: "/" },
-//       { userAgent: "Bytespider", allow: "/" },
-//       { userAgent: "cohere-ai", allow: "/" },
-//       { userAgent: "anthropic-ai", allow: "/" },
-//       { userAgent: "OAI-SearchBot", allow: "/" },
-//       { userAgent: "CCBot", allow: "/" }, // Common Crawl (used by many LLMs)
-//       { userAgent: "Omgilibot", allow: "/" }, // AI crawler
-//       { userAgent: "Omgili", allow: "/" }, // AI crawler
-
-//       // Social media bots
-//       { userAgent: "Twitterbot", allow: "/" },
-//       { userAgent: "facebookexternalhit", allow: "/" },
-//       { userAgent: "LinkedInBot", allow: "/" },
-//       { userAgent: "Pinterestbot", allow: "/" },
-
-//       // Catch-all rules
-//       {
-//         userAgent: "*",
-//         allow: "/",
-//         disallow: ["/admin/", "/api/", "/_next/", "/search", "/_error"],
-//       },
-//     ],
-//     sitemap: `${SITE}/sitemap.xml`,
-//     host: SITE,
-//   };
-// }

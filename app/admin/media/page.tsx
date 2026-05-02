@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth/config";
+import { findManyMediaAssetsForAdmin } from "@/lib/admin/media-assets-admin-query";
 import { MediaGrid } from "@/components/admin/media-grid";
 
 export const metadata = {
@@ -30,33 +30,7 @@ export default async function AdminMediaPage() {
   }[] = [];
 
   try {
-    const dbAssets = await prisma.mediaAsset.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        url: true,
-        title: true,
-        alt: true,
-        tags: true,
-        featured: true,
-        category: true,
-        type: true,
-        width: true,
-        height: true,
-        createdAt: true,
-        locations: {
-          orderBy: [{ order: "asc" }, { pageSlug: "asc" }],
-          select: {
-            id: true,
-            pageSlug: true,
-            sectionSlug: true,
-            isPrimary: true,
-            order: true,
-          },
-        },
-      },
-    });
-
+    const dbAssets = await findManyMediaAssetsForAdmin();
     assets = dbAssets.map((a) => ({
       ...a,
       createdAt: a.createdAt.toISOString(),
