@@ -47,3 +47,4 @@ AGENTS.md
 !.env.example
 docs/master_plan_v1.1.md
 docs/master_plan_v1.md
+.env.local
