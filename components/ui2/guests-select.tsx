@@ -1,5 +1,3 @@
-/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-/* eslint-disable @typescript-eslint/no-misused-promises */
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";

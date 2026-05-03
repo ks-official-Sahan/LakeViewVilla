@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
+    "unlock:next": "node scripts/unlock-next-build.mjs",
     "build:webpack": "cross-env NEXT_WEBPACK_BUILD=1 next build --webpack",
     "build:turbo": "next build --turbopack",
     "sitemap:static": "next-sitemap",

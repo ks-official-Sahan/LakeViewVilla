@@ -22,8 +22,6 @@ import MarketingPixels from "@/components/analytics/marketing-pixels";
 import { MantineProvider } from "@mantine/core";
 import { theme } from "@/config/mantine-theme";
 import { AudioProvider } from "@/context/AudioContext";
-import Script from "next/script";
-import dynamic from "next/dynamic";
 import ClientLoadingScreen from "@/components/ClientLoadingScreen";
 
 if (

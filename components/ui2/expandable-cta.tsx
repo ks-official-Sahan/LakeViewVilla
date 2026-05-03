@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { CalendarIcon, PhoneIcon, WhatsAppIcon } from "./svg-icons";
+import Image from "next/image";
+import { CalendarIcon, PhoneIcon } from "./svg-icons";
 import { trackContact } from "@/lib/analytics";
 import { IconBrandWhatsapp } from "@tabler/icons-react";
 
@@ -45,15 +46,11 @@ export function ExpandableCTA() {
   // Scroll-aware: shrink on fast scroll, ensure we don’t collide with footer
   useEffect(() => {
     let ticking = false;
-    let lastY = window.scrollY;
 
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const dy = Math.abs(window.scrollY - lastY);
-        lastY = window.scrollY;
-
         // Footer avoidance (if a <footer> exists)
         const footer = document.querySelector("footer") as HTMLElement | null;
         if (footer) {
@@ -125,9 +122,11 @@ export function ExpandableCTA() {
             className="pointer-events-auto mb-3 w-[min(92vw,22rem)] rounded-2xl bg-slate-900/85 text-white backdrop-blur-xl ring-1 ring-white/10 shadow-2xl p-3"
           >
             <div className="flex items-center gap-2 px-1 pb-2">
-              <img
+              <Image
                 src="/logo.png"
                 alt="Lake View Villa Logo"
+                width={24}
+                height={24}
                 className="h-6 w-6 rounded-full ring-1 ring-white/15 object-cover"
               />
               <p className="text-sm text-white/80">We reply in minutes</p>

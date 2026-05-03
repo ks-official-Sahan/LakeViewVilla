@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useMemo,
-  type ReactNode,
-  type HTMLAttributes,
-} from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import {
   ChevronUp,
   ChevronDown,

@@ -19,7 +19,7 @@ export async function GET() {
   try {
     await prisma.$queryRaw`SELECT 1`;
     health.checks.database = "ok";
-  } catch (error) {
+  } catch {
     health.status = "error";
     health.checks.database = "error";
     return NextResponse.json(health, { status: 503 });

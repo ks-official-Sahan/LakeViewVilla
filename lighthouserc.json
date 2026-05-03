@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "numberOfRuns": 1,
-      "startServerCommand": "pnpm start",
+      "startServerCommand": "npm run start",
       "startServerReadyPattern": "Ready in",
       "settings": {
         "preset": "desktop",

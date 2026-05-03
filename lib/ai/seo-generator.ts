@@ -1,6 +1,5 @@
 import { openRouterChatCompletion } from "@/lib/ai/openrouter-chat";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lakeviewvillatangalle.com";
 const SITE_NAME = "Lake View Villa Tangalle";
 
 export interface SEOMetadata {

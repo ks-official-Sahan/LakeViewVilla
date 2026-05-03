@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         },
       },
     )
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Failed to process metric" }, { status: 500 })
   }
 }

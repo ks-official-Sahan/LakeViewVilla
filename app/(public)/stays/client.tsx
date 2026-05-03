@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { useMemo, useState } from "react";
@@ -10,7 +8,7 @@ import { motion } from "framer-motion";
 import { Check, Star } from "lucide-react";
 import { SectionReveal } from "@/components/motion/section-reveal";
 import { RATES, OFFERS, SITE_CONFIG, BOOKING_FACTS } from "@/data/content";
-import { buildWhatsAppUrl, cn } from "@/lib/utils";
+import { buildWhatsAppUrl } from "@/lib/utils";
 import { Controller } from "react-hook-form";
 import { GuestsSelect } from "@/components/ui2/guests-select";
 import { trackContact } from "@/lib/analytics";
@@ -49,56 +47,6 @@ const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-
-/** Reusable select */
-function SelectField(
-  props: React.SelectHTMLAttributes<HTMLSelectElement> & {
-    label?: string;
-    error?: string;
-  }
-) {
-  const { className, children, label, error, id, ...rest } = props;
-  return (
-    <div>
-      {label ? (
-        <label
-          htmlFor={id}
-          className="block text-sm font-medium text-white mb-2"
-        >
-          {label}
-        </label>
-      ) : null}
-      <div className="relative">
-        <select
-          id={id}
-          {...rest}
-          className={cn(
-            "appearance-none w-full rounded-xl bg-white/10 border border-white/20 text-white",
-            "px-4 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-300 focus:border-transparent",
-            "[color-scheme:dark] disabled:opacity-50 disabled:cursor-not-allowed",
-            className
-          )}
-        >
-          {children}
-        </select>
-        <svg
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/75"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path
-            d="M6 9l6 6 6-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-      {error ? <p className="text-red-400 text-sm mt-1">{error}</p> : null}
-    </div>
-  );
-}
 
 export default function StaysPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -166,7 +114,7 @@ export default function StaysPage() {
       setTimeout(() => window.open(wa, "_blank", "noopener"), 120);
 
       setSubmitStatus("success");
-      reset({ guests: 2 } as any);
+      reset({ guests: 2 } satisfies Partial<EnquiryForm>);
     } catch {
       setSubmitStatus("error");
     } finally {
@@ -426,22 +374,6 @@ export default function StaysPage() {
                   </div>
                 </div>
 
-                {/* <SelectField
-                  id="s-guests"
-                  {...register("guests", { valueAsNumber: true })}
-                  label="Guests *"
-                  error={errors.guests?.message}
-                >
-                  {[1, 2, 3, 4, 5, 6].map((g) => (
-                    <option
-                      key={g}
-                      value={g}
-                      className="text-accent bg-accent-foreground rounded-2xl"
-                    >
-                      {g} {g === 1 ? "Guest" : "Guests"}
-                    </option>
-                  ))}
-                </SelectField> */}
                 <Controller
                   name="guests"
                   control={control}

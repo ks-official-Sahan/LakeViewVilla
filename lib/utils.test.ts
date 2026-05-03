@@ -1,4 +1,4 @@
-import test, { describe, it, afterEach } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
 import assert from 'node:assert';
 import {
   buildWhatsAppUrl,

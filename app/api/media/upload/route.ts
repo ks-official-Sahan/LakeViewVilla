@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
     // 5. Upload Processing
     // In a real app, you would upload to Cloudinary or S3 here.
     // For this boilerplate, we'll simulate the upload and just create the DB record.
-    const fileBuffer = await file.arrayBuffer();
-    // const base64 = Buffer.from(fileBuffer).toString('base64');
+    await file.arrayBuffer(); // validate readable stream (real pipeline would upload bytes)
+    // const base64 = Buffer.from(buffer).toString('base64');
     // const uploadResult = await cloudinary.uploader.upload(`data:${file.type};base64,${base64}`);
 
     // Mock successful upload URL
@@ -103,9 +103,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, data: mediaAsset }, { status: 201 });
-  } catch (error: any) {
-    if (error.message === "UNAUTHORIZED" || error.message === "FORBIDDEN") {
-      return NextResponse.json({ error: error.message }, { status: 401 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "";
+    if (message === "UNAUTHORIZED" || message === "FORBIDDEN") {
+      return NextResponse.json({ error: message }, { status: 401 });
     }
     console.error("Upload Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

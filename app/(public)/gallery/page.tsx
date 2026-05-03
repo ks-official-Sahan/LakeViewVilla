@@ -114,7 +114,6 @@ export default async function Page() {
       {/* JSON-LD (Breadcrumbs) */}
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: serializeJsonLd(
             breadcrumbSchema([

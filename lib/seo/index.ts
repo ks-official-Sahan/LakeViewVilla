@@ -1,9 +1,7 @@
 // Unified, typed JSON-LD helpers using schema-dts
 import type {
   WithContext,
-  WebSite,
   Organization,
-  LodgingBusiness,
   BreadcrumbList,
   FAQPage,
   HowTo,
@@ -14,9 +12,6 @@ import type {
 } from "schema-dts";
 import { SITE_CONFIG, siteConfig } from "@/data/site";
 import { PROPERTY } from "@/data/property";
-
-// Prefer env at runtime; fall back to canonical constant.
-const PHONE = process.env.NEXT_PUBLIC_WHATSAPP ?? SITE_CONFIG.whatsappNumber;
 
 // ---------- Core Schemas ----------
 // export function webSiteSchema(): WithContext<WebSite> {
