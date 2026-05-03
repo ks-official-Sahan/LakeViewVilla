@@ -3,12 +3,27 @@ import {
   DEFAULT_MEDIA_PAGE_SLUG,
   DEFAULT_MEDIA_SECTION_SLUG,
 } from "@/lib/media/default-gallery-location";
-import type { MediaAsset, MediaLocation, Prisma } from "@prisma/client";
+import { Prisma, type MediaAsset, type MediaLocation } from "@prisma/client";
 
 const galleryAssetInclude = {
   uploadedBy: { select: { name: true, email: true } },
   locations: { orderBy: [{ order: "asc" }, { pageSlug: "asc" }] },
 } satisfies Prisma.MediaAssetInclude;
+
+const galleryAssetIncludeMinimal = {
+  uploadedBy: { select: { name: true, email: true } },
+} satisfies Prisma.MediaAssetInclude;
+
+function isMissingMediaLocationsTable(error: unknown): boolean {
+  if (!(error instanceof Prisma.PrismaClientKnownRequestError)) return false;
+  if (error.code !== "P2021") return false;
+  const table = String((error.meta as { table?: string } | undefined)?.table ?? "");
+  return table.includes("media_locations");
+}
+
+function withEmptyLocations(rows: MediaAsset[]): MediaAssetWithLocations[] {
+  return rows.map((r) => ({ ...r, locations: [] as MediaLocation[] }));
+}
 
 export type MediaAssetWithLocations = MediaAsset & {
   locations: MediaLocation[];
@@ -27,30 +42,44 @@ export async function getMediaAssetsByLocation(
 
   const typeFilter = types?.length ? { type: { in: types } } : {};
 
-  return prisma.mediaAsset.findMany({
-    where: {
-      AND: [
-        typeFilter,
-        {
-          OR: [
-            {
-              locations: {
-                some: { pageSlug, sectionSlug },
+  try {
+    return await prisma.mediaAsset.findMany({
+      where: {
+        AND: [
+          typeFilter,
+          {
+            OR: [
+              {
+                locations: {
+                  some: { pageSlug, sectionSlug },
+                },
               },
-            },
-            {
-              locations: { none: {} },
-              pageSlug,
-              sectionSlug,
-            },
-          ],
+              {
+                locations: { none: {} },
+                pageSlug,
+                sectionSlug,
+              },
+            ],
+          },
+        ],
+      },
+      include: galleryAssetInclude,
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      take: limit,
+    });
+  } catch (e) {
+    if (!isMissingMediaLocationsTable(e)) throw e;
+    return prisma.mediaAsset
+      .findMany({
+        where: {
+          AND: [typeFilter, { pageSlug, sectionSlug }],
         },
-      ],
-    },
-    include: galleryAssetInclude,
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-    take: limit,
-  });
+        include: galleryAssetIncludeMinimal,
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+        take: limit,
+      })
+      .then(withEmptyLocations);
+  }
 }
 
 /** Gallery grid: explicit locations OR legacy gallery/grid columns OR assets with no locations yet (full library). */
@@ -59,32 +88,53 @@ export async function getGalleryGridAssets(opts?: {
 }): Promise<MediaAssetWithLocations[]> {
   const { limit = 500 } = opts ?? {};
 
-  return prisma.mediaAsset.findMany({
-    where: {
-      OR: [
-        {
-          locations: {
-            some: {
+  try {
+    return await prisma.mediaAsset.findMany({
+      where: {
+        OR: [
+          {
+            locations: {
+              some: {
+                pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
+                sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
+              },
+            },
+          },
+          {
+            locations: { none: {} },
+            pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
+            sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
+          },
+          {
+            locations: { none: {} },
+            pageSlug: null,
+            sectionSlug: null,
+          },
+        ],
+        type: { in: ["IMAGE", "VIDEO"] },
+      },
+      include: galleryAssetInclude,
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      take: limit,
+    });
+  } catch (e) {
+    if (!isMissingMediaLocationsTable(e)) throw e;
+    return prisma.mediaAsset
+      .findMany({
+        where: {
+          type: { in: ["IMAGE", "VIDEO"] },
+          OR: [
+            {
               pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
               sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
             },
-          },
+            { pageSlug: null, sectionSlug: null },
+          ],
         },
-        {
-          locations: { none: {} },
-          pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
-          sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
-        },
-        {
-          locations: { none: {} },
-          pageSlug: null,
-          sectionSlug: null,
-        },
-      ],
-      type: { in: ["IMAGE", "VIDEO"] },
-    },
-    include: galleryAssetInclude,
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-    take: limit,
-  });
+        include: galleryAssetIncludeMinimal,
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+        take: limit,
+      })
+      .then(withEmptyLocations);
+  }
 }

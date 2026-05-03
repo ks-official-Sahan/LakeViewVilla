@@ -5,10 +5,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
 
-import { ScrollProgress } from "@/components/ui/scroll-progress";
-import { Navigation } from "@/components/layout/navigation";
-import { ConditionalPublicChrome } from "@/components/layout/conditional-public-chrome";
-import { ExpandableCTA } from "@/components/ui2/expandable-cta";
 import { WebVitals } from "@/components/analytics/web-vitals";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ClientEffects } from "@/components/layout/client-effects";
@@ -344,24 +340,11 @@ export default function RootLayout({
                     enableTapSkip
                   />
                   <Suspense fallback={null}>
-                    <ConditionalPublicChrome>
-                      <ScrollProgress />
-                    </ConditionalPublicChrome>
-                  </Suspense>
-                  <Suspense fallback={null}>
                     <ClientEffects />
-                  </Suspense>
-                  <Suspense fallback={null}>
-                    <ConditionalPublicChrome>
-                      <Navigation />
-                    </ConditionalPublicChrome>
                   </Suspense>
                   <main id="content" className="relative isolate">
                     <Suspense fallback={null}>{children}</Suspense>
                   </main>
-                  <ConditionalPublicChrome>
-                    <ExpandableCTA />
-                  </ConditionalPublicChrome>
                   {/* Analytics & tracking components (client-side) */}
                   <Analytics />
                   <WebVitals />

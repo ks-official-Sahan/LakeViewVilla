@@ -30,7 +30,8 @@ const DEFAULT_CONFIG: QueryClientConfig = {
   },
 };
 
-function makeQueryClient() {
+/** Shared factory — use for nested providers (e.g. admin islands) when tree context is unreliable during SSR. */
+export function makeQueryClient() {
   return new QueryClient(DEFAULT_CONFIG);
 }
 

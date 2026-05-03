@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth/config";
 import { findManyMediaAssetsForAdmin } from "@/lib/admin/media-assets-admin-query";
-import { MediaGrid } from "@/components/admin/media-grid";
+import { AdminMediaClient } from "@/components/admin/admin-media-client";
 
 export const metadata = {
   title: "Media Management — LakeViewVilla Admin",
@@ -50,7 +50,7 @@ export default async function AdminMediaPage() {
         </p>
       </div>
 
-      <MediaGrid initialAssets={assets} />
+      <AdminMediaClient initialAssets={assets} />
     </div>
   );
 }
