@@ -5,7 +5,7 @@ import StaysPage from "./client";
 
 export const metadata: Metadata = {
   title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
-  description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
+  description: "Book Tangalle accommodation. Lake View Villa Tangalle offers a private room rental in Sri Lanka with serene lagoon views, A/C, and fast Wi-Fi for a perfect getaway.",
   keywords: [
     "Tangalle accommodation",
     "Tangalle rental",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/stays" },
   openGraph: {
     title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
-    description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
+    description: "Book Tangalle accommodation. Lake View Villa Tangalle offers a private room rental in Sri Lanka with serene lagoon views, A/C, and fast Wi-Fi for a perfect getaway.",
     url: "https://lakeviewvillatangalle.com/stays",
     type: "website",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
-    description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle.",
+    description: "Book Tangalle accommodation. Lake View Villa Tangalle offers a private room rental in Sri Lanka with serene lagoon views, A/C, and fast Wi-Fi for a perfect getaway.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };

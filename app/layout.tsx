@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     default: "Private Villa Tangalle — Lagoon Stay | Lake View Villa Tangalle",
     template: "%s | Lake View Villa Tangalle",
   },
-  description: "Book Lake View Villa Tangalle. A private vacation rental and lodging business offering panoramic lake views, comfortable A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
+  description: "Book a private villa Tangalle stay. Lake View Villa Tangalle is a lagoon vacation rental in Sri Lanka helping travelers relax with A/C rooms and fast Wi-Fi.",
   keywords: [
   // Original Merged & Deduplicated Keywords
   "Lake View Villa Tangalle",
@@ -160,7 +160,7 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
   openGraph: {
     title: "Private Villa Tangalle | Lake View Villa Tangalle",
-    description: "Lake View Villa Tangalle is a private vacation rental in Sri Lanka. It helps travelers relax with A/C rooms, fast Wi-Fi, and scenic lagoon views.",
+    description: "Book a private villa Tangalle stay. Lake View Villa Tangalle is a lagoon vacation rental in Sri Lanka helping travelers relax with A/C rooms and fast Wi-Fi.",
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
@@ -172,8 +172,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: SEO_CONFIG.title,
-    description:
-      "Private villa on a serene lagoon in Tangalle with panoramic views.",
+    description: "Book a private villa Tangalle stay. Lake View Villa Tangalle is a lagoon vacation rental in Sri Lanka helping travelers relax with A/C rooms and fast Wi-Fi.",
     images: ["/og"],
   },
   robots: {

@@ -4,11 +4,11 @@ import VisitPage from "./client";
 
 export const metadata: Metadata = {
   title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-  description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+  description: "Discover things to do in Tangalle. Lake View Villa provides easy access to Sri Lanka's south coast attractions, Rekawa turtle beach, and Hummanaya blowhole.",
   alternates: { canonical: "/visit" },
   openGraph: {
     title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+    description: "Discover things to do in Tangalle. Lake View Villa provides easy access to Sri Lanka's south coast attractions, Rekawa turtle beach, and Hummanaya blowhole.",
     url: "https://lakeviewvillatangalle.com/visit",
     type: "website",
     images: [
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-    description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+    description: "Discover things to do in Tangalle. Lake View Villa provides easy access to Sri Lanka's south coast attractions, Rekawa turtle beach, and Hummanaya blowhole.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
