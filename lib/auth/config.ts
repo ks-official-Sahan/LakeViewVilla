@@ -1,9 +1,25 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { JWTSessionError } from "@auth/core/errors";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 import type { Role } from "@prisma/client";
+
+/** Session JWT decrypt tries each secret in order (encode uses the first). */
+function resolveAuthSecret(): string | string[] | undefined {
+  const chain: string[] = [];
+  const push = (value: string | undefined) => {
+    const v = value?.trim();
+    if (v && !chain.includes(v)) chain.push(v);
+  };
+  push(process.env.AUTH_SECRET);
+  push(process.env.NEXTAUTH_SECRET);
+  push(process.env.AUTH_SECRET_PREVIOUS);
+  if (chain.length === 0) return undefined;
+  if (chain.length === 1) return chain[0];
+  return chain;
+}
 
 declare module "next-auth" {
   interface User {
@@ -21,6 +37,23 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: resolveAuthSecret(),
+  logger: {
+    error(error) {
+      // Stale session cookie after AUTH_SECRET change / env reload — Auth.js clears cookies; avoid SSR noise.
+      if (error instanceof JWTSessionError) return;
+      const name =
+        error instanceof Error && "type" in error
+          ? String((error as { type?: string }).type)
+          : error instanceof Error
+            ? error.name
+            : "Error";
+      console.error(`[auth][error] ${name}: ${error instanceof Error ? error.message : String(error)}`);
+      if (error instanceof Error && error.cause instanceof Error) {
+        console.error("[auth][cause]:", error.cause.stack ?? error.cause.message);
+      }
+    },
+  },
   /**
    * Avoid UntrustedHost when `AUTH_URL` / `NEXTAUTH_URL` does not match the browser origin
    * (e.g. production URL in env while using http://localhost:3000). Without this, `/api/auth/session`

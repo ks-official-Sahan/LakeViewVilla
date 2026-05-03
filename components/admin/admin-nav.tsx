@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Settings,
   DatabaseBackup,
+  Globe,
 } from "lucide-react";
 
 export type NavItemDef = {
@@ -26,7 +27,10 @@ export type NavItemDef = {
 export const ADMIN_NAV_GROUPS: { heading: string; items: NavItemDef[] }[] = [
   {
     heading: "Overview",
-    items: [{ label: "Dashboard", href: "/admin", icon: LayoutDashboard }],
+    items: [
+      { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+      { label: "Public site", href: "/", icon: Globe },
+    ],
   },
   {
     heading: "Content",
@@ -88,7 +92,9 @@ export function AdminNavList({
               {items.map((item) => {
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== "/admin" && pathname.startsWith(item.href));
+                  (item.href !== "/admin" &&
+                    item.href.length > 1 &&
+                    pathname.startsWith(item.href));
 
                 return (
                   <Link

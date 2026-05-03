@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { SectionReveal } from "@/components/motion/section-reveal";
 import { PROPERTY } from "@/data/content";
 // import { generateBreadcrumbSchema } from "@/lib/seo/structured-data";
 import { breadcrumbSchema } from "@/lib/seo";
 import { serializeJsonLd } from "@/lib/utils";
+import { getGalleryGridAssets } from "@/lib/media/queries";
 import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
@@ -75,8 +77,28 @@ function getGalleryImages() {
   return images;
 }
 
-export default function Page() {
-  const images = getGalleryImages();
+export default async function Page() {
+  await connection();
+
+  let dbImages: { src: string; alt: string; w: number; h: number }[] = [];
+  try {
+    const assets = await getGalleryGridAssets({ limit: 500 });
+    const name = PROPERTY?.name ?? "Lake View Villa";
+    dbImages = assets
+      .filter((a) => a.type === "IMAGE")
+      .map((a) => ({
+        src: a.url,
+        alt: (a.alt ?? a.title ?? `${name} — Gallery photo`).trim(),
+        w: a.width ?? 1200,
+        h: a.height ?? 800,
+      }));
+  } catch {
+    dbImages = [];
+  }
+
+  const staticImages = getGalleryImages();
+  const seen = new Set(dbImages.map((x) => x.src));
+  const images = [...dbImages, ...staticImages.filter((x) => !seen.has(x.src))];
 
   return (
     <>
