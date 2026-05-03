@@ -11,8 +11,8 @@ export default defineConfig({
   },
 
   datasource: {
-    // Use process.env to avoid crash when DATABASE_URL is not set
-    // (e.g., during `prisma generate` in CI without DB access)
-    url: process.env.DATABASE_URL!,
+    // Migrate / db execute: prefer non-pooled direct URL (Neon host without `-pooler`).
+    // Falls back to DATABASE_URL so CI can still run `prisma generate` without DIRECT_* set.
+    url: process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL ?? "",
   },
 });

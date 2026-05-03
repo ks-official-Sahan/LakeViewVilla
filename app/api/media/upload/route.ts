@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/db/prisma";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import { MediaType } from "@prisma/client";
 import {
   defaultGalleryLocationCreate,
@@ -76,6 +77,7 @@ export async function POST(req: NextRequest) {
     else if (file.type === "application/pdf") mediaType = MediaType.PDF;
 
     // 6. DB Record Creation
+    const hasJoin = await mediaLocationsTableExists();
     const mediaAsset = await prisma.mediaAsset.create({
       data: {
         url: mockUrl,
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
         mimeType: file.type,
         uploadedById: session.user.id,
         ...legacyGallerySlugFields,
-        locations: defaultGalleryLocationCreate,
+        ...(hasJoin ? { locations: defaultGalleryLocationCreate } : {}),
       },
     });
 

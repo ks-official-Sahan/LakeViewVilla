@@ -4,6 +4,8 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { bumpMediaAndGalleryCache } from "@/lib/cache/tags";
 import { prisma } from "@/lib/db/prisma";
+import { formatDbError } from "@/lib/db/format-db-error";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import { requireRole } from "@/lib/auth/rbac";
 import { MEDIA_LOCATIONS, locationKey } from "@/lib/admin/media-locations";
 
@@ -59,8 +61,9 @@ export async function updateMediaAsset(data: MediaUpdateInput) {
 
     return { success: true, data: media };
   } catch (error) {
-    console.error("Failed to update media asset:", error);
-    return { success: false, error: "Internal server error" };
+    const message = formatDbError(error);
+    console.error("Failed to update media asset:", message);
+    return { success: false, error: message };
   }
 }
 
@@ -91,8 +94,9 @@ export async function deleteMediaAsset(id: string) {
 
     return { success: true };
   } catch (error) {
-    console.error("Failed to delete media asset:", error);
-    return { success: false, error: "Internal server error" };
+    const message = formatDbError(error);
+    console.error("Failed to delete media asset:", message);
+    return { success: false, error: message };
   }
 }
 
@@ -152,8 +156,9 @@ export async function bulkUpdateMedia(params: {
     bumpMediaAndGalleryCache();
     return { success: true as const };
   } catch (error) {
-    console.error("Bulk media update failed:", error);
-    return { success: false as const, error: "Internal server error" };
+    const message = formatDbError(error);
+    console.error("Bulk media update failed:", message);
+    return { success: false as const, error: message };
   }
 }
 
@@ -206,25 +211,37 @@ export async function updateMediaAssetLocations(
       order: row.order ?? i,
     }));
 
-    // Batch ops + bounded waits — avoids P2028 on Neon when an interactive tx can't get a
-    // connection quickly (e.g. overlapping updates after long `updateMediaAsset` calls).
-    await prisma.$transaction(
-      [
-        prisma.mediaLocation.deleteMany({ where: { mediaId } }),
-        prisma.mediaLocation.createMany({ data: locationRows }),
-        prisma.mediaAsset.update({
-          where: { id: mediaId },
-          data: {
-            pageSlug: primary.pageSlug,
-            sectionSlug: primary.sectionSlug,
-          },
-        }),
-      ],
-      {
-        maxWait: 15_000,
-        timeout: 25_000,
-      },
-    );
+    const hasJoinTable = await mediaLocationsTableExists();
+
+    if (!hasJoinTable) {
+      await prisma.mediaAsset.update({
+        where: { id: mediaId },
+        data: {
+          pageSlug: primary.pageSlug,
+          sectionSlug: primary.sectionSlug,
+        },
+      });
+    } else {
+      // Batch ops + bounded waits — avoids P2028 on Neon when an interactive tx can't get a
+      // connection quickly (e.g. overlapping updates after long `updateMediaAsset` calls).
+      await prisma.$transaction(
+        [
+          prisma.mediaLocation.deleteMany({ where: { mediaId } }),
+          prisma.mediaLocation.createMany({ data: locationRows }),
+          prisma.mediaAsset.update({
+            where: { id: mediaId },
+            data: {
+              pageSlug: primary.pageSlug,
+              sectionSlug: primary.sectionSlug,
+            },
+          }),
+        ],
+        {
+          maxWait: 15_000,
+          timeout: 25_000,
+        },
+      );
+    }
 
     await prisma.auditLog.create({
       data: {
@@ -240,10 +257,14 @@ export async function updateMediaAssetLocations(
     revalidatePath("/gallery");
     bumpMediaAndGalleryCache();
 
-    return { success: true as const };
+    return {
+      success: true as const,
+      ...(hasJoinTable ? {} : { legacyLocationsOnly: true as const }),
+    };
   } catch (error) {
-    console.error("updateMediaAssetLocations:", error);
-    return { success: false as const, error: "Internal server error" };
+    const message = formatDbError(error);
+    console.error("updateMediaAssetLocations:", message);
+    return { success: false as const, error: message };
   }
 }
 

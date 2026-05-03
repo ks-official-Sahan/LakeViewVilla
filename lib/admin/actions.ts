@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import { requireRole } from "@/lib/auth/rbac";
 import { auth } from "@/lib/auth/config";
 import { audit } from "@/lib/admin/audit";
@@ -51,17 +52,35 @@ export async function getMediaAssets(options?: {
   const { category, page = 1, limit = 50 } = options ?? {};
 
   const where = category && category !== "all" ? { category } : {};
+  const hasJoin = await mediaLocationsTableExists();
   const [items, total] = await Promise.all([
-    prisma.mediaAsset.findMany({
-      where,
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-      skip: (page - 1) * limit,
-      take: limit,
-      include: {
-        uploadedBy: { select: { name: true, email: true } },
-        locations: { orderBy: [{ order: "asc" }, { pageSlug: "asc" }] },
-      },
-    }),
+    hasJoin
+      ? prisma.mediaAsset.findMany({
+          where,
+          orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+          skip: (page - 1) * limit,
+          take: limit,
+          include: {
+            uploadedBy: { select: { name: true, email: true } },
+            locations: { orderBy: [{ order: "asc" }, { pageSlug: "asc" }] },
+          },
+        })
+      : prisma.mediaAsset
+          .findMany({
+            where,
+            orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+            skip: (page - 1) * limit,
+            take: limit,
+            include: {
+              uploadedBy: { select: { name: true, email: true } },
+            },
+          })
+          .then((rows) =>
+            rows.map((r) => ({
+              ...r,
+              locations: [] as const,
+            })),
+          ),
     prisma.mediaAsset.count({ where }),
   ]);
 
@@ -91,6 +110,7 @@ export async function uploadMedia(formData: FormData) {
     file.type.startsWith("video/") ? "VIDEO" :
     file.type === "application/pdf" ? "PDF" : "OTHER";
 
+  const hasJoin = await mediaLocationsTableExists();
   const asset = await prisma.mediaAsset.create({
     data: {
       url: result.url,
@@ -105,7 +125,7 @@ export async function uploadMedia(formData: FormData) {
       mimeType: file.type,
       uploadedById: session.user.id,
       ...legacyGallerySlugFields,
-      locations: defaultGalleryLocationCreate,
+      ...(hasJoin ? { locations: defaultGalleryLocationCreate } : {}),
     },
   });
 

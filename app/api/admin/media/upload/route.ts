@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { bumpMediaAndGalleryCache } from "@/lib/cache/tags";
 import { uploadToCloudinary, validateFile, isCloudinaryConfigured } from "@/lib/admin/upload";
 import { audit } from "@/lib/admin/audit";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import {
   defaultGalleryLocationCreate,
   legacyGallerySlugFields,
@@ -62,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     const category = (formData.get("category") as string) || "all";
     const created = [];
+    const hasJoin = await mediaLocationsTableExists();
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -106,7 +108,7 @@ export async function POST(req: NextRequest) {
           mimeType: file.type || `application/${extFromName(file.name)}`,
           uploadedById: session.user.id,
           ...legacyGallerySlugFields,
-          locations: defaultGalleryLocationCreate,
+          ...(hasJoin ? { locations: defaultGalleryLocationCreate } : {}),
         },
       });
 

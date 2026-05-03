@@ -306,7 +306,18 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
 
     setEditingAsset(null);
     await queryClient.invalidateQueries({ queryKey: queryKeys.adminMediaLibrary() });
-    toast.success("Asset updated.");
+    if (
+      "legacyLocationsOnly" in locResult &&
+      locResult.legacyLocationsOnly &&
+      orderedKeys.length > 1
+    ) {
+      toast.success(
+        "Asset updated. Database migration pending — only the primary placement is stored until `media_locations` exists.",
+        { duration: 6500 },
+      );
+    } else {
+      toast.success("Asset updated.");
+    }
     setSaving(false);
   };
 
@@ -461,7 +472,7 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
       {/* Grid / List */}
       {view === "grid" ? (
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filtered.map((asset) => (
+          {filtered.map((asset, thumbIndex) => (
             <div
               key={asset.id}
               className={`group relative overflow-hidden rounded-xl border bg-[var(--color-surface)] ${
@@ -491,6 +502,7 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                   src={asset.url}
                   alt={asset.alt ?? asset.title ?? "Media"}
                   fill
+                  priority={thumbIndex === 0}
                   className="object-cover transition-transform group-hover:scale-105"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                 />
@@ -526,7 +538,7 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((asset) => (
+          {filtered.map((asset, thumbIndex) => (
             <div
               key={asset.id}
               className={`group flex items-center gap-4 rounded-xl border bg-[var(--color-surface)] p-3 cursor-pointer hover:border-[var(--color-primary)]/50 transition-colors ${
@@ -550,6 +562,7 @@ export function MediaGrid({ initialAssets }: MediaGridProps) {
                   src={asset.url}
                   alt={asset.alt ?? "Media"}
                   fill
+                  priority={thumbIndex === 0}
                   className="object-cover"
                   sizes="48px"
                 />
