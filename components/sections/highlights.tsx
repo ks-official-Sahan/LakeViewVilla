@@ -125,7 +125,7 @@ export function Highlights() {
       ref={sectionRef}
       id="highlights"
       aria-labelledby="highlights-heading"
-      className="relative overflow-hidden py-[clamp(4rem,12vw,8rem)] md:py-[clamp(5rem,14vw,8rem)]"
+      className="relative overflow-hidden lv-section-y"
     >
       {/* Ambient glow top */}
       <div
@@ -137,7 +137,7 @@ export function Highlights() {
         }}
       />
 
-      <div className="relative mx-auto max-w-7xl px-[clamp(1rem,4vw,1.5rem)] md:px-6">
+      <div className="lv-container relative">
         {/* Section header */}
         <div
           ref={headingRef}

@@ -58,6 +58,10 @@ html {
   color-scheme: light;
 }
 
+html.dark {
+  color-scheme: dark;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -165,7 +169,7 @@ html {
   --chart-2: 173 70% 55%;
   --chart-3: 47 95% 58%;
   --chart-4: 12 88% 62%;
-  --chart-5: 283 86% 64%;
+  --chart-5: 188 65% 48%;
 
   --sidebar-background: hsl(var(--background));
   --sidebar-foreground: hsl(var(--foreground));
@@ -210,6 +214,29 @@ body,
 #__next {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+body {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(14, 165, 233, .12);
+}
+
+/* Fixed nav offset for in-page anchors */
+main [id]:target,
+section[id] {
+  scroll-margin-top: calc(var(--header-h) + 0.75rem);
+}
+
+/** Marketing rhythm — use on public sections for consistent gutters & vertical spacing */
+.lv-container {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 1.75rem);
+}
+
+.lv-section-y {
+  padding-block: clamp(3.25rem, 8vw, 6.5rem);
 }
 
 * {
@@ -280,7 +307,9 @@ textarea {
 }
 
 [data-magnetic] {
-  transition: all .3s cubic-bezier(.23, 1, .32, 1);
+  transition:
+    transform .3s cubic-bezier(.23, 1, .32, 1),
+    box-shadow .3s cubic-bezier(.23, 1, .32, 1);
 }
 
 [data-magnetic]:hover {

@@ -98,7 +98,7 @@ export const spacing = {
 export const typography = {
   fontFamily: {
     display: "var(--font-montserrat), ui-serif, Georgia, serif",
-    sans: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+    sans: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
     mono: "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace",
   },
   fontSize: {

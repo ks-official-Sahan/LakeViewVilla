@@ -70,13 +70,13 @@ export function Navigation() {
       <header
         ref={headerRef}
         role="banner"
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
+        className={`fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 ease-out ${
           scrolled || isOpen
-            ? "border-b border-white/10 bg-white/10 backdrop-blur-2xl dark:bg-black/20"
-            : "bg-transparent"
+            ? "border-b border-white/10 bg-white/10 shadow-[0_8px_32px_rgba(0,0,0,.08)] backdrop-blur-2xl dark:bg-black/25 dark:shadow-[0_8px_32px_rgba(0,0,0,.35)]"
+            : "bg-transparent shadow-none"
         }`}
       >
-        <div className="mx-auto flex h-[var(--header-h)] max-w-7xl items-center justify-between px-[clamp(0.85rem,3vw,1.25rem)] md:px-6 lg:px-8">
+        <div className="lv-container flex h-[var(--header-h)] items-center justify-between">
           {/* Logo */}
           <Link
             href="/"
@@ -175,12 +175,12 @@ export function Navigation() {
       {isOpen && (
         <div
           ref={drawerRef}
-          className="fixed inset-x-0 z-40 border-b border-white/10 bg-white/80 backdrop-blur-2xl dark:bg-[#0a0f10]/90 md:hidden"
+          className="fixed inset-x-0 z-40 max-h-[min(72dvh,calc(100dvh-var(--header-h)))] overflow-y-auto overscroll-y-contain border-b border-white/10 bg-white/92 backdrop-blur-2xl dark:bg-[#0a0f10]/94 md:hidden"
           style={{ top: "var(--header-h)" }}
         >
           <nav
             aria-label="Mobile navigation"
-            className="mx-auto max-w-7xl space-y-1 px-4 py-4"
+            className="lv-container space-y-1 py-4"
           >
             {NAV_LINKS.map(({ href, label }) => {
               const active =

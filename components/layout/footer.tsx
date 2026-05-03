@@ -61,24 +61,24 @@ export function Footer() {
       ref={footerRef}
       role="contentinfo"
       aria-labelledby="footer-heading"
-      className="relative isolate overflow-hidden bg-slate-950 text-slate-300"
+      className="relative isolate overflow-hidden bg-[#060c0e] text-slate-300"
     >
-      {/* ── Aurora gradient ─────────────────────────────────────── */}
+      {/* ── Lagoon dusk wash ─────────────────────────────────────── */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(55% 45% at 15% 5%, rgba(14,165,233,.10) 0%, transparent 65%), radial-gradient(45% 35% at 88% 20%, rgba(45,212,191,.09) 0%, transparent 60%)",
+            "radial-gradient(60% 50% at 12% 0%, rgba(14,165,233,.14) 0%, transparent 55%), radial-gradient(50% 40% at 92% 15%, rgba(52,211,153,.08) 0%, transparent 58%), linear-gradient(180deg, rgba(184,147,63,.06), transparent 28%)",
         }}
       />
 
-      {/* Top separator */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      {/* Top gold hairline */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#b8933f]/45 to-transparent" />
 
-      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+      <div className="lv-container relative">
         {/* ── Main grid ───────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 gap-10 py-16 md:grid-cols-12 md:gap-8 md:py-20">
+        <div className="grid grid-cols-1 gap-10 py-14 md:grid-cols-12 md:gap-10 md:py-[clamp(3.5rem,9vw,5rem)]">
           {/* Brand */}
           <div data-footer-col className="md:col-span-5 lg:col-span-4">
             <Link
@@ -94,14 +94,16 @@ export function Footer() {
                 height={44}
                 className="rounded-xl ring-1 ring-white/10 transition-transform duration-300 group-hover:scale-105"
               />
-              <h2 id="footer-heading" className="text-lg font-semibold text-white">
+              <h2
+                id="footer-heading"
+                className="font-[var(--font-display)] text-xl font-semibold tracking-tight text-white sm:text-2xl"
+              >
                 Lake View Villa
               </h2>
             </Link>
 
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
-              A private villa on a serene lagoon in Tangalle, Sri Lanka. Sunrise
-              over still water; nights under infinite stars.
+            <p className="mt-4 max-w-sm text-[length:clamp(0.8125rem,0.76rem+0.18vmin,0.9375rem)] leading-relaxed text-slate-400">
+              A private villa on a serene lagoon in Tangalle, Sri Lanka—sunrise over still water, nights under open skies.
             </p>
 
             {/* CTAs */}
@@ -206,7 +208,7 @@ export function Footer() {
             &copy; {year} Lake View Villa Tangalle. All rights reserved.
           </p>
           <p className="opacity-75">
-            Built with performance, accessibility &amp; calm delight.
+            Built with performance, accessibility, and calm delight.
           </p>
         </div>
       </div>

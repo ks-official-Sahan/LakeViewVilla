@@ -119,7 +119,7 @@ export function ExpandableCTA() {
             animate="show"
             exit="exit"
             variants={panelVariants}
-            className="pointer-events-auto mb-3 w-[min(92vw,22rem)] rounded-2xl bg-slate-900/85 text-white backdrop-blur-xl ring-1 ring-white/10 shadow-2xl p-3"
+            className="pointer-events-auto mb-3 max-h-[min(70dvh,26rem)] w-[min(92vw,22rem)] overflow-y-auto overscroll-contain rounded-2xl bg-slate-900/88 p-3 text-white shadow-2xl ring-1 ring-white/10 backdrop-blur-xl"
           >
             <div className="flex items-center gap-2 px-1 pb-2">
               <Image
@@ -132,7 +132,7 @@ export function ExpandableCTA() {
               <p className="text-sm text-white/80">We reply in minutes</p>
               <button
                 onClick={() => setOpen(false)}
-                className="ml-auto rounded-md p-1 text-white/70 hover:text-white transition"
+                className="ml-auto rounded-md p-1 text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
                 aria-label="Close"
               >
                 ×
@@ -142,7 +142,7 @@ export function ExpandableCTA() {
             <div className="grid gap-2">
               <button
                 onClick={whatsapp}
-                className="group w-full rounded-xl px-4 py-3 text-left bg-[linear-gradient(135deg,#25D366,#128C7E)] shadow-lg hover:shadow-xl transition ring-1 ring-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                className="group w-full rounded-xl bg-[linear-gradient(135deg,#25D366,#128C7E)] px-4 py-3 text-left shadow-lg ring-1 ring-white/10 transition-[transform,box-shadow,opacity] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 active:scale-[0.99]"
               >
                 <div className="flex items-center gap-3">
                   <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/15 ring-1 ring-white/25">
@@ -159,7 +159,7 @@ export function ExpandableCTA() {
 
               <button
                 onClick={call}
-                className="w-full rounded-xl px-4 py-3 text-left bg-white/6 hover:bg-white/10 transition ring-1 ring-white/10"
+                className="w-full rounded-xl bg-white/6 px-4 py-3 text-left ring-1 ring-white/10 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
               >
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-sky-500/90">
@@ -174,7 +174,7 @@ export function ExpandableCTA() {
 
               <button
                 onClick={book}
-                className="w-full rounded-xl px-4 py-3 text-left bg-white/6 hover:bg-white/10 transition ring-1 ring-white/10"
+                className="w-full rounded-xl bg-white/6 px-4 py-3 text-left ring-1 ring-white/10 transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
               >
                 <div className="flex items-center gap-3">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/90">
@@ -216,7 +216,7 @@ export function ExpandableCTA() {
           aria-label={open ? "Close chat options" : "Open chat options"}
           onClick={() => setOpen((v) => !v)}
           whileTap={{ scale: 0.96 }}
-          className="relative grid place-items-center h-10 w-10 md:h-14 md:w-14 rounded-full shadow-2xl ring-1 ring-white/50 bg-green-500 hover:brightness-110 transition"
+          className="relative grid h-12 w-12 place-items-center rounded-full bg-green-500 shadow-2xl ring-1 ring-white/50 transition-[filter,transform] hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:ring-emerald-200 md:h-14 md:w-14"
         >
           {/* white inner ring for contrast on noisy media */}
           <span className="absolute inset-[3px] rounded-full ring-1 ring-white/40 pointer-events-none" />
