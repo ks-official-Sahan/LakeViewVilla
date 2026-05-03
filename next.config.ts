@@ -7,6 +7,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 const isProd = process.env.NODE_ENV === "production";
 
+/** `next build --webpack` cannot use Lightning CSS alongside PostCSS/Tailwind (Next 16). */
+const isWebpackCssBuild = process.env.NEXT_WEBPACK_BUILD === "1";
+
 // ─── Security Headers ────────────────────────────────────────────────────────
 const securityHeaders = [
   {
@@ -247,7 +250,7 @@ const nextConfig: NextConfig = {
       "marked",
       "lucide-react",
     ],
-    useLightningcss: true,
+    useLightningcss: !isWebpackCssBuild,
     viewTransition: true,
     staleTimes: {
       dynamic: 30,

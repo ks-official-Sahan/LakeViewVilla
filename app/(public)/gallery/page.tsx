@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import { connection } from "next/server";
 import { SectionReveal } from "@/components/motion/section-reveal";
 import { PROPERTY } from "@/data/content";
@@ -6,7 +7,15 @@ import { PROPERTY } from "@/data/content";
 import { breadcrumbSchema } from "@/lib/seo";
 import { serializeJsonLd } from "@/lib/utils";
 import { getGalleryGridAssets } from "@/lib/media/queries";
-import GalleryClient from "./gallery-client";
+
+const GalleryClient = dynamic(() => import("./gallery-client"), {
+  loading: () => (
+    <div
+      className="min-h-[45vh] animate-pulse rounded-2xl bg-slate-800/30"
+      aria-hidden
+    />
+  ),
+});
 
 export const metadata: Metadata = {
   title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",

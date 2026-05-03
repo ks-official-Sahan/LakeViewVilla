@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import type { Prisma } from "@prisma/client";
 
 export type AdminMediaAssetRow = {
@@ -59,20 +60,6 @@ const selectWithoutLocations = {
   height: true,
   createdAt: true,
 } satisfies Prisma.MediaAssetSelect;
-
-async function mediaLocationsTableExists(): Promise<boolean> {
-  try {
-    const rows = await prisma.$queryRaw<Array<{ exists: boolean }>>`
-      SELECT EXISTS (
-        SELECT FROM information_schema.tables
-        WHERE table_schema = 'public' AND table_name = 'media_locations'
-      ) AS "exists"
-    `;
-    return Boolean(rows[0]?.exists);
-  } catch {
-    return false;
-  }
-}
 
 /**
  * Lists media assets for admin UI/API. If `media_locations` is not migrated yet,

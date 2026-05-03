@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { mediaLocationsTableExists } from "@/lib/db/media-locations-table";
 import {
   DEFAULT_MEDIA_PAGE_SLUG,
   DEFAULT_MEDIA_SECTION_SLUG,
@@ -23,6 +24,57 @@ function isMissingMediaLocationsTable(error: unknown): boolean {
 
 function withEmptyLocations(rows: MediaAsset[]): MediaAssetWithLocations[] {
   return rows.map((r) => ({ ...r, locations: [] as MediaLocation[] }));
+}
+
+async function loadGalleryGridWithLocations(limit: number) {
+  return prisma.mediaAsset.findMany({
+    where: {
+      OR: [
+        {
+          locations: {
+            some: {
+              pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
+              sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
+            },
+          },
+        },
+        {
+          locations: { none: {} },
+          pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
+          sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
+        },
+        {
+          locations: { none: {} },
+          pageSlug: null,
+          sectionSlug: null,
+        },
+      ],
+      type: { in: ["IMAGE", "VIDEO"] },
+    },
+    include: galleryAssetInclude,
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    take: limit,
+  });
+}
+
+async function loadGalleryGridLegacy(limit: number) {
+  return prisma.mediaAsset
+    .findMany({
+      where: {
+        type: { in: ["IMAGE", "VIDEO"] },
+        OR: [
+          {
+            pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
+            sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
+          },
+          { pageSlug: null, sectionSlug: null },
+        ],
+      },
+      include: galleryAssetIncludeMinimal,
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+      take: limit,
+    })
+    .then(withEmptyLocations);
 }
 
 export type MediaAssetWithLocations = MediaAsset & {
@@ -88,53 +140,15 @@ export async function getGalleryGridAssets(opts?: {
 }): Promise<MediaAssetWithLocations[]> {
   const { limit = 500 } = opts ?? {};
 
+  const hasLocations = await mediaLocationsTableExists();
+  if (!hasLocations) {
+    return loadGalleryGridLegacy(limit);
+  }
+
   try {
-    return await prisma.mediaAsset.findMany({
-      where: {
-        OR: [
-          {
-            locations: {
-              some: {
-                pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
-                sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
-              },
-            },
-          },
-          {
-            locations: { none: {} },
-            pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
-            sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
-          },
-          {
-            locations: { none: {} },
-            pageSlug: null,
-            sectionSlug: null,
-          },
-        ],
-        type: { in: ["IMAGE", "VIDEO"] },
-      },
-      include: galleryAssetInclude,
-      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-      take: limit,
-    });
+    return await loadGalleryGridWithLocations(limit);
   } catch (e) {
     if (!isMissingMediaLocationsTable(e)) throw e;
-    return prisma.mediaAsset
-      .findMany({
-        where: {
-          type: { in: ["IMAGE", "VIDEO"] },
-          OR: [
-            {
-              pageSlug: DEFAULT_MEDIA_PAGE_SLUG,
-              sectionSlug: DEFAULT_MEDIA_SECTION_SLUG,
-            },
-            { pageSlug: null, sectionSlug: null },
-          ],
-        },
-        include: galleryAssetIncludeMinimal,
-        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-        take: limit,
-      })
-      .then(withEmptyLocations);
+    return loadGalleryGridLegacy(limit);
   }
 }
