@@ -2,6 +2,8 @@
   "ci": {
     "collect": {
       "numberOfRuns": 1,
+      "startServerCommand": "pnpm start",
+      "startServerReadyPattern": "Ready in",
       "settings": {
         "preset": "desktop",
         "screenEmulation": { "disabled": true }
@@ -10,7 +12,10 @@
         "http://localhost:3000/",
         "http://localhost:3000/blog",
         "http://localhost:3000/stays",
-        "http://localhost:3000/gallery"
+        "http://localhost:3000/gallery",
+        "http://localhost:3000/visit",
+        "http://localhost:3000/faq",
+        "http://localhost:3000/developer"
       ]
     },
     "assert": {

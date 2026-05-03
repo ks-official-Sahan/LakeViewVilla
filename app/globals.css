@@ -4,7 +4,7 @@
 @import "tailwindcss";
 
 /* Legacy JS config: theme extensions, content globs, tailwindcss-animate, grid/dot utilities */
-@config "../tailwind.config.ts";
+@config "../tailwind.config.mjs";
 
 /* Class + Mantine color scheme (replaces tailwind.config `darkMode`) */
 @custom-variant dark (&:where(.dark, .dark *, [data-mantine-color-scheme="dark"], [data-mantine-color-scheme="dark"] *));

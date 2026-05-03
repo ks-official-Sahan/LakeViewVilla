@@ -21,6 +21,13 @@ declare module "next-auth" {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  /**
+   * Avoid UntrustedHost when `AUTH_URL` / `NEXTAUTH_URL` does not match the browser origin
+   * (e.g. production URL in env while using http://localhost:3000). Without this, `/api/auth/session`
+   * fails and admin SSR can break or appear blank until cookies/host align.
+   * Set `AUTH_TRUST_HOST=false` only if you intentionally enforce strict host checks.
+   */
+  trustHost: process.env.AUTH_TRUST_HOST !== "false",
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma) as any,
   session: { strategy: "jwt", maxAge: 24 * 60 * 60 },

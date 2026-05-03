@@ -194,34 +194,37 @@ export async function updateMediaAssetLocations(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      await tx.mediaLocation.deleteMany({ where: { mediaId } });
+    let primaryIdx = parsed.data.findIndex((r) => r.isPrimary);
+    if (primaryIdx < 0) primaryIdx = 0;
+    const primary = parsed.data[primaryIdx]!;
 
-      let primaryIdx = parsed.data.findIndex((r) => r.isPrimary);
-      if (primaryIdx < 0) primaryIdx = 0;
+    const locationRows = parsed.data.map((row, i) => ({
+      mediaId,
+      pageSlug: row.pageSlug,
+      sectionSlug: row.sectionSlug,
+      isPrimary: i === primaryIdx,
+      order: row.order ?? i,
+    }));
 
-      for (let i = 0; i < parsed.data.length; i++) {
-        const row = parsed.data[i]!;
-        await tx.mediaLocation.create({
+    // Batch ops + bounded waits — avoids P2028 on Neon when an interactive tx can't get a
+    // connection quickly (e.g. overlapping updates after long `updateMediaAsset` calls).
+    await prisma.$transaction(
+      [
+        prisma.mediaLocation.deleteMany({ where: { mediaId } }),
+        prisma.mediaLocation.createMany({ data: locationRows }),
+        prisma.mediaAsset.update({
+          where: { id: mediaId },
           data: {
-            mediaId,
-            pageSlug: row.pageSlug,
-            sectionSlug: row.sectionSlug,
-            isPrimary: i === primaryIdx,
-            order: row.order ?? i,
+            pageSlug: primary.pageSlug,
+            sectionSlug: primary.sectionSlug,
           },
-        });
-      }
-
-      const primary = parsed.data[primaryIdx]!;
-      await tx.mediaAsset.update({
-        where: { id: mediaId },
-        data: {
-          pageSlug: primary.pageSlug,
-          sectionSlug: primary.sectionSlug,
-        },
-      });
-    });
+        }),
+      ],
+      {
+        maxWait: 15_000,
+        timeout: 25_000,
+      },
+    );
 
     await prisma.auditLog.create({
       data: {

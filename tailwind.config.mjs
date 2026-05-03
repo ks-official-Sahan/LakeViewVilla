@@ -1,24 +1,19 @@
-import type { Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 import tailwindcssAnimate from "tailwindcss-animate";
 import svgToDataUri from "mini-svg-data-uri";
 
-// Loaded via `@config` in app/globals.css (Tailwind v4). Dark mode: `@custom-variant dark` in globals.css.
-// NextUI plugin is omitted (compat risk; Mantine covers needs).
-
-const config: Config = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    // shadcn UI paths, if used via node_modules (kept lean)
     "./node_modules/tailwindcss-animate/**/*.{js,ts}",
   ],
   theme: {
     container: { center: true, padding: "1rem", screens: { "2xl": "1400px" } },
     extend: {
-      // ✅ DO NOT replace default screens (avoids breaking existing layout)
       screens: {
         xs: "480px",
         "3xl": "1920px",
@@ -155,43 +150,38 @@ const config: Config = {
   },
   plugins: [
     tailwindcssAnimate,
-    // Color variables helper for CSS var-based themes (v3-safe)
     plugin(function addVariablesForColors({ addBase, theme }) {
-      const flatten = (
-        obj: Record<string, any>,
-        prefix = ""
-      ): Record<string, string> =>
+      const flatten = (obj, prefix = "") =>
         Object.keys(obj).reduce((acc, k) => {
           const pre = prefix.length ? `${prefix}-${k}` : k;
           if (typeof obj[k] === "object")
             Object.assign(acc, flatten(obj[k], pre));
           else acc[`--${pre}`] = obj[k];
           return acc;
-        }, {} as Record<string, string>);
-      const all = flatten(theme("colors") as Record<string, any>);
+        }, {});
+      const all = flatten(theme("colors"));
       addBase({ ":root": all });
     }),
-    // Grid / dot utilities (used by the developer hero background)
     plugin(function ({ matchUtilities, theme }) {
       matchUtilities(
         {
-          "bg-grid": (value: any) => ({
+          "bg-grid": (value) => ({
             backgroundImage: `url("${svgToDataUri(
-              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='${value}'><path d='M0 .5H31.5V32'/></svg>`
+              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='${value}'><path d='M0 .5H31.5V32'/></svg>`,
             )}")`,
           }),
-          "bg-grid-small": (value: any) => ({
+          "bg-grid-small": (value) => ({
             backgroundImage: `url("${svgToDataUri(
-              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='8' height='8' fill='none' stroke='${value}'><path d='M0 .5H31.5V32'/></svg>`
+              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='8' height='8' fill='none' stroke='${value}'><path d='M0 .5H31.5V32'/></svg>`,
             )}")`,
           }),
-          "bg-dot": (value: any) => ({
+          "bg-dot": (value) => ({
             backgroundImage: `url("${svgToDataUri(
-              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'><circle fill='${value}' cx='10' cy='10' r='1.6'/></svg>`
+              `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='16' height='16' fill='none'><circle fill='${value}' cx='10' cy='10' r='1.6'/></svg>`,
             )}")`,
           }),
         },
-        { values: theme("colors"), type: "color" }
+        { values: theme("colors"), type: "color" },
       );
     }),
   ],
