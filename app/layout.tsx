@@ -1,6 +1,6 @@
 import type React from "react";
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Inter } from "next/font/google";
+import { Montserrat, DM_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
@@ -38,11 +38,11 @@ const montserrat = Montserrat({
   weight: ["300", "400", "500", "600", "700"],
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-dm-sans",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -214,7 +214,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${montserrat.variable} ${inter.variable}`}
+      className={`${montserrat.variable} ${dmSans.variable}`}
       data-scroll-behavior="smooth"
       style={{ scrollBehavior: "smooth" }}
     >
@@ -304,7 +304,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="min-h-svh bg-background text-foreground antialiased grain-overlay"
+        className="min-h-svh bg-background font-sans text-foreground antialiased grain-overlay"
         suppressHydrationWarning
       >
         {/* Skip-to-content link for keyboard users (WCAG 2.2 AAA) */}

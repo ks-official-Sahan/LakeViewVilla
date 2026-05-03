@@ -76,7 +76,7 @@ export function Navigation() {
             : "bg-transparent"
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="mx-auto flex h-[var(--header-h)] max-w-7xl items-center justify-between px-[clamp(0.85rem,3vw,1.25rem)] md:px-6 lg:px-8">
           {/* Logo */}
           <Link
             href="/"
@@ -89,11 +89,11 @@ export function Navigation() {
               alt="Lake View Villa"
               width={36}
               height={36}
-              className="h-9 w-9 rounded-lg transition-transform duration-300 group-hover:scale-105"
+              className="h-[clamp(2rem,4vw,2.35rem)] w-[clamp(2rem,4vw,2.35rem)] rounded-lg transition-transform duration-300 group-hover:scale-105"
               priority
             />
             <span
-              className={`hidden text-base font-semibold tracking-tight sm:block transition-colors duration-300 ${
+              className={`hidden font-semibold tracking-tight sm:block transition-colors duration-300 [font-size:clamp(0.8125rem,calc(0.65rem+0.45vw),1rem)] ${
                 isHero ? "text-white drop-shadow-md" : "text-[var(--color-foreground)]"
               }`}
             >
@@ -104,7 +104,7 @@ export function Navigation() {
           {/* Desktop nav */}
           <nav
             aria-label="Primary navigation"
-            className="hidden items-center gap-1 md:flex"
+            className="hidden items-center gap-[clamp(0.1rem,0.5vw,0.35rem)] lg:gap-1 md:flex"
           >
             {NAV_LINKS.map(({ href, label }) => {
               const active =
@@ -115,7 +115,7 @@ export function Navigation() {
                   href={href}
                   transitionTypes={["spa-page"]}
                   aria-current={active ? "page" : undefined}
-                  className={`relative rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60 ${
+                  className={`relative rounded-lg px-[clamp(0.45rem,1vw,0.95rem)] py-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60 [font-size:clamp(0.75rem,calc(0.65rem+0.35vw),0.875rem)] ${
                     isHero
                       ? "text-white/90 hover:text-white hover:bg-white/10"
                       : "text-[var(--color-foreground)] hover:bg-[var(--color-primary)]/8 hover:text-[var(--color-primary)]"
@@ -135,7 +135,7 @@ export function Navigation() {
           </nav>
 
           {/* Desktop right actions */}
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-[clamp(0.35rem,1vw,0.65rem)] md:flex">
             {process.env.NODE_ENV !== "production" && (
               <div className="rounded-lg p-1">
                 <ThemeSwitch />
@@ -146,13 +146,13 @@ export function Navigation() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Book via WhatsApp"
-              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+              className={`inline-flex items-center gap-[clamp(0.25rem,0.8vw,0.45rem)] rounded-xl px-[clamp(0.65rem,2vw,1.1rem)] py-[clamp(0.4rem,1.2vw,0.55rem)] font-semibold transition-all duration-200 [font-size:clamp(0.75rem,calc(0.68rem+0.25vw),0.875rem)] ${
                 isHero
                   ? "bg-white/15 text-white backdrop-blur-sm hover:bg-white/25 border border-white/30"
                   : "bg-[var(--color-primary)] text-white hover:opacity-90"
               }`}
             >
-              <Phone className="h-3.5 w-3.5" />
+              <Phone className="h-[clamp(0.85rem,2vw,1rem)] w-[clamp(0.85rem,2vw,1rem)] shrink-0" />
               Book Now
             </a>
           </div>
@@ -175,7 +175,8 @@ export function Navigation() {
       {isOpen && (
         <div
           ref={drawerRef}
-          className="fixed inset-x-0 top-16 z-40 border-b border-white/10 bg-white/80 backdrop-blur-2xl dark:bg-[#0a0f10]/90 md:hidden"
+          className="fixed inset-x-0 z-40 border-b border-white/10 bg-white/80 backdrop-blur-2xl dark:bg-[#0a0f10]/90 md:hidden"
+          style={{ top: "var(--header-h)" }}
         >
           <nav
             aria-label="Mobile navigation"

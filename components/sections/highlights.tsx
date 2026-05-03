@@ -125,7 +125,7 @@ export function Highlights() {
       ref={sectionRef}
       id="highlights"
       aria-labelledby="highlights-heading"
-      className="relative overflow-hidden py-24 md:py-32"
+      className="relative overflow-hidden py-[clamp(4rem,12vw,8rem)] md:py-[clamp(5rem,14vw,8rem)]"
     >
       {/* Ambient glow top */}
       <div
@@ -137,22 +137,25 @@ export function Highlights() {
         }}
       />
 
-      <div className="relative mx-auto max-w-7xl px-4 md:px-6">
+      <div className="relative mx-auto max-w-7xl px-[clamp(1rem,4vw,1.5rem)] md:px-6">
         {/* Section header */}
-        <div ref={headingRef} className="mx-auto mb-16 max-w-2xl text-center md:mb-20">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-primary)]">
+        <div
+          ref={headingRef}
+          className="mx-auto mb-[clamp(2.5rem,8vw,5rem)] max-w-2xl text-center md:mb-[clamp(3rem,9vw,5rem)]"
+        >
+          <p className="mb-[clamp(0.5rem,1.5vw,0.85rem)] font-bold uppercase tracking-[0.18em] text-[var(--color-primary)] [font-size:clamp(0.625rem,calc(0.52rem+0.35vw),0.75rem)]">
             Why Choose Us
           </p>
           <h2
             id="highlights-heading"
-            className="font-[var(--font-display)] text-[clamp(2rem,4.5vw,3.25rem)] font-extrabold leading-tight tracking-tight text-[var(--color-foreground)]"
+            className="font-[var(--font-display)] font-extrabold leading-[1.08] tracking-tight text-[var(--color-foreground)] sm:leading-tight [font-size:clamp(1.65rem,calc(2vw+1rem),3.25rem)]"
           >
             Everything for the{" "}
             <span className="bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] bg-clip-text text-transparent">
               perfect stay
             </span>
           </h2>
-          <p className="mt-4 text-base text-[var(--color-muted)] md:text-lg">
+          <p className="mt-[clamp(0.65rem,2vw,1.1rem)] text-[var(--color-muted)] [font-size:clamp(0.875rem,calc(0.78rem+0.35vw),1.125rem)] [line-height:1.55]">
             Thoughtfully designed amenities and services to make your lagoon
             retreat unforgettable.
           </p>
@@ -161,7 +164,7 @@ export function Highlights() {
         {/* Card grid */}
         <div
           ref={gridRef}
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="grid grid-cols-1 gap-[clamp(1rem,3vw,1.35rem)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           style={{ perspective: "1200px" }}
         >
           {HIGHLIGHTS.map(({ title, description, icon: Icon }, idx) => (
@@ -170,7 +173,7 @@ export function Highlights() {
               data-card
               tabIndex={0}
               aria-label={`Amenity: ${title}`}
-              className="group relative cursor-default overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[var(--color-primary)]/30 hover:shadow-[0_16px_48px_rgba(14,165,233,.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60"
+              className="group relative cursor-default overflow-hidden rounded-[clamp(1rem,2.5vw,1.25rem)] border border-[var(--color-border)] bg-[var(--color-surface)] p-[clamp(1rem,3.5vw,1.65rem)] shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-[var(--color-primary)]/30 hover:shadow-[0_16px_48px_rgba(14,165,233,.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]/60"
             >
               {/* Hover glow */}
               <div
@@ -183,20 +186,20 @@ export function Highlights() {
               />
 
               {/* Icon — magnetic micro-interaction (desktop spring; reduced-motion noop inside MagneticElement) */}
-              <MagneticElement strength={7} className="mb-4 inline-flex">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] shadow-md shadow-[#0ea5e9]/30">
+              <MagneticElement strength={7} className="mb-[clamp(0.65rem,2vw,1rem)] inline-flex">
+                <div className="flex h-[clamp(2.5rem,7vw,2.85rem)] w-[clamp(2.5rem,7vw,2.85rem)] items-center justify-center rounded-xl bg-gradient-to-br from-[#0ea5e9] to-[#22d3ee] shadow-md shadow-[#0ea5e9]/30">
                   {Icon ? (
-                    <Icon className="h-5 w-5 text-white" />
+                    <Icon className="h-[clamp(1rem,2.8vw,1.35rem)] w-[clamp(1rem,2.8vw,1.35rem)] text-white" />
                   ) : (
-                    <Sparkles className="h-5 w-5 text-white" />
+                    <Sparkles className="h-[clamp(1rem,2.8vw,1.35rem)] w-[clamp(1rem,2.8vw,1.35rem)] text-white" />
                   )}
                 </div>
               </MagneticElement>
 
-              <h3 className="mb-2 text-[15px] font-semibold text-[var(--color-foreground)] transition-colors group-hover:text-[var(--color-primary)]">
+              <h3 className="mb-[clamp(0.35rem,1vw,0.6rem)] font-semibold text-[var(--color-foreground)] transition-colors group-hover:text-[var(--color-primary)] [font-size:clamp(0.875rem,calc(0.78rem+0.35vw),1rem)]">
                 {title}
               </h3>
-              <p className="text-sm leading-relaxed text-[var(--color-muted)]">
+              <p className="leading-relaxed text-[var(--color-muted)] [font-size:clamp(0.78rem,calc(0.72rem+0.22vw),0.9375rem)]">
                 {description}
               </p>
 

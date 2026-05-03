@@ -16,8 +16,16 @@
   --hero-progress: 1;
   --hero-xfade: 0;
 
+  /** Fluid chrome — nav height matched in Navigation + hero top inset */
+  --header-h: clamp(3.5rem, 0.75rem + 4vw, 4rem);
+  /** vmin keeps headline dominant vs body on short-wide laptops */
+  --fluid-hero-title: clamp(2.125rem, 1.35rem + 4.2vmin, 5.75rem);
+  --fluid-hero-body: clamp(0.875rem, 0.8rem + 0.35vmin, 1.15rem);
+  --fluid-hero-eyebrow: clamp(0.5625rem, 0.5rem + 0.18vmin, 0.6875rem);
+  --fluid-cta-text: clamp(0.8125rem, 0.76rem + 0.12vmin, 0.9375rem);
+
   /* font families injected by next/font (layout.tsx) */
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-dm-sans);
   --font-display: var(--font-montserrat);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
@@ -91,7 +99,7 @@ html {
   --chart-2: 173 80% 40%;
   --chart-3: 47 95% 54%;
   --chart-4: 12 88% 62%;
-  --chart-5: 283 86% 53%;
+  --chart-5: 188 72% 38%;
 
   --sidebar-background: hsl(var(--background));
   --sidebar-foreground: hsl(var(--foreground));

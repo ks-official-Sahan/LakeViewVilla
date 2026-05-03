@@ -1,7 +1,7 @@
 import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
-  fontFamily: "var(--font-poppins)", // Use the Poppins font via CSS variable
+  fontFamily: "var(--font-sans), ui-sans-serif, system-ui, sans-serif",
   colors: {
     dark: [
       "#d5d7e0", // dark[0] - Lightest shade (text, primary highlights)

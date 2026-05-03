@@ -240,27 +240,42 @@ export function PinnedHero({ nextSectionId }: Props) {
       </noscript>
 
       {/* ── Content ─────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center text-white">
+      <div className="relative z-10 flex h-full min-h-0 flex-col text-white">
+        {/*
+          Explicit lane below fixed header — vertical centering only affects the band below this,
+          so the eyebrow/cluster cannot drift under nav links (mid-width desktops).
+        */}
         <div
-          ref={heroContentRef}
-          className="w-full max-w-5xl will-change-[transform,opacity,filter]"
-        >
+          aria-hidden
+          className="shrink-0"
+          style={{
+            height:
+              "calc(var(--header-h) + env(safe-area-inset-top, 0px) + clamp(0.75rem, 2vh, 1.35rem))",
+          }}
+        />
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-[clamp(1rem,4vw,1.75rem)] pb-[clamp(5rem,12vh,7rem)] text-center">
+          <div
+            ref={heroContentRef}
+            className="mx-auto w-full max-w-[min(100%,64rem)] will-change-[transform,opacity,filter]"
+          >
           {/* Eyebrow label */}
           <p
             ref={eyebrowRef}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-white/80 backdrop-blur-sm"
+            className="mx-auto mb-[clamp(0.5rem,1.5vmin,0.85rem)] flex w-fit max-w-[min(100%,calc(100vw-2rem))] flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 font-semibold uppercase tracking-[0.14em] text-white/75 backdrop-blur-sm sm:px-3 sm:tracking-[0.18em]"
+            style={{ fontSize: "var(--fluid-hero-eyebrow)" }}
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-[#22d3ee] animate-pulse" />
+            <span className="size-1 shrink-0 rounded-full bg-[#22d3ee] animate-pulse sm:size-1.5" />
             Tangalle · Sri Lanka
           </p>
 
           {/* Main heading — two lines with clip-path reveal */}
           <div ref={headingRef}>
-            <h1 className="font-[var(--font-display)] font-black leading-[1.02] tracking-tight">
+            <h1 className="font-[var(--font-display)] font-black leading-[1.06] tracking-tight sm:leading-[1.03]">
               <span
                 ref={line1Ref}
-                className="block text-[clamp(2.4rem,7.5vw,5.5rem)] text-white"
+                className="block text-white"
                 style={{
+                  fontSize: "var(--fluid-hero-title)",
                   textShadow: "0 4px 32px rgba(0,0,0,.55), 0 1px 2px rgba(0,0,0,.8)",
                 }}
               >
@@ -268,7 +283,8 @@ export function PinnedHero({ nextSectionId }: Props) {
               </span>
               <span
                 ref={line2Ref}
-                className="block bg-gradient-to-r from-[#7ee8fa] via-[#22d3ee] to-[#34d399] bg-clip-text text-[clamp(2.4rem,7.5vw,5.5rem)] text-transparent"
+                className="block bg-gradient-to-r from-[#7ee8fa] via-[#22d3ee] to-[#34d399] bg-clip-text text-transparent"
+                style={{ fontSize: "var(--fluid-hero-title)" }}
               >
                 {HERO_CONTENT.titleParts[1]}
               </span>
@@ -282,20 +298,24 @@ export function PinnedHero({ nextSectionId }: Props) {
             variant="words"
             intensity="subtle"
             start="top 78%"
-            className="mx-auto mt-6 max-w-[62ch] text-[clamp(0.95rem,2.4vw,1.25rem)] font-medium leading-relaxed text-white/80"
-            style={{ textShadow: "0 2px 14px rgba(0,0,0,.5)" }}
+            className="mx-auto mt-[clamp(0.75rem,2.5vmin,1.35rem)] max-w-[min(62ch,calc(100vw-2rem))] font-medium leading-relaxed text-white/80"
+            style={{
+              textShadow: "0 2px 14px rgba(0,0,0,.5)",
+              fontSize: "var(--fluid-hero-body)",
+            }}
           />
 
-          {/* CTAs */}
+          {/* CTAs — fixed max widths so buttons never dominate the headline */}
           <div
             ref={ctasRef}
-            className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
+            className="mx-auto mt-[clamp(1rem,3vmin,1.75rem)] flex w-full max-w-[min(40rem,100%)] flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4"
           >
             <Link
               href="/gallery"
               transitionTypes={["spa-page"]}
               aria-label="View the photo gallery"
-              className="group relative inline-flex min-w-44 cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-white/30 bg-white/12 px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+              className="group relative inline-flex h-11 w-full max-w-[min(100%,17rem)] cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-white/30 bg-white/12 px-5 py-2 font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/50 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 sm:h-12 sm:w-52 sm:max-w-none sm:shrink-0 sm:px-6 sm:py-2.5"
+              style={{ fontSize: "var(--fluid-cta-text)" }}
             >
               {/* Shimmer */}
               <span
@@ -309,11 +329,13 @@ export function PinnedHero({ nextSectionId }: Props) {
             <button
               onClick={handleWhatsApp}
               aria-label="Contact us via WhatsApp to book"
-              className="group inline-flex min-w-44 cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#0ea5e9]/30 transition-all duration-300 hover:shadow-[#0ea5e9]/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22d3ee]/60"
+              className="group inline-flex h-11 w-full max-w-[min(100%,20rem)] cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0ea5e9] to-[#22d3ee] px-5 py-2 font-semibold text-white shadow-lg shadow-[#0ea5e9]/30 transition-all duration-300 hover:shadow-[#0ea5e9]/50 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22d3ee]/60 sm:h-12 sm:w-60 sm:max-w-none sm:shrink-0 sm:px-6 sm:py-2.5"
+              style={{ fontSize: "var(--fluid-cta-text)" }}
             >
-              <Phone className="h-4 w-4" />
+              <Phone className="size-4 shrink-0 sm:size-[1.05rem]" />
               {HERO_CONTENT.ctas[1]}
             </button>
+          </div>
           </div>
         </div>
 
@@ -323,9 +345,9 @@ export function PinnedHero({ nextSectionId }: Props) {
           type="button"
           onClick={handleScrollDown}
           aria-label="Scroll down to explore"
-          className="absolute bottom-[max(env(safe-area-inset-bottom,1rem),1.5rem)] left-1/2 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-1.5 text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+          className="pointer-events-auto absolute bottom-[max(env(safe-area-inset-bottom,1rem),1.25rem)] left-1/2 z-20 flex -translate-x-1/2 cursor-pointer flex-col items-center gap-[clamp(0.25rem,1vw,0.45rem)] text-white/70 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
         >
-          <span className="text-[11px] font-medium uppercase tracking-widest">
+          <span className="font-medium uppercase tracking-[0.14em] sm:tracking-widest [font-size:clamp(0.5625rem,calc(0.48rem+0.35vw),0.6875rem)]">
             Scroll to explore
           </span>
           {/* Animated line */}
@@ -336,7 +358,7 @@ export function PinnedHero({ nextSectionId }: Props) {
               style={{ animation: "scrollLine 1.6s ease-in-out infinite" }}
             />
           </span>
-          <ChevronDown className="h-4 w-4 opacity-60" />
+          <ChevronDown className="h-[clamp(0.85rem,2vw,1rem)] w-[clamp(0.85rem,2vw,1rem)] opacity-60" />
         </button>
       </div>
 
