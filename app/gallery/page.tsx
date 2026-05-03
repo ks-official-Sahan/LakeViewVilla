@@ -8,11 +8,11 @@ import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
   title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-  description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+  description: "View Tangalle villa photos. Lake View Villa Tangalle gallery features images of our serene lagoon views, A/C rooms, and beautiful natural surroundings.",
   alternates: { canonical: "/gallery" },
   openGraph: {
     title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-    description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+    description: "View Tangalle villa photos. Lake View Villa Tangalle gallery features images of our serene lagoon views, A/C rooms, and beautiful natural surroundings.",
     url: "https://lakeviewvillatangalle.com/gallery",
     type: "website",
     images: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-    description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+    description: "View Tangalle villa photos. Lake View Villa Tangalle gallery features images of our serene lagoon views, A/C rooms, and beautiful natural surroundings.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };

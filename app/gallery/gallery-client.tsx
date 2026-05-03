@@ -79,7 +79,7 @@ export default function GalleryClient({ images }: { images: Img[] }) {
               <div className="relative overflow-hidden rounded-xl bg-white/10 ring-1 ring-white/15 backdrop-blur-md shadow-2xl">
                 <Image
                   src={image.src || "/placeholder.svg"}
-                  alt={image.alt || "Lake View Villa photo"}
+                  alt={image.alt || "Lake View Villa Tangalle — photo"}
                   width={image.w}
                   height={image.h}
                   className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
