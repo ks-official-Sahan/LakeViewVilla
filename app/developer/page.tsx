@@ -7,12 +7,20 @@ import DevClient from "./client";
 export const metadata: Metadata = {
   title: "Developer – Sahan | Hyper-Luxury Full-Stack Engineer",
   description:
-    "Sahan Sachintha – premium full-stack engineer crafting immersive, high-performance apps with Next.js, TypeScript, GSAP & Framer Motion.",
+    "Hire Sahan Sachintha, a premium full-stack engineer. Crafting immersive, high-performance web apps with Next.js, TypeScript, GSAP & Framer Motion.",
+  keywords: [
+    "Sahan Sachintha",
+    "full-stack engineer Tangalle",
+    "Next.js developer Sri Lanka",
+    "Lake View Villa developer",
+    "freelance software engineer",
+    "React developer Sri Lanka"
+  ],
   alternates: { canonical: "/developer" },
   openGraph: {
     title: "Developer – Sahan | Hyper-Luxury Full-Stack Engineer",
     description:
-      "World-class UI/UX, realtime GitHub, live status, and print-perfect CV.",
+      "Hire Sahan Sachintha, a premium full-stack engineer. Crafting immersive, high-performance web apps with Next.js, TypeScript, GSAP & Framer Motion.",
     url: "https://lakeviewvillatangalle.com/developer",
     siteName: "Lake View Villa – Developer",
     images: [
@@ -23,6 +31,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Developer – Sahan",
+    description:
+      "Hire Sahan Sachintha, a premium full-stack engineer. Crafting immersive, high-performance web apps with Next.js, TypeScript, GSAP & Framer Motion.",
     images: ["/og"],
   },
   robots: { index: true, follow: true },

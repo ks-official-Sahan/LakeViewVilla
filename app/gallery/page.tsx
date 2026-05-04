@@ -7,12 +7,22 @@ import { serializeJsonLd } from "@/lib/utils";
 import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
-  title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-  description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+  title: "Tangalle Villa Photos — Gallery | Lake View Villa",
+  description: "View Tangalle villa photos of Lake View Villa. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural Sri Lankan surroundings.",
+  keywords: [
+    "Tangalle villa photos",
+    "Lake View Villa Tangalle gallery",
+    "lagoon view images",
+    "Sri Lanka villa pictures",
+    "Tangalle accommodation photos",
+    "private villa gallery",
+    "Lake View Villa Tangalle",
+    "Tangalle beachfront view"
+  ],
   alternates: { canonical: "/gallery" },
   openGraph: {
-    title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-    description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+    title: "Tangalle Villa Photos — Gallery | Lake View Villa",
+    description: "View Tangalle villa photos of Lake View Villa. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural Sri Lankan surroundings.",
     url: "https://lakeviewvillatangalle.com/gallery",
     type: "website",
     images: [
@@ -26,8 +36,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-    description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+    title: "Tangalle Villa Photos — Gallery | Lake View Villa",
+    description: "View Tangalle villa photos of Lake View Villa. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural Sri Lankan surroundings.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
 };
