@@ -8,14 +8,14 @@ export const metadata: Metadata = {
   description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
   keywords: [
     "Tangalle accommodation",
-    "Tangalle rental",
     "private room Tangalle",
+    "Tangalle rental",
     "best places to stay in Tangalle",
-    "Tangalle villa",
+    "Sri Lanka vacation rental",
     "Tangalle lagoon stay",
     "Sri Lanka villa",
-    "private villa",
-    "best rate WhatsApp",
+    "private villa Tangalle",
+    "Lake View Villa Tangalle"
   ],
   alternates: { canonical: "/stays" },
   openGraph: {

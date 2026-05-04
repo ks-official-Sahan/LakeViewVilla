@@ -5,6 +5,14 @@ import FAQClient from "./client";
 export const metadata: Metadata = {
   title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
   description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
+  keywords: [
+    "Tangalle villa FAQ",
+    "booking Tangalle",
+    "Lake View Villa directions",
+    "Tangalle accommodation questions",
+    "Lake View Villa Tangalle contact",
+    "Sri Lanka villa rentals FAQ"
+  ],
   alternates: { canonical: "/faq" },
   openGraph: {
     title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",

@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     default: "Private Villa Tangalle — Lagoon Stay | Lake View Villa Tangalle",
     template: "%s | Lake View Villa Tangalle",
   },
-  description: "Book Lake View Villa Tangalle. A private vacation rental and lodging business offering panoramic lake views, comfortable A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
+  description: "Experience Lake View Villa Tangalle. We provide private villa rentals in Tangalle with A/C rooms, fast Wi-Fi, and panoramic lagoon views for travelers.",
   keywords: [
   // Original Merged & Deduplicated Keywords
   "Lake View Villa Tangalle",
