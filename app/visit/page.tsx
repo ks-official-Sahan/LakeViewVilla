@@ -3,8 +3,8 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import VisitPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",
-  description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and contact us for your stay.",
+  title: "Things to Do in Tangalle — Tangalle Attractions | Lake View Villa",
+  description: "Discover things to do in Tangalle. Find easy directions to Lake View Villa Tangalle, explore Sri Lanka's south coast, and access nearby pristine beaches.",
   alternates: { canonical: "/visit" },
   openGraph: {
     title: "Things to Do in Tangalle — Visit & Location | Lake View Villa",

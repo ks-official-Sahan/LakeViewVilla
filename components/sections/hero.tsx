@@ -46,7 +46,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       <div className="absolute inset-0 -z-10">
         <Image
           src="/villa/optimized/villa_img_02.webp"
-          alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
+          alt="Lake View Villa Tangalle — aerial view over the lagoon and private villa"
           role="img"
           fill
           sizes="100vw"
@@ -65,7 +65,7 @@ export function PinnedHero({ nextSectionId }: Props) {
       <noscript>
         <img
           src="/villa/optimized/villa_img_02.webp"
-          alt="Lake View Villa Tangalle — aerial view over the lagoon and villa"
+          alt="Lake View Villa Tangalle — aerial view over the lagoon and private villa"
           style={{
             width: "100%",
             height: "auto",

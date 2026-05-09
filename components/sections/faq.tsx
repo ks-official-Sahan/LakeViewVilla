@@ -47,12 +47,13 @@ export function FAQ() {
                   aria-controls={`faq-answer-${index}`}
                 >
                   <h3 className="text-lg font-semibold pr-4">{item.question}</h3>
+                  <span className="sr-only">Toggle {item.question}</span>
                   <motion.div
                     animate={{ rotate: openItems.includes(index) ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                     className="flex-shrink-0"
                   >
-                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                    <ChevronDown className="w-5 h-5 text-gray-500" aria-hidden="true" />
                   </motion.div>
                 </button>
 
