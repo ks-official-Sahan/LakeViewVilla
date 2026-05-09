@@ -4,8 +4,8 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import StaysPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
-  description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
+  title: "Tangalle Accommodation — Private Room Tangalle | Lake View Villa",
+  description: "Reserve your Tangalle accommodation at Lake View Villa. Experience a private room in Tangalle with serene lagoon views, A/C, and exceptional local hospitality.",
   keywords: [
     "Tangalle accommodation",
     "Tangalle rental",

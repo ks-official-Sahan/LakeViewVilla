@@ -3,8 +3,8 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import FAQClient from "./client";
 
 export const metadata: Metadata = {
-  title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
-  description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
+  title: "Tangalle Villa FAQ — Booking Tangalle | Lake View Villa",
+  description: "Read our Tangalle villa FAQ. Get direct answers about booking Tangalle stays, Lake View Villa amenities, A/C rooms, and planning your Sri Lankan vacation.",
   alternates: { canonical: "/faq" },
   openGraph: {
     title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
