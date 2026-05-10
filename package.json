@@ -50,6 +50,8 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/react": "19.2.14",
@@ -59,7 +61,7 @@
     "baseline-browser-mapping": "^2.9.11",
     "cross-env": "^7",
     "eslint": "^9.39.2",
-    "eslint-config-next": "16.2.4",
+    "eslint-config-next": "^16.2.6",
     "postcss": "^8.5",
     "sharp": "^0.34.4",
     "tailwindcss": "^4.1.13",
