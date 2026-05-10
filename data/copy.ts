@@ -51,49 +51,49 @@ export const FAQ_ITEMS = [
       "Lake View Villa Tangalle is located on a serene lagoon in Tangalle, Sri Lanka. It provides panoramic lake views and easy access to beautiful local attractions such as Goyambokka Beach.",
   },
   {
-    question: "How do I book a stay at Lake View Villa Tangalle?",
+    question: "How much does it cost to stay at Lake View Villa Tangalle?",
     answer:
-      "You can book a stay at Lake View Villa Tangalle by messaging us on WhatsApp for the best available rate and instant confirmation, or you can book directly through our Booking.com or Airbnb listings.",
+      "The cost to stay at Lake View Villa Tangalle varies depending on the season and length of your visit. You can message us directly on WhatsApp to get the best available direct booking rates and instant confirmation.",
   },
   {
-    question: "Is there air conditioning at the villa?",
+    question: "What is the closest beach to Lake View Villa Tangalle?",
     answer:
-      "Yes, all bedrooms at Lake View Villa Tangalle are equipped with air conditioning to ensure your comfort during your stay in Sri Lanka.",
+      "Goyambokka Beach is the closest beach to Lake View Villa Tangalle, located less than 1 kilometer away. It is just a 5 to 10-minute walk from the villa to the beautiful sandy shoreline.",
   },
   {
-    question: "Are meals included, and is there a chef available?",
+    question: "Does Lake View Villa Tangalle have a pool?",
     answer:
-      "While meals are not automatically included, Lake View Villa Tangalle offers a personalized chef service on request. Our chef can prepare delicious local Sri Lankan and international cuisine.",
+      "Lake View Villa Tangalle does not feature a swimming pool, but it offers immediate access to a beautiful natural lagoon. Guests can also enjoy the nearby ocean beaches, which are only a short walk away.",
   },
   {
-    question: "Do you provide airport transfers to Tangalle?",
+    question: "Is Lake View Villa Tangalle pet-friendly?",
     answer:
-      "Yes, Lake View Villa Tangalle offers convenient airport pickup services. Please contact us prior to your arrival to arrange your transfer directly to the villa.",
+      "Lake View Villa Tangalle generally does not accommodate pets to ensure a peaceful environment for all guests. Please contact us directly if you have specific requests or require special accommodations.",
   },
   {
-    question: "What about Wi-Fi speed at the villa?",
+    question: "Does Lake View Villa Tangalle have Wi-Fi?",
     answer:
-      "Lake View Villa Tangalle provides fast and reliable Wi-Fi with speeds of approximately 50+ Mbps throughout the property, making it ideal for remote workers and digital nomads.",
+      "Yes, Lake View Villa Tangalle provides fast and reliable Wi-Fi with speeds of approximately 50+ Mbps. This makes the villa an excellent choice for remote workers and digital nomads visiting Sri Lanka.",
   },
   {
-    question: "What are the best things to do near Lake View Villa Tangalle?",
+    question: "Are there restaurants near Lake View Villa Tangalle?",
     answer:
-      "Guests at Lake View Villa Tangalle can easily visit Rekawa turtle beach, explore the Mulkirigala rock temple, take a Yala safari day trip, or see the Hummanaya blowhole.",
+      "Yes, there are several local restaurants and cafes near Lake View Villa Tangalle. Additionally, the villa offers a personalized chef service on request for guests who prefer to dine in.",
   },
   {
-    question: "Is Lake View Villa Tangalle a private villa?",
+    question: "How do you get to Lake View Villa Tangalle from the airport?",
     answer:
-      "Yes, Lake View Villa Tangalle is a private vacation rental. Guests enjoy exclusive access to the villa, ensuring a peaceful and serene lagoon stay without the crowds of large hotels.",
+      "You can reach Lake View Villa Tangalle from the airport via taxi or our private airport transfer service. We offer convenient airport pickups in an air-conditioned KDH van or private car.",
   },
   {
     question: "Is Lake View Villa Tangalle family-friendly?",
     answer:
-      "Absolutely. Lake View Villa Tangalle is family-friendly, offering spacious rooms, beautiful gardens, and safe surroundings for a memorable family vacation in Sri Lanka.",
+      "Absolutely. Lake View Villa Tangalle is highly family-friendly, offering spacious A/C bedrooms, a safe private garden, and even a baby cot upon request for families traveling with young children.",
   },
   {
-    question: "How far is the beach from Lake View Villa Tangalle?",
+    question: "What are the best things to do near Lake View Villa Tangalle?",
     answer:
-      "Lake View Villa Tangalle is just minutes away from pristine sandy beaches, offering guests the perfect balance of a tranquil lagoon retreat and easy beach access.",
+      "Guests staying at Lake View Villa Tangalle can easily visit Rekawa turtle beach, explore the Mulkirigala rock temple, take a day trip for a Yala safari, or witness the famous Hummanaya blowhole.",
   },
 ] as const;
 

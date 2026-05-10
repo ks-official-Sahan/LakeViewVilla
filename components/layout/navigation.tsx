@@ -72,7 +72,7 @@ export function Navigation() {
             >
               <Image
                 src="/logo.png"
-                alt="Lake_View"
+                alt="Lake View Villa Tangalle logo"
                 width={150}
                 height={150}
                 className="h-10 w-10"
@@ -99,7 +99,7 @@ export function Navigation() {
                         : "hover:bg-foreground/10"
                     }`}
                   >
-                    <Icon size={18} />
+                    <Icon size={18} aria-hidden="true" />
                     <span className="text-sm title-shadow">{item.label}</span>
                   </Link>
                 );
@@ -118,7 +118,7 @@ export function Navigation() {
               aria-label="Toggle menu"
               aria-expanded={isOpen}
             >
-              {isOpen ? <X size={22} /> : <Menu size={22} />}
+              {isOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
             </button>
           </div>
         </nav>
@@ -148,7 +148,7 @@ export function Navigation() {
                         active ? "bg-foreground/10" : "hover:bg-foreground/10"
                       }`}
                     >
-                      <Icon size={18} />
+                      <Icon size={18} aria-hidden="true" />
                       <span>{item.label}</span>
                     </Link>
                   );
