@@ -297,9 +297,6 @@ export default function RootLayout({
                 `${SITE_CONFIG.primaryDomain}/faq`,
                 `${SITE_CONFIG.primaryDomain}/developer`,
               ],
-              parent: [SITE_CONFIG.primaryDomain],
-              position: 1,
-              isPartOf: SITE_CONFIG.primaryDomain,
             }),
           }}
         />

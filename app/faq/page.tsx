@@ -4,7 +4,15 @@ import FAQClient from "./client";
 
 export const metadata: Metadata = {
   title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
-  description: "Read our Tangalle villa FAQ. Find direct answers about booking Tangalle stays, Lake View Villa directions, A/C rooms, and local Sri Lankan attractions.",
+  description: "Find answers in our Tangalle villa FAQ. Lake View Villa provides booking details, directions, A/C room info, and guides for local Sri Lankan attractions.",
+  keywords: [
+    "Tangalle villa FAQ",
+    "booking Tangalle",
+    "Lake View Villa directions",
+    "Lake View Villa FAQ",
+    "Tangalle accommodation questions",
+    "Sri Lanka villa questions"
+  ],
   alternates: { canonical: "/faq" },
   openGraph: {
     title: "Tangalle Villa FAQ — Bookings & Directions | Lake View Villa",
@@ -28,7 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
+import { FAQ_ITEMS } from "@/data/content";
+
 export default function Page() {
+  const faqList = FAQ_ITEMS.map((item) => ({ q: item.question, a: item.answer }));
   return (
     <>
       <SeoJsonLd
@@ -36,6 +47,7 @@ export default function Page() {
           { name: "Home", url: "https://lakeviewvillatangalle.com/" },
           { name: "FAQ", url: "https://lakeviewvillatangalle.com/faq" },
         ]}
+        faq={faqList}
       />
       <FAQClient />
     </>

@@ -458,11 +458,11 @@ export function PinnedHero({ nextSectionId }: Props) {
               aria-controls={videoId}
             >
               {isVideoLoading ? (
-                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" aria-hidden="true" />
               ) : isVideoPlaying ? (
-                <Pause size={20} />
+                <Pause size={20} aria-hidden="true" />
               ) : (
-                <Play size={20} />
+                <Play size={20} aria-hidden="true" />
               )}
             </button>
 

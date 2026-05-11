@@ -8,7 +8,16 @@ import GalleryClient from "./gallery-client";
 
 export const metadata: Metadata = {
   title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
-  description: "View Tangalle villa photos of Lake View Villa Tangalle. Explore images of our serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings.",
+  description: "Explore Tangalle villa photos. Lake View Villa Tangalle offers serene lagoon views, comfortable A/C rooms, and beautiful natural surroundings for travelers.",
+  keywords: [
+    "Tangalle villa photos",
+    "Lake View Villa Tangalle gallery",
+    "lagoon view images",
+    "Tangalle accommodation photos",
+    "Sri Lanka villa gallery",
+    "Lake View Villa pictures",
+    "Tangalle vacation rental photos"
+  ],
   alternates: { canonical: "/gallery" },
   openGraph: {
     title: "Tangalle Villa Photos — Gallery | Lake View Villa Tangalle",
