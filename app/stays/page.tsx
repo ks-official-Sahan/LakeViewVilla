@@ -4,22 +4,17 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import StaysPage from "./client";
 
 export const metadata: Metadata = {
-  title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+  title: "Tangalle Accommodation — Stays & Rates | Lake View Villa Tangalle",
   description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
   keywords: [
     "Tangalle accommodation",
-    "Tangalle rental",
     "private room Tangalle",
-    "best places to stay in Tangalle",
-    "Tangalle villa",
-    "Tangalle lagoon stay",
-    "Sri Lanka villa",
-    "private villa",
-    "best rate WhatsApp",
+    "Tangalle rental",
+    "best places to stay in Tangalle"
   ],
   alternates: { canonical: "/stays" },
   openGraph: {
-    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa Tangalle",
     description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
     url: "https://lakeviewvillatangalle.com/stays",
     type: "website",
@@ -34,7 +29,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
+    title: "Tangalle Accommodation — Stays & Rates | Lake View Villa Tangalle",
     description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle.",
     images: ["/villa/optimized/drone_view_villa.webp"],
   },
