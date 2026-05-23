@@ -2,6 +2,7 @@
 import React from "react";
 import Script from "next/script";
 import Link from "next/link";
+import { serializeJsonLd } from "@/lib/utils";
 
 export const metadata = {
   title: "Lake View Villa — Hero Video",
@@ -83,20 +84,8 @@ export default function WatchHeroPage() {
       </div>
 
       {/* JSON-LD for VideoObject + Breadcrumb */}
-      <Script
-        id="videoobject-jsonld"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(videoObject)}
-      </Script>
-      <Script
-        id="breadcrumb-jsonld"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(breadcrumb)}
-      </Script>
+      <Script id="videoobject-jsonld" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: serializeJsonLd(videoObject) }} />
+      <Script id="breadcrumb-jsonld" type="application/ld+json" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumb) }} />
     </main>
   );
 }

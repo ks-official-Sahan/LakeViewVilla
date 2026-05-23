@@ -6,12 +6,24 @@ import { BelowFold } from "@/components/layout/below-fold";
 import { PinnedHero } from "@/components/sections/hero";
 
 import { FAQ_ITEMS } from "@/data/content";
+import { serializeJsonLd } from "@/lib/utils";
 
 export default function HomePage() {
   const homepageFaq = FAQ_ITEMS.map((item) => ({ q: item.question, a: item.answer }));
 
+  const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: "Lake View Villa Tangalle - Virtual Tour",
+    description: "Experience the serene beauty of Lake View Villa Tangalle",
+    thumbnailUrl: "https://lakeviewvillatangalle.com/villa/optimized/drone_view_villa.webp",
+    uploadDate: "2024-01-15",
+    contentUrl: "https://lakeviewvillatangalle.com/hero_1080p.webm",
+  };
+
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(videoSchema) }} />
       <SeoJsonLd
         breadcrumb={[
           { name: "Home", url: "https://lakeviewvillatangalle.com" },
