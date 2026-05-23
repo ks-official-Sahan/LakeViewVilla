@@ -37,8 +37,8 @@ export default function robots(): MetadataRoute.Robots {
       // Catch-all rules
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/api/", "/_next/", "/search", "/_error"],
+        allow: ["/", "/_next/static/"],
+        disallow: ["/api/", "/search", "/_error"],
       },
     ],
     sitemap: `${SITE}/sitemap.xml`,

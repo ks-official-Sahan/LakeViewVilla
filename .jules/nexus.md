@@ -11,3 +11,5 @@
 ## 2025-05-18 — AI Crawler Optimization
 **Learning:** Next.js projects sometimes block AI crawlers via default `robots.txt` patterns or omit them, and fail to provide a dedicated `llms.txt`.
 **Action:** Always provide explicit Allow rules for AI crawlers like GPTBot, PerplexityBot, ClaudeBot and Applebot, and add `llms.txt` for them.
+
+* Agentic Browser CSS/JS indexing via `/_next/static/` allowance and XSS prevention via `serializeJsonLd`

@@ -50,10 +50,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Private Villa Tangalle — Lagoon Stay | Lake View Villa Tangalle",
+    default: "Lake View Villa | Private Villa Tangalle",
     template: "%s | Lake View Villa Tangalle",
   },
-  description: "Book Lake View Villa Tangalle. A private vacation rental and lodging business offering panoramic lake views, comfortable A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
+  description: "Lake View Villa Tangalle is a private vacation rental. It helps vacationers experience tranquility with A/C rooms, fast Wi-Fi, and lagoon views.",
   keywords: [
   // Original Merged & Deduplicated Keywords
   "Lake View Villa Tangalle",
@@ -160,7 +160,7 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
   openGraph: {
     title: "Private Villa Tangalle | Lake View Villa Tangalle",
-    description: "Lake View Villa Tangalle is a private vacation rental in Sri Lanka. It helps travelers relax with A/C rooms, fast Wi-Fi, and scenic lagoon views.",
+    description: "Lake View Villa Tangalle is a private vacation rental. It helps vacationers experience tranquility with A/C rooms, fast Wi-Fi, and lagoon views.",
     type: "website",
     locale: "en_US",
     url: siteConfig.url,
