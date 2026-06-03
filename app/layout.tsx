@@ -50,10 +50,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Private Villa Tangalle — Lagoon Stay | Lake View Villa Tangalle",
+    default: "Private Villa Tangalle | Lake View Villa Tangalle",
     template: "%s | Lake View Villa Tangalle",
   },
-  description: "Book Lake View Villa Tangalle. A private vacation rental and lodging business offering panoramic lake views, comfortable A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
+  description: "Book Lake View Villa Tangalle. A private vacation rental offering scenic lagoon views, A/C bedrooms, fast Wi-Fi, and chef services in Sri Lanka.",
   keywords: [
   // Original Merged & Deduplicated Keywords
   "Lake View Villa Tangalle",
