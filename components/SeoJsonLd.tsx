@@ -1,6 +1,5 @@
 // components/SeoJsonLd.tsx
 "use client";
-import Script from "next/script";
 import React from "react";
 import { serializeJsonLd } from "@/lib/utils";
 
@@ -129,11 +128,10 @@ export default function SeoJsonLd({
   return (
     <>
       {blocks.map((b, idx) => (
-        <Script
+        <script
           key={idx}
           id={`ld-${idx}`}
           type="application/ld+json"
-          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(b) }}
         />
       ))}

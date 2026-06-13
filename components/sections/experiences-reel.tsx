@@ -14,6 +14,7 @@ import {
 import { ChevronLeft, ChevronRight, MapPin, Play } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { SITE_CONFIG } from "@/data/site";
+import { serializeJsonLd } from "@/lib/utils";
 
 type Experience = {
   name: string;
@@ -230,6 +231,26 @@ export function ExperiencesReel() {
       className="relative py-28 md:py-32"
       aria-labelledby="experiences-heading"
     >
+      {/* Conditionally inject VideoObject schema if experience has a video */}
+      {EXPERIENCES.map((exp, i) => {
+        if (!exp.video) return null;
+        const videoSchema = {
+          "@context": "https://schema.org",
+          "@type": "VideoObject",
+          name: exp.name,
+          description: exp.description,
+          thumbnailUrl: SITE_CONFIG.url + (exp.thumb || exp.image || "/placeholder.webp"),
+          contentUrl: SITE_CONFIG.url + exp.video,
+        };
+        return (
+          <script
+            key={`video-schema-${i}`}
+            id={`video-schema-${i}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(videoSchema) }}
+          />
+        );
+      })}
       {/* Ambient field (cheap, GPU-friendly) */}
       <div
         aria-hidden="true"
