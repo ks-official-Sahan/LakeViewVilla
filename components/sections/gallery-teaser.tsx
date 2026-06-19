@@ -155,7 +155,7 @@ export function GalleryTeaser() {
                     className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
                     aria-label="Close lightbox"
                   >
-                    <X size={24} />
+                    <X size={24} aria-hidden="true" />
                   </button>
 
                   <button
@@ -163,7 +163,7 @@ export function GalleryTeaser() {
                     className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={24} aria-hidden="true" />
                   </button>
 
                   <button
@@ -171,7 +171,7 @@ export function GalleryTeaser() {
                     className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-2 text-white hover:bg-white/30 transition-colors focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
                     aria-label="Next image"
                   >
-                    <ChevronRight size={24} />
+                    <ChevronRight size={24} aria-hidden="true" />
                   </button>
                 </motion.div>
               </motion.div>

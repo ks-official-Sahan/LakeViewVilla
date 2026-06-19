@@ -329,7 +329,7 @@ export function ExperiencesReel() {
               />
             </div>
             <div className="pointer-events-none absolute inset-y-0 right-2 grid place-items-center text-white/80">
-              <ChevronLeft className="opacity-70 group-hover:opacity-100 transition" />
+              <ChevronLeft className="opacity-70 group-hover:opacity-100 transition" aria-hidden="true" />
             </div>
           </motion.button>
 
@@ -360,7 +360,7 @@ export function ExperiencesReel() {
               />
             </div>
             <div className="pointer-events-none absolute inset-y-0 left-2 grid place-items-center text-white/80">
-              <ChevronRight className="opacity-70 group-hover:opacity-100 transition" />
+              <ChevronRight className="opacity-70 group-hover:opacity-100 transition" aria-hidden="true" />
             </div>
           </motion.button>
 

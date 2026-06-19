@@ -5,7 +5,7 @@ import StaysPage from "./client";
 
 export const metadata: Metadata = {
   title: "Tangalle Accommodation — Stays & Rates | Lake View Villa",
-  description: "Book Tangalle accommodation at Lake View Villa. Check rates and reserve your private room in Tangalle. Perfect for a serene lagoon getaway in Sri Lanka.",
+  description: "Reserve Tangalle accommodation. Lake View Villa provides private rooms, serene lagoon getaways, and fast Wi-Fi for an unforgettable stay in Sri Lanka.",
   keywords: [
     "Tangalle accommodation",
     "Tangalle rental",
