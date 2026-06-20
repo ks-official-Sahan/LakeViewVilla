@@ -11,3 +11,7 @@
 ## 2025-05-30 — Crawler Freshness & Agentic Access Optimization
 **Learning:** Agentic AI crawlers and Googlebot need `/_next/static/` access to parse Next.js 16 CSS/JS for visual hierarchy interpretation, otherwise ranking/citation drops. Also, to ensure rapid ingestion by search engines, deployment pipelines should ping IndexNow immediately after build.
 **Action:** Updated `app/robots.ts` with explicit `allow: ["/", "/_next/static/"]` for multi-tiered crawlers. Documented that IndexNow trigger must be pinged post-build.
+
+## 2026-06-20 — VideoObject Schema Optimization
+**Learning:** For any page containing video content, `VideoObject` indexing schema must be unconditionally injected. The homepage background video lacked this schema, which limited visibility in Google Search and AI engines for video queries.
+**Action:** Replaced the static hero with `pinned-hero.tsx` and injected the `VideoObject` schema using `serializeJsonLd`. Enhanced Accessibility elements in hero and highlights section.

@@ -2,8 +2,7 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 import { Highlights } from "@/components/sections/highlights";
 import { Footer } from "@/components/layout/footer";
 import { BelowFold } from "@/components/layout/below-fold";
-// import { PinnedHero } from "@/components/sections/pinned-hero";
-import { PinnedHero } from "@/components/sections/hero";
+import { PinnedHero } from "@/components/sections/pinned-hero";
 
 import { FAQ_ITEMS } from "@/data/content";
 

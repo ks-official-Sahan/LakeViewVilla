@@ -22,7 +22,7 @@ import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import { Play, Pause, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HERO_CONTENT, SITE_CONFIG } from "@/data/content";
-import { buildWhatsAppUrl } from "@/lib/utils";
+import { buildWhatsAppUrl, serializeJsonLd } from "@/lib/utils";
 import { trackContact } from "@/lib/analytics";
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -268,6 +268,19 @@ export function PinnedHero({ nextSectionId }: Props) {
 
   const videoId = useId();
 
+  const videoObjectSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: "Lake View Villa Tangalle — Hero Video",
+    description: "A short hero reel showcasing Lake View Villa Tangalle — aerial lagoon views, villa exterior, and guest moments.",
+    thumbnailUrl: [
+      `${SITE_CONFIG.primaryDomain}/hero/hero-poster.webp`,
+      `${SITE_CONFIG.primaryDomain}/villa/optimized/drone_view_villa.webp`
+    ],
+    uploadDate: "2025-09-01T00:00:00Z",
+    contentUrl: `${SITE_CONFIG.primaryDomain}/hero/hero_1080p.webm`,
+  };
+
   return (
     <section
       ref={rootRef}
@@ -377,6 +390,12 @@ export function PinnedHero({ nextSectionId }: Props) {
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,.68)_0%,rgba(0,0,0,.35)_40%,rgba(0,0,0,.15)_70%,rgba(0,0,0,0)_100%)] dark:bg-[linear-gradient(180deg,rgba(0,0,0,.78)_0%,rgba(0,0,0,.42)_45%,rgba(0,0,0,.18)_75%,rgba(0,0,0,0)_100%)]" />
         </motion.div>
 
+        {/* JSON-LD VideoObject Injection */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(videoObjectSchema) }}
+        />
+
         {/* CONTENT */}
         <div className="relative z-10 h-full flex items-center justify-center text-center text-white px-3 sm:px-4">
           <div className="w-full max-w-5xl mx-auto">
@@ -457,12 +476,13 @@ export function PinnedHero({ nextSectionId }: Props) {
               aria-pressed={isVideoPlaying}
               aria-controls={videoId}
             >
+              <span className="sr-only">Play background video</span>
               {isVideoLoading ? (
-                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" aria-hidden="true" />
               ) : isVideoPlaying ? (
-                <Pause size={20} />
+                <Pause size={20} aria-hidden="true" />
               ) : (
-                <Play size={20} />
+                <Play size={20} aria-hidden="true" />
               )}
             </button>
 
