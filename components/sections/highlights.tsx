@@ -220,9 +220,9 @@ export function Highlights() {
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl grid place-items-center mb-4 bg-gradient-to-br from-sky-500 to-cyan-500 shadow-md">
                   {Icon ? (
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-6 h-6 text-white" aria-hidden="true" />
                   ) : (
-                    <Sparkles className="w-6 h-6 text-white" />
+                    <Sparkles className="w-6 h-6 text-white" aria-hidden="true" />
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-slate-900 mb-2 group-hover:text-sky-700 transition-colors">
