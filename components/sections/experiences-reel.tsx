@@ -241,6 +241,7 @@ export function ExperiencesReel() {
           description: exp.description,
           thumbnailUrl: SITE_CONFIG.url + (exp.thumb || exp.image || "/placeholder.webp"),
           contentUrl: SITE_CONFIG.url + exp.video,
+          uploadDate: "2025-06-01",
         };
         return (
           <script
