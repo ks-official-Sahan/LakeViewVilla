@@ -1,7 +1,7 @@
 // app/watch/hero/page.tsx
 import React from "react";
-import Script from "next/script";
 import Link from "next/link";
+import { serializeJsonLd } from "@/lib/utils";
 
 export const metadata = {
   title: "Lake View Villa — Hero Video",
@@ -51,52 +51,51 @@ export default function WatchHeroPage() {
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-12 prose">
-      <h1>{name}</h1>
-      <p className="text-slate-600">{description}</p>
+      <article>
+        <h1>{name}</h1>
+        <p className="text-slate-600">{description}</p>
 
-      <div className="mt-6">
-        {/* Poster image as fallback/preload for LCP */}
-        <video
-          controls
-          preload="metadata"
-          poster={poster}
-          className="w-full rounded-lg shadow-lg"
-          aria-label="Lake View Villa hero video"
-        >
+        <section className="mt-6" aria-labelledby="hero-video-heading">
+          <h2 id="hero-video-heading" className="sr-only">Lake View Villa Tangalle Hero Video</h2>
+          {/* Poster image as fallback/preload for LCP */}
+          <video
+            controls
+            preload="metadata"
+            poster={poster}
+            className="w-full rounded-lg shadow-lg"
+            aria-label="A short hero reel showcasing Lake View Villa Tangalle including aerial lagoon views, villa exterior, and guest moments"
+          >
           <source src={videoUrl} type="video/webm" />
           {/* fallback text */}
           Your browser does not support the video tag.{" "}
           <a href={videoUrl} target="_blank" rel="noopener noreferrer">
             Open the video
           </a>
-        </video>
-      </div>
+          </video>
+        </section>
 
-      <div className="mt-6">
-        <p>
-          Prefer booking details and photos? Visit the{" "}
-          <Link href="/" className="text-blue-600 underline">
-            Lake View Villa homepage
-          </Link>
-          .
-        </p>
-      </div>
+        <aside className="mt-6" aria-label="Related Links">
+          <p>
+            Prefer booking details and photos? Visit the{" "}
+            <Link href="/" className="text-blue-600 underline">
+              Lake View Villa homepage
+            </Link>
+            .
+          </p>
+        </aside>
 
-      {/* JSON-LD for VideoObject + Breadcrumb */}
-      <Script
-        id="videoobject-jsonld"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(videoObject)}
-      </Script>
-      <Script
-        id="breadcrumb-jsonld"
-        type="application/ld+json"
-        strategy="afterInteractive"
-      >
-        {JSON.stringify(breadcrumb)}
-      </Script>
+        {/* JSON-LD for VideoObject + Breadcrumb */}
+        <script
+          id="videoobject-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(videoObject) }}
+        />
+        <script
+          id="breadcrumb-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumb) }}
+        />
+      </article>
     </main>
   );
 }
