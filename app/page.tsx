@@ -19,9 +19,9 @@ export default function HomePage() {
         faq={homepageFaq}
       />
       <PinnedHero nextSectionId="highlights" />
-      <section id="highlights">
+      <article aria-label="Lake View Villa Highlights" id="highlights">
         <Highlights />
-      </section>
+      </article>
 
       {/* Everything below is deferred until near viewport and then client-rendered */}
       <BelowFold />

@@ -37,7 +37,7 @@ export const siteConfig = {
   name: SITE_CONFIG.name,
   url: SITE_CONFIG.primaryDomain,
   description:
-    "Book your Sri Lankan getaway today. Experience tranquility at Lake View Villa Tangalle. Private villa on a serene lagoon with panoramic views, A/C bedrooms, fast Wi-Fi.",
+    "Book Lake View Villa Tangalle. A private vacation rental offering scenic lagoon views, A/C bedrooms, fast Wi-Fi, and chef service in Sri Lanka.",
 } as const;
 
 export const SEO_CONFIG = {
