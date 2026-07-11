@@ -237,7 +237,7 @@ export function ExperiencesReel() {
         const videoSchema = {
           "@context": "https://schema.org",
           "@type": "VideoObject",
-          name: exp.name,
+          name: `${exp.name} - Lake View Villa Tangalle`,
           description: exp.description,
           thumbnailUrl: SITE_CONFIG.url + (exp.thumb || exp.image || "/placeholder.webp"),
           contentUrl: SITE_CONFIG.url + exp.video,

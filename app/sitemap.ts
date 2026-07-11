@@ -3,6 +3,8 @@ import { MetadataRoute } from 'next';
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://lakeviewvillatangalle.com';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // NOTE: Deployment pipelines must trigger a ping to the IndexNow API
+  // (https://api.indexnow.org/indexnow?url=[URL]&key=[KEY]) upon build completion for instant crawler dispatch.
   const now = new Date();
 
   return [
